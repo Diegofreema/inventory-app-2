@@ -1,0 +1,183 @@
+/* eslint-disable prettier/prettier */
+import axios from 'axios';
+import { format } from 'date-fns';
+
+import { ProductSelect } from '~/db/schema';
+import { SalesS } from '~/type';
+
+export const api = process.env.EXPO_PUBLIC_API;
+
+export const calculateTotalSales = (sales: string[] | undefined): number =>
+  sales?.reduce((total, p) => total + Number(p || 0), 0) ?? 0;
+// export function processExpenses(expenses : ExpType[]) {
+//   const result = expenses.reduce((acc, curr) => {
+//     const existingEntry = acc.find((item) => item?.accountname === curr.accountname);
+
+//     if (existingEntry) {
+//       // If the accountname already exists, add the amount
+//       existingEntry.amount = (Number(existingEntry.amount) + Number(curr.amount)).toString();
+//     } else {
+//       // If it's a new accountname, add a new entry
+//       acc.push({ name: curr.accountname, amount: curr.amount });
+//     }
+
+//     return acc;
+//   }, []);
+
+//   return result;
+// }
+
+export const colors = [
+  '#F08080', // Light Coral
+  '#FFD700', // Gold
+  '#7FFFD4', // Aquamarine
+  '#87CEEB', // Sky Blue
+  '#9370DB', // Medium Purple
+  '#FF69B4', // Hot Pink
+  '#20B2AA', // Light Sea Green
+  '#FFA07A', // Light Salmon
+  '#00CED1', // Dark Turquoise
+  '#FF6347', // Tomato
+  '#4682B4', // Steel Blue
+  '#32CD32', // Lime Green
+  '#FF4500', // Orange Red
+  '#8A2BE2', // Blue Violet
+  '#7B68EE', // Medium Slate Blue
+  '#00FA9A', // Medium Spring Green
+  '#48D1CC', // Medium Turquoise
+  '#FF1493', // Deep Pink
+  '#1E90FF', // Dodger Blue
+  '#ADFF2F', // Green Yellow
+  '#DC143C', // Crimson
+  '#00BFFF', // Deep Sky Blue
+  '#FF8C00', // Dark Orange
+  '#9932CC', // Dark Orchid
+  '#8FBC8F', // Dark Sea Green
+  '#BA55D3', // Medium Orchid
+  '#F0E68C', // Khaki
+  '#DDA0DD', // Plum
+  '#98FB98', // Pale Green
+  '#40E0D0', // Turquoise
+  '#FAF0E6', // Linen
+  '#B0C4DE', // Light Steel Blue
+  '#FFA500', // Orange
+  '#DAA520', // Goldenrod
+  '#66CDAA', // Medium Aquamarine
+  '#FF00FF', // Magenta
+  '#6A5ACD', // Slate Blue
+  '#483D8B', // Dark Slate Blue
+  '#7CFC00', // Lawn Green
+  '#F4A460', // Sandy Brown
+];
+
+export const getProducts = async (id: string) => {
+  const response = await axios.get(`${api}api=getproducts&cidx=${id}`);
+  let data: ProductSelect[] = [];
+  if (Object.prototype.toString.call(response.data) === '[object Object]') {
+    data.push(response.data);
+  } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
+    data = [...response.data];
+  }
+
+  return data;
+};
+
+export const trimText = (text: string): string => {
+  if (text.length > 10) return text.substring(0, 10) + '...';
+  return text;
+};
+
+export const formattedDate = (date: string) => {
+  return format(date, 'MM/dd/yyyy');
+};
+
+export const getSalesP = async (id: string) => {
+  const response = await axios.get(`${api}api=get247sales&cidx=${id}`);
+  let data = [];
+  if (Object.prototype.toString.call(response.data) === '[object Object]') {
+    data.push(response.data);
+  } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
+    data = [...response.data];
+  }
+
+  return data;
+};
+
+export const getExpenditure = async (id: any) => {
+  const response = await axios.get(`${api}api=getexpenses&cidx=${id}`);
+  let data = [];
+  if (Object.prototype.toString.call(response.data) === '[object Object]') {
+    data.push(response.data);
+  } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
+    data = [...response.data];
+  }
+
+  return data;
+};
+
+export const getInfo = async (id: any) => {
+  const response = await axios.get(`${api}api=getproductsupply&cidx=${id}`);
+  let data = [];
+  if (Object.prototype.toString.call(response.data) === '[object Object]') {
+    data.push(response.data);
+  } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
+    data = [...response.data];
+  }
+
+  return data;
+};
+
+export const getSale = async (id: any) => {
+  const response = await axios.get(`${api}api=getpharmacysales&cidx=${id}`);
+  let data = [];
+  if (Object.prototype.toString.call(response.data) === '[object Object]') {
+    data.push(response.data);
+  } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
+    data = [...response.data];
+  }
+
+  return data;
+};
+
+type PaymentType = 'Cash' | 'Card' | 'Transfer';
+type DataItem = { paymenttype: PaymentType; unitprice: string | number };
+
+export const calculateTotalsByPaymentType = (data: SalesS[]) => {
+  // @ts-ignore
+  const dataItem: DataItem[] = data?.map((d) => ({
+    paymenttype: d.paymenttype,
+    unitprice: d?.unitprice,
+  }));
+  const totals = dataItem.reduce(
+    (acc, item) => {
+      const price = Number(item.unitprice);
+      if (!isNaN(price)) {
+        acc[item.paymenttype] = (acc[item.paymenttype] || 0) + price;
+      }
+      return acc;
+    },
+    {} as Record<PaymentType, number>
+  );
+
+  return [
+    { type: 'Card', value: totals.Card || 0 },
+    { type: 'Transfer', value: totals.Transfer || 0 },
+    { type: 'Cash', value: totals.Cash || 0 },
+  ];
+};
+
+export const getDisposal = async (id: any) => {
+  const response = await axios.get(`${api}api=getproductdisposal&cidx=${id}`);
+  let data = [];
+  if (Object.prototype.toString.call(response.data) === '[object Object]') {
+    data.push(response.data);
+  } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
+    data = [...response.data];
+  }
+
+  return data;
+};
+
+export const totalAmount = (numbers: number[]) => {
+  return numbers.reduce((acc, number) => acc + number, 0);
+};

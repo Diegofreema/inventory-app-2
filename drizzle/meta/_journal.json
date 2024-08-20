@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1722817782105,
+      "tag": "0000_last_imperial_guard",
+      "breakpoints": true
+    }
+  ]
+}
