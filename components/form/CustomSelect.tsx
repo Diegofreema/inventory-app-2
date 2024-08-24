@@ -88,7 +88,7 @@ export const CustomSelect = ({ placeholder, data, onValueChange, value, ...props
                     <Select.Item
                       backgroundColor="white"
                       index={i}
-                      key={item.value}
+                      key={i}
                       value={item.value.toLowerCase()}>
                       <Select.ItemText color="black">{item.label}</Select.ItemText>
                       <Select.ItemIndicator marginLeft="auto">

@@ -15,7 +15,9 @@ import { useAddAccount } from '~/lib/tanstack/mutations';
 import { expenditureSchema } from '~/lib/validators';
 
 export default function AddExpenditure() {
-  const { data, mutateAsync, isPending } = useAddAccount();
+  const { mutateAsync, isPending, error } = useAddAccount();
+  console.log(error);
+
   const {
     control,
     reset,
@@ -31,10 +33,10 @@ export default function AddExpenditure() {
 
   const onSubmit = (values: z.infer<typeof expenditureSchema>) => {
     mutateAsync({
-      name: values.accountName,
+      name: values.accountName.charAt(0)?.toUpperCase() + values.accountName.slice(1),
     });
 
-    if (data?.result === 'done') {
+    if (!error) {
       reset();
     }
   };

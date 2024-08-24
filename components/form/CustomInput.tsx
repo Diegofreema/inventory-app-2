@@ -63,6 +63,7 @@ export const CustomInput = ({
             }}
             borderWidth={0}
             secureTextEntry={secure}
+            autoCapitalize="none"
           />
           {password && (
             <Pressable

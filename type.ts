@@ -131,3 +131,9 @@ export type Cats = {
   category: string;
   subcategories: string[];
 };
+
+export type Expense = { accountname: string; amount: number | string };
+
+export type GroupedExpense = {
+  [key: string]: { name: string; amount: number };
+};

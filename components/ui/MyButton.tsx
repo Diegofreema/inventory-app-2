@@ -26,7 +26,7 @@ export const MyButton = ({
 }: Props): JSX.Element => {
   const bgColor = props.disabled ? '#ccc' : bg;
   return (
-    <Button {...props} bg={bgColor} color={color}>
+    <Button {...props} bg={bgColor} color={color} fontSize={20} fontWeight="bold">
       {loading ? <Spinner size="large" color="white" /> : title}
     </Button>
   );

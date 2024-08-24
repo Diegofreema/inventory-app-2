@@ -14,22 +14,24 @@ export default function Login() {
   const id = useStore((state) => state.id);
   if (id) return <Redirect href="/" />;
   return (
-    <SafeAreaProvider style={{ flex: 1 }}>
-      <SafeAreaView style={{ flex: 1 }}>
-        <StatusBar style="dark" backgroundColor="white" />
-        <Container pt="$6">
-          <CustomScroll>
-            <Stack>
-              <CustomHeading text="Welcome Back" />
-              <CustomSubHeading text="Enter your Login details on to continue" />
+    <>
+      <StatusBar style="dark" backgroundColor="white" translucent animated />
+      <SafeAreaProvider style={{ flex: 1 }}>
+        <SafeAreaView style={{ flex: 1 }}>
+          <Container pt="$6">
+            <CustomScroll>
+              <Stack>
+                <CustomHeading text="Welcome Back" />
+                <CustomSubHeading text="Enter your Login details on to continue" />
 
-              <Stack mt={50}>
-                <LoginForm />
+                <Stack mt={50}>
+                  <LoginForm />
+                </Stack>
               </Stack>
-            </Stack>
-          </CustomScroll>
-        </Container>
-      </SafeAreaView>
-    </SafeAreaProvider>
+            </CustomScroll>
+          </Container>
+        </SafeAreaView>
+      </SafeAreaProvider>
+    </>
   );
 }

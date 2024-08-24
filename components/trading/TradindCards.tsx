@@ -6,10 +6,10 @@ import { FlexText } from '../ui/FlexText';
 
 import { AnimatedCard } from '~/components/ui/AnimatedCard';
 import { CustomSubHeading } from '~/components/ui/typography';
-import { ExpType } from '~/type';
+import { ExpType, GroupedExpense } from '~/type';
 type Props = {
   data: {
-    products: number;
+    supply: number;
     disposal: number;
     onlineSales: number;
     offlineSales: number;
@@ -17,18 +17,34 @@ type Props = {
   };
 };
 export const TradingCards = ({ data }: Props) => {
-  console.log(data.expenses);
   const totalCredit = data?.onlineSales + data?.offlineSales;
-  const totalDebit = data?.products + data?.disposal;
+  const totalDebit = data?.supply + data?.disposal;
   const profit = totalCredit - totalDebit;
+  const expenses = data?.expenses?.map((exp) => ({
+    accountname: exp.accountname,
+    amount: exp.amount,
+  }));
+
+  const groupedExpenses: GroupedExpense[] = Object.values(
+    expenses.reduce((acc: any, expense: any) => {
+      const key = expense.accountname.toLowerCase();
+      if (!acc[key]) {
+        acc[key] = { accountname: expense.accountname, amount: 0 };
+      }
+      acc[key].amount += Number(expense.amount);
+      return acc;
+    }, {})
+  );
+
   return (
     <Stack gap={15}>
       <AnimatedCard index={1}>
         <CustomSubHeading text="Debit" fontSize={20} />
         <Separator bg="#ccc" />
-        <FlexText text="Products" text2={`₦${data.products?.toString()}`} />
-        <FlexText text="Disposal" text2={`₦${data.disposal?.toString()}`} />
-        {data?.expenses?.map((expense, i) => (
+        <FlexText text="Purchased Products" text2={`₦${data.supply?.toString()}`} />
+        <FlexText text="Disposed Products" text2={`₦${data.disposal?.toString()}`} />
+        {groupedExpenses?.map((expense, i) => (
+          // @ts-ignore
           <FlexText key={i} text={expense?.accountname} text2={`₦${expense?.amount}`} />
         ))}
       </AnimatedCard>

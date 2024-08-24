@@ -20,7 +20,7 @@ export const ExpenditureList = ({ data, onRefetch, isFetching }: Props): JSX.Ele
       renderItem={({ item, index }) => <ExpenditureCard item={item?.accountname} index={index} />}
       style={{ marginTop: 10 }}
       ListEmptyComponent={() => <Empty text="No Expenditure yet" />}
-      keyExtractor={(item, index) => item?.accountname}
+      keyExtractor={(item, index) => index.toString()}
       contentContainerStyle={{ gap: 20, paddingBottom: 20 }}
       showsVerticalScrollIndicator={false}
     />

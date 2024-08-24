@@ -188,13 +188,11 @@ export const useAddAccount = () => {
       });
     },
     onSuccess: (data) => {
-      if (data?.result?.id) {
-        Toast.show({
-          text1: 'Success',
-          text2: 'Expenditure account has been created',
-        });
-        queryClient.invalidateQueries({ queryKey: ['exp_name'] });
-      }
+      Toast.show({
+        text1: 'Success',
+        text2: 'Expenditure account has been created',
+      });
+      queryClient.invalidateQueries({ queryKey: ['exp_name'] });
     },
   });
 };
@@ -218,20 +216,21 @@ export const useAddExp = () => {
       return data;
     },
 
-    onError: () => {
+    onError: (error) => {
+      console.log(error, 'error');
+
       Toast.show({
         text1: 'Something went wrong',
         text2: 'Failed to add expense to account',
       });
     },
     onSuccess: (data) => {
-      if (data.result === 'done') {
-        Toast.show({
-          text1: 'Success',
-          text2: 'Expense has been added',
-        });
-        queryClient.invalidateQueries({ queryKey: ['expenditure'] });
-      }
+      console.log('success');
+      Toast.show({
+        text1: 'Success',
+        text2: 'Expense has been added',
+      });
+      queryClient.invalidateQueries({ queryKey: ['expenditure'] });
     },
   });
 };

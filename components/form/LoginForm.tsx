@@ -70,7 +70,7 @@ export const LoginForm = (): JSX.Element => {
       getId(data?.result);
       reset();
     } catch (error: any) {
-      console.log(error);
+      console.log(JSON.stringify(error));
       Toast.show({
         type: 'green',
         autoHide: true,
