@@ -14,6 +14,7 @@ type Props = {
     onlineSales: number;
     offlineSales: number;
     expenses: ExpType[];
+    openingStock: number;
   };
 };
 export const TradingCards = ({ data }: Props) => {
@@ -41,6 +42,7 @@ export const TradingCards = ({ data }: Props) => {
       <AnimatedCard index={1}>
         <CustomSubHeading text="Debit" fontSize={20} />
         <Separator bg="#ccc" />
+        <FlexText text="Opening Stock" text2={`₦${data.openingStock?.toString()}`} />
         <FlexText text="Purchased Products" text2={`₦${data.supply?.toString()}`} />
         <FlexText text="Disposed Products" text2={`₦${data.disposal?.toString()}`} />
         {groupedExpenses?.map((expense, i) => (

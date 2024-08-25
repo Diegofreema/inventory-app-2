@@ -1,6 +1,5 @@
 /* eslint-disable prettier/prettier */
 import { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import { format, isWithinInterval, subDays } from 'date-fns';
 import { useCallback, useMemo, useRef, useState } from 'react';
 
 import { Container } from '~/components/Container';
@@ -9,7 +8,7 @@ import { StoreActions } from '~/components/store/StoreActions';
 import { TradingCards } from '~/components/trading/TradindCards';
 import { useReports } from '~/hooks/useReports';
 import { useTrading } from '~/hooks/useTrading';
-import { formattedDate, totalAmount } from '~/lib/helper';
+import { formattedDate } from '~/lib/helper';
 
 const TradingAccount = () => {
   const [startDate, setStartDate] = useState('');
@@ -22,15 +21,14 @@ const TradingAccount = () => {
     memoizedOfflineSales,
     memoizedOnlineSales,
     memoizedSupply,
-    openningStock,
+    openingStock,
   } = useTrading({ onlineSales, startDate, endDate, storeSales, disposal, expense, productSupply });
+
   const onOpenCalender = useCallback(() => {
     if (!bottomRef?.current) return;
 
     bottomRef.current.expand();
   }, []);
-
-  console.log({ productSupply });
 
   const dateValue = useMemo(() => {
     if (startDate && endDate) {
@@ -49,8 +47,10 @@ const TradingAccount = () => {
     disposal: memoizedDisposal,
     onlineSales: memoizedOnlineSales,
     offlineSales: memoizedOfflineSales,
-    expenses: expense,
+    expenses: memoizedExpense,
+    openingStock,
   };
+  const emptyDates = !startDate || !endDate;
   return (
     <Container>
       <StoreActions
@@ -61,7 +61,7 @@ const TradingAccount = () => {
         resetDates={resetDates}
       />
 
-      <TradingCards data={data} />
+      {!emptyDates && <TradingCards data={data} />}
       <CalenderSheet
         ref={bottomRef}
         setStartDate={setStartDate}

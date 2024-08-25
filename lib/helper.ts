@@ -88,7 +88,7 @@ export const trimText = (text: string): string => {
 };
 
 export const formattedDate = (date: string) => {
-  return format(date, 'MM/dd/yyyy');
+  return format(date, 'dd/MM/yyyy');
 };
 
 export const getSalesP = async (id: string) => {
@@ -180,4 +180,8 @@ export const getDisposal = async (id: any) => {
 
 export const totalAmount = (numbers: number[]) => {
   return numbers.reduce((acc, number) => acc + number, 0);
+};
+
+export const rearrangeDateString = (date: string) => {
+  return date.split('/').reverse().join('-');
 };
