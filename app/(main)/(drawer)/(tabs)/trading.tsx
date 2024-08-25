@@ -22,6 +22,7 @@ const TradingAccount = () => {
     memoizedOnlineSales,
     memoizedSupply,
     openingStock,
+    closingStock,
   } = useTrading({ onlineSales, startDate, endDate, storeSales, disposal, expense, productSupply });
 
   const onOpenCalender = useCallback(() => {
@@ -49,6 +50,7 @@ const TradingAccount = () => {
     offlineSales: memoizedOfflineSales,
     expenses: memoizedExpense,
     openingStock,
+    closingStock,
   };
   const emptyDates = !startDate || !endDate;
   return (

@@ -6,6 +6,7 @@ import { FlexText } from '../ui/FlexText';
 
 import { AnimatedCard } from '~/components/ui/AnimatedCard';
 import { CustomSubHeading } from '~/components/ui/typography';
+import { totalAmount } from '~/lib/helper';
 import { ExpType, GroupedExpense } from '~/type';
 type Props = {
   data: {
@@ -15,12 +16,10 @@ type Props = {
     offlineSales: number;
     expenses: ExpType[];
     openingStock: number;
+    closingStock: number;
   };
 };
 export const TradingCards = ({ data }: Props) => {
-  const totalCredit = data?.onlineSales + data?.offlineSales;
-  const totalDebit = data?.supply + data?.disposal;
-  const profit = totalCredit - totalDebit;
   const expenses = data?.expenses?.map((exp) => ({
     accountname: exp.accountname,
     amount: exp.amount,
@@ -36,7 +35,11 @@ export const TradingCards = ({ data }: Props) => {
       return acc;
     }, {})
   );
+  const totalExpense = totalAmount(groupedExpenses.map((exp) => Number(exp.amount)));
+  const credits = data?.onlineSales + data?.offlineSales + data?.closingStock;
+  const debits = data.openingStock + data?.supply + data?.disposal + totalExpense;
 
+  const profit = credits - debits;
   return (
     <Stack gap={15}>
       <AnimatedCard index={1}>
@@ -55,6 +58,7 @@ export const TradingCards = ({ data }: Props) => {
         <Separator bg="#ccc" />
         <FlexText text="Online Sales" text2={`₦${data.onlineSales?.toString()}`} />
         <FlexText text="Offline Sales" text2={`₦${data.offlineSales?.toString()}`} />
+        <FlexText text="Closing stock" text2={`₦${data.closingStock?.toString()}`} />
       </AnimatedCard>
       <AnimatedCard index={3}>
         <FlexText text="Net profit" text2={`₦${profit?.toString()}`} />

@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 
-import { format, isWithinInterval, isBefore, max, parseISO } from 'date-fns';
+import { format, isBefore, isWithinInterval, max } from 'date-fns';
 import { useMemo } from 'react';
 
 import { rearrangeDateString, totalAmount } from '~/lib/helper';
@@ -26,55 +26,40 @@ export const useTrading = ({
   storeSales,
 }: Props) => {
   const emptyDates = !startDate || !endDate;
-  const dates = [
-    '2022-01-01',
-    '2022-01-02',
-    '2022-01-03',
-    '2022-01-04',
-    '2022-01-05',
-    '2022-01-06',
-  ];
-  const maxDate = max(dates);
-
-  const formattedDate = format(maxDate, 'dd-MM-yyyy');
-  console.log(formattedDate, 'formattedDate');
 
   const openingStock = useMemo(() => {
     if (!productSupply || emptyDates || !disposal || !storeSales || !onlineSales) return 0;
     const start = format(startDate, 'yyyy-MM-dd');
 
-    // console.log(productSupply?.[0].datex?.split(' ')[0].trim(), start);
     const store = storeSales.filter((d) => {
       const salesDate = rearrangeDateString(d.datex.split(' ')[0]);
       return isBefore(salesDate, start);
     });
 
     const online = onlineSales.filter((d) => {
-      const salesDate = d.datex.split(' ')[0].replace('/', '-').replace('/', '-');
+      const salesDate = rearrangeDateString(d.datex.split(' ')[0]);
       return isBefore(salesDate, start);
     });
 
     const disposed = disposal.filter((d) => {
-      const salesDate = d.datex.split(' ')[0].replace('/', '-').replace('/', '-');
+      const salesDate = rearrangeDateString(d.datex.split(' ')[0]);
 
-      return isBefore(start, salesDate);
+      return isBefore(salesDate, start);
     });
 
     const dataToFilter = productSupply.filter((d) => {
-      const salesDate = d.datex.split(' ')[0].replace('/', '-').replace('/', '-');
+      const salesDate = rearrangeDateString(d.datex.split(' ')[0]);
       return isBefore(salesDate, start);
     });
 
     const allProducts = dataToFilter?.map((sale) => {
       const maxDate = max(
         dataToFilter.map((d) => {
-          return format(d.datex.split(' ')[0].replace('/', '-').replace('/', '-'), 'yyyy-MM-dddd');
+          return rearrangeDateString(d.datex.split(' ')[0]);
         })
       );
       const recentDate = dataToFilter.find(
-        (d) =>
-          d.datex.split(' ')[0].replace('/', '-').replace('/', '-') ===
-          format(maxDate, 'dd-MM-yyyy')
+        (d) => rearrangeDateString(d.datex.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
       );
 
       return Number(recentDate?.unitcost) || 0 * Number(sale?.qty) || 0;
@@ -87,21 +72,19 @@ export const useTrading = ({
           (s) => rearrangeDateString(s.datex.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
         );
 
-        console.log(recentPrice, 'recentPrice');
-
         return Number(recentPrice?.unitprice) || 0 * Number(sale?.qty) || 0;
       }
       return 0;
     });
-    const allOnline = online?.map((sale) => Number(sale?.dealershare) * Number(sale?.qty));
+    const allOnline = online?.map((sale) => {
+      const maxDate = max(online.map((d) => rearrangeDateString(d.datex.split(' ')[0])));
+      const recentPrice = online.find(
+        (s) => rearrangeDateString(s.datex.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
+      );
+      return Number(recentPrice?.dealershare) || 0 * Number(sale?.qty) || 0;
+    });
     const allDisposed = disposed?.map((sale) => {
       const maxDate = max(disposed.map((d) => rearrangeDateString(d.datex.split(' ')[0])));
-      console.log(
-        disposed.map((d) => {
-          const formatedDate = rearrangeDateString(d.datex.split(' ')[0]);
-          return parseISO(formatedDate);
-        })
-      );
 
       const recentPrice = disposed.find(
         (d) => rearrangeDateString(d.datex.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
@@ -109,7 +92,6 @@ export const useTrading = ({
 
       return Number(recentPrice?.unitcost) || 0 * Number(sale?.qty) || 0;
     });
-    console.log(totalAmount(allStore), 'bscn');
 
     const total =
       totalAmount(allProducts) -
@@ -119,13 +101,14 @@ export const useTrading = ({
 
     return total <= 0 ? 0 : total;
   }, [productSupply, emptyDates, disposal, storeSales, onlineSales, startDate]);
+
   // ? Online sales
   const memoizedOnlineSales = useMemo(() => {
     if (!onlineSales || emptyDates) return 0;
-    const start = format(startDate, 'dd-MM-yyyy');
-    const end = format(endDate, 'dd-MM-yyyy');
+    const start = format(startDate, 'yyyy-MM-dd');
+    const end = format(endDate, 'yyyy-MM-dd');
     const dataToFilter = onlineSales.filter((d) => {
-      const salesDate = d.datex.split(' ')[0].replace('/', '-').replace('/', '-');
+      const salesDate = rearrangeDateString(d.datex.split(' ')[0]);
 
       return isWithinInterval(salesDate, { start, end });
     });
@@ -136,10 +119,10 @@ export const useTrading = ({
   // ? Store sales
   const memoizedOfflineSales = useMemo(() => {
     if (!storeSales || emptyDates) return 0;
-    const start = format(startDate, 'dd-MM-yyyy');
-    const end = format(endDate, 'dd-MM-yyyy');
+    const start = format(startDate, 'yyyy-MM-dd');
+    const end = format(endDate, 'yyyy-MM-dd');
     const filteredData = storeSales.filter((d) => {
-      const salesDate = d.datex.split(' ')[0].replace('/', '-').replace('/', '-');
+      const salesDate = rearrangeDateString(d.datex.split(' ')[0]);
       return isWithinInterval(salesDate, { start, end });
     });
     const numbers = filteredData?.map((sale) => {
@@ -165,8 +148,8 @@ export const useTrading = ({
   //#endregion
   const memoizedSupply = useMemo(() => {
     if (!productSupply || emptyDates) return 0;
-    const start = format(startDate, 'dd-MM-yyyy');
-    const end = format(endDate, 'dd-MM-yyyy');
+    const start = format(startDate, 'yyyy-MM-dd');
+    const end = format(endDate, 'yyyy-MM-dd');
     const filteredData = productSupply.filter((d) => {
       const salesDate = d?.datex.split(' ')[0].replace('/', '-').replace('/', '-');
       return isWithinInterval(salesDate, { start, end });
@@ -178,7 +161,7 @@ export const useTrading = ({
   const memoizedExpense = useMemo(() => {
     if (!expense || emptyDates) return [];
     const expenseDates = expense.filter((d) => {
-      const salesDate = d.datex.split(' ')[0].replace('/', '-').replace('/', '-');
+      const salesDate = rearrangeDateString(d.datex.split(' ')[0]);
       return isWithinInterval(salesDate, { start: startDate, end: endDate });
     });
 
@@ -187,7 +170,78 @@ export const useTrading = ({
 
   const closingStock = useMemo(() => {
     if (!expense || !disposal || !productSupply || emptyDates) return 0;
-  }, []);
+    const start = format(startDate, 'yyyy-MM-dd');
+    const end = format(endDate, 'yyyy-MM-dd');
+    const store = storeSales.filter((d) => {
+      const salesDate = rearrangeDateString(d.datex.split(' ')[0]);
+      return isBefore(salesDate, start) || isWithinInterval(salesDate, { start, end });
+    });
+
+    const online = onlineSales.filter((d) => {
+      const salesDate = rearrangeDateString(d.datex.split(' ')[0]);
+      return isBefore(salesDate, start) || isWithinInterval(salesDate, { start, end });
+    });
+
+    const disposed = disposal.filter((d) => {
+      const salesDate = rearrangeDateString(d.datex.split(' ')[0]);
+
+      return isBefore(salesDate, start) || isWithinInterval(salesDate, { start, end });
+    });
+
+    const dataToFilter = productSupply.filter((d) => {
+      const salesDate = rearrangeDateString(d.datex.split(' ')[0]);
+      return isBefore(salesDate, start) || isWithinInterval(salesDate, { start, end });
+    });
+
+    const allProducts = dataToFilter?.map((sale) => {
+      const maxDate = max(
+        dataToFilter.map((d) => {
+          return rearrangeDateString(d.datex.split(' ')[0]);
+        })
+      );
+      const recentDate = dataToFilter.find(
+        (d) => rearrangeDateString(d.datex.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
+      );
+
+      return Number(recentDate?.unitcost) || 0 * Number(sale?.qty) || 0;
+    });
+
+    const allStore = store?.map((sale) => {
+      const maxDate = max(store.map((d) => rearrangeDateString(d.datex.split(' ')[0])));
+      if (sale.paid === 'True') {
+        const recentPrice = store.find(
+          (s) => rearrangeDateString(s.datex.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
+        );
+
+        return Number(recentPrice?.unitprice) || 0 * Number(sale?.qty) || 0;
+      }
+      return 0;
+    });
+    const allOnline = online?.map((sale) => {
+      const maxDate = max(online.map((d) => rearrangeDateString(d.datex.split(' ')[0])));
+      const recentPrice = online.find(
+        (s) => rearrangeDateString(s.datex.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
+      );
+      return Number(recentPrice?.dealershare) || 0 * Number(sale?.qty) || 0;
+    });
+    const allDisposed = disposed?.map((sale) => {
+      const maxDate = max(disposed.map((d) => rearrangeDateString(d.datex.split(' ')[0])));
+
+      const recentPrice = disposed.find(
+        (d) => rearrangeDateString(d.datex.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
+      );
+
+      return Number(recentPrice?.unitcost) || 0 * Number(sale?.qty) || 0;
+    });
+
+    const total =
+      totalAmount(allProducts) -
+      totalAmount(allDisposed) -
+      totalAmount(allStore) -
+      totalAmount(allOnline);
+
+    return total <= 0 ? 0 : total;
+  }, [productSupply, emptyDates, disposal, storeSales, onlineSales, startDate, endDate]);
 
   return {
     openingStock,
@@ -196,5 +250,6 @@ export const useTrading = ({
     memoizedDisposal,
     memoizedSupply,
     memoizedExpense,
+    closingStock,
   };
 };

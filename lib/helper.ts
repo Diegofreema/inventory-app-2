@@ -185,3 +185,5 @@ export const totalAmount = (numbers: number[]) => {
 export const rearrangeDateString = (date: string) => {
   return date.split('/').reverse().join('-');
 };
+
+export const findRecentPrice = () => {};
