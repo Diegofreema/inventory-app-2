@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "02762a63-a37c-4cbf-bacd-f5dd3c5ac120",
+  "id": "a784b3c7-aaf5-4b40-af1b-cef2b0fe5f9f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "categories": {
@@ -351,14 +351,14 @@
           "name": "category",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "subcategory": {
           "name": "subcategory",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "customer_product_id": {

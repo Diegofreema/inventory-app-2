@@ -5,8 +5,8 @@ import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
 export const product = sqliteTable('products', {
   id: text('id').notNull().primaryKey(),
-  category: text('category').notNull(),
-  subcategory: text('subcategory').notNull(),
+  category: text('category'),
+  subcategory: text('subcategory'),
   customerproductid: text('customer_product_id'),
   marketprice: text('market_price'),
   online: text('online'),

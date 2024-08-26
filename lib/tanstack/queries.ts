@@ -2,7 +2,7 @@
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
-import { api, getDisposal, getExpenditure, getInfo, getSale, getSalesP } from "../helper";
+import { api, getDisposal, getExpenditure, getInfo, getSale, getSalesP } from '../helper';
 import { useStore } from '../zustand/useStore';
 
 import { ProductSelect } from '~/db/schema';
@@ -10,6 +10,7 @@ import { CatType, ExpType, InfoType, NotType, SalesP, SalesS, SupplyType } from 
 
 export const useProducts = () => {
   const id = useStore((state) => state.id);
+
   const getProducts = async () => {
     const response = await axios.get(`${api}api=getproducts&cidx=${id}`);
     let data: ProductSelect[] = [];
@@ -18,7 +19,7 @@ export const useProducts = () => {
     } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
       data = [...response.data];
     }
-
+    // await db.insert(schema.product).values(data).onConflictDoNothing();
     return data;
   };
   return useQuery({
@@ -130,6 +131,5 @@ export const useDisposal = () => {
   return useQuery<SupplyType[]>({
     queryKey: ['disposal', id],
     queryFn: () => getDisposal(id),
-
   });
 };

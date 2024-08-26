@@ -55,8 +55,8 @@ CREATE TABLE `store_sales` (
 --> statement-breakpoint
 CREATE TABLE `products` (
 	`id` text PRIMARY KEY NOT NULL,
-	`category` text NOT NULL,
-	`subcategory` text NOT NULL,
+	`category` text,
+	`subcategory` text,
 	`customer_product_id` text,
 	`market_price` text,
 	`online` text,

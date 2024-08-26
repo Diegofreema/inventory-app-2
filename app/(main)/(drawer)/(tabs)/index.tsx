@@ -20,7 +20,16 @@ export default function Home() {
   // const { data } = useLiveQuery(db.select().from(schema.product));
   // console.log(data);
 
-  const { data, isError, isPending, refetch, isRefetching: isRefetchingProduct } = useProducts();
+  const {
+    data,
+    isError,
+    isPending,
+    refetch,
+    isRefetching: isRefetchingProduct,
+    error,
+  } = useProducts();
+  console.log(error);
+
   const {
     data: dataP,
     isError: isErrorP,
@@ -37,51 +46,10 @@ export default function Home() {
     isRefetching: isRefetchingP,
   } = useSalesS();
   const isReloading = isRefetching || isRefetchingP || isRefetchingProduct;
-  // const {
-  //   data: dataExp,
-  //   isError: isErrorExp,
-  //   isPending: isPendingExp,
-  //   refetch: refetchExp,
-  // } = useExpenditure();
+
   const limitedProducts = useMemo(() => data?.slice(0, 5), [data]);
   const products = useMemo(() => data, [data]);
   const isLoading = useMemo(() => isPendingP || isPendingS, [isPendingP, isPendingS]);
-
-  // const loading = useMemo(
-  //   () => isPendingP || isPendingS || isPendingExp,
-  //   [isPendingP, isPendingS, isPendingExp]
-  // );
-  // const incomeArray = useMemo(() => {
-  //   if(!dataS || !dataP) return []
-  //   const storeIncome = dataS?.map((p) => ({ name: p?., price: p?.unitprice }));
-  //   const pharmacyIncome = dataP?.map((p) => ({ date: p?., price: p?.dealershare }));
-  //    storeIncome?.concat(pharmacyIncome || []);
-  //    if (!dataExp) return [];
-
-  //    const groupedExpenses = storeIncome.reduce((acc: any, exp) => {
-  //      if (!acc[exp.]) {
-  //        acc[exp.accountname] = { name: exp.accountname, amount: 0 };
-  //      }
-  //      acc[exp.accountname].amount += Number(exp.amount);
-  //      return acc;
-  //    }, {});
-
-  //    return Object.values(groupedExpenses);
-  // }, [dataS, dataP]);
-
-  // const expense: ChartType[] = useMemo(() => {
-  //   if (!dataExp) return [];
-
-  //   const groupedExpenses = dataExp.reduce((acc: any, exp) => {
-  //     if (!acc[exp.accountname]) {
-  //       acc[exp.accountname] = { name: exp.accountname, amount: 0 };
-  //     }
-  //     acc[exp.accountname].amount += Number(exp.amount);
-  //     return acc;
-  //   }, {});
-
-  //   return Object.values(groupedExpenses);
-  // }, [dataExp]);
 
   const storeSales = useMemo(() => dataS, [dataS]);
   const pharmacySales = useMemo(() => dataP, [dataP]);

@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import Toast from 'react-native-toast-message';
 import { View } from 'tamagui';
 import { z } from 'zod';
 
@@ -10,17 +11,21 @@ import { CustomController } from './CustomController';
 import { MyButton } from '../ui/MyButton';
 
 import { colors } from '~/constants';
+import { staff } from '~/db/schema';
+import { useDrizzle } from '~/hooks/useDrizzle';
 import { addStaffSchema } from '~/lib/validators';
 
 export const AddStaffForm = (): JSX.Element => {
-  const [secure, setSecure] = useState(false);
-  const [secure2, setSecure2] = useState(false);
+  const [secure, setSecure] = useState(true);
+  const [secure2, setSecure2] = useState(true);
+  const { db } = useDrizzle();
   const handleSecure = useCallback(() => setSecure((prev) => !prev), []);
   const handleSecure2 = useCallback(() => setSecure2((prev) => !prev), []);
   const {
     control,
     formState: { errors, isSubmitting },
     handleSubmit,
+    reset,
   } = useForm<z.infer<typeof addStaffSchema>>({
     defaultValues: {
       confirmPassword: '',
@@ -31,7 +36,23 @@ export const AddStaffForm = (): JSX.Element => {
     resolver: zodResolver(addStaffSchema),
   });
 
-  const onSubmit = (value: z.infer<typeof addStaffSchema>) => {};
+  const onSubmit = async (value: z.infer<typeof addStaffSchema>) => {
+    try {
+      await db.insert(staff).values(value);
+      Toast.show({
+        text1: 'Success',
+        text2: 'Staff added successfully',
+      });
+      reset();
+    } catch (error) {
+      console.log(error);
+
+      Toast.show({
+        text1: 'Failed',
+        text2: 'Staff was not added successfully',
+      });
+    }
+  };
   return (
     <View gap={10}>
       <CustomController
