@@ -1,14 +1,11 @@
 /* eslint-disable prettier/prettier */
-import { eq } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList } from 'react-native';
-import Toast from 'react-native-toast-message';
 import { XStack } from 'tamagui';
 
 import { StoreActions } from './StoreActions';
-import { DeleteStaffModal } from '../modals/DeleteStaffModal';
 import { AnimatedCard } from '../ui/AnimatedCard';
 import { AnimatedContainer } from '../ui/AniminatedContainer';
 import { FlexText } from '../ui/FlexText';
@@ -86,45 +83,24 @@ const StaffsFlatList = ({ data }: { data: StaffSelect[] }) => {
 };
 
 const StaffCard = ({ index, item }: { item: StaffSelect; index: number }) => {
-  const [remove, setRemove] = useState(false);
-  const { db, schema } = useDrizzle();
   const router = useRouter();
 
-  const onSetDelete = () => {
-    setRemove(true);
+  const onSetDelete = async () => {
+    router.push(`/deleteStaff?id=${item.id}`);
   };
 
-  const onDelete = async () => {
-    try {
-      await db.delete(schema.staff).where(eq(schema.staff.id, item.id));
-      setRemove(false);
-      Toast.show({
-        text1: 'Success',
-        text2: 'Staff removed successfully',
-      });
-    } catch (error) {
-      console.log(error);
-      Toast.show({
-        text1: 'Failed',
-        text2: 'Staff could not be removed successfully',
-      });
-    }
-  };
   const onEdit = () => {
     router.push(`/addStaff?id=${item.id}`);
   };
   return (
-    <>
-      <DeleteStaffModal visible={remove} onClose={() => setRemove(false)} onDelete={onDelete} />
-      <AnimatedCard index={index}>
-        <FlexText text="Name" text2={item?.name} />
-        <FlexText text="Email" text2={item?.email} />
-        <FlexText text="Password" text2={item?.password} />
-        <XStack gap={8}>
-          <MyButton title="Remove staff" mt={10} onPress={onSetDelete} />
-          <MyButton title="Edit staff" mt={10} flex={1} onPress={onEdit} />
-        </XStack>
-      </AnimatedCard>
-    </>
+    <AnimatedCard index={index}>
+      <FlexText text="Name" text2={item?.name} />
+      <FlexText text="Email" text2={item?.email} />
+      <FlexText text="Password" text2={item?.password} />
+      <XStack gap={8}>
+        <MyButton title="Remove staff" mt={10} onPress={onSetDelete} />
+        <MyButton title="Edit staff" mt={10} flex={1} onPress={onEdit} />
+      </XStack>
+    </AnimatedCard>
   );
 };
