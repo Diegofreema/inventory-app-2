@@ -2,12 +2,6 @@
 
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
-export const user = sqliteTable('users', {
-  id: integer('id').notNull().primaryKey(),
-  email: text('email').notNull(),
-  password: text('password').notNull(),
-});
-
 export const product = sqliteTable('products', {
   id: text('id').notNull().primaryKey(),
   Category: text('category').notNull(),
@@ -22,7 +16,14 @@ export const product = sqliteTable('products', {
   sharenetpro: text('share_netpro'),
 });
 
+export const staff = sqliteTable('staff', {
+  id: integer('id').notNull().primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull(),
+  password: text('password').notNull(),
+});
+
 export type ProductSelect = typeof product.$inferSelect;
 export type ProductInsert = typeof product.$inferInsert;
-export type UserInsert = typeof user.$inferInsert;
-export type UserSelect = typeof user.$inferSelect;
+export type StaffInsert = typeof staff.$inferInsert;
+export type StaffSelect = typeof staff.$inferSelect;

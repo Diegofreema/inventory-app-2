@@ -1,4 +1,4 @@
-import { Calculator, Home, ListOrdered, ShoppingBag, ShoppingCart } from "@tamagui/lucide-icons";
+import { Calculator, Home, ListOrdered, ShoppingBag, ShoppingCart } from '@tamagui/lucide-icons';
 import { Tabs } from 'expo-router';
 
 import { CustomBarIcon } from '~/components/TabBarIcon';
@@ -29,7 +29,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="reports"
         options={{
           title: 'Report',
@@ -37,7 +37,7 @@ export default function TabLayout() {
             <CustomBarIcon icon={ListOrdered} size={size} color={color} />
           ),
         }}
-      />
+      /> */}
       <Tabs.Screen
         name="sales"
         options={{

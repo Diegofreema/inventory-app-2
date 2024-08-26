@@ -10,7 +10,12 @@ module.exports = function (api) {
     },
   ]);
 
-  plugins.push('react-native-reanimated/plugin');
+  plugins.push([
+    'react-native-reanimated/plugin',
+    {
+      relativeSourceLocation: true,
+    },
+  ]);
   plugins.push(['inline-import', { extensions: ['.sql'] }]);
   return {
     presets: ['babel-preset-expo'],
