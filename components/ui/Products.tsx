@@ -90,7 +90,7 @@ const ProductCard = ({
           <XStack gap={14} alignItems="center">
             <CustomSubHeading text={item?.product} fontSize={17} />
           </XStack>
-          <FlexText text="Category" text2={item?.Category} />
+          <FlexText text="Category" text2={item?.category!} />
           <FlexText text={`Stock ${isLow ? '(low stock)' : ''}`} text2={item?.qty} />
           <FlexText text="Unit price" text2={'₦' + item?.sellingprice} />
           {show && (
@@ -98,8 +98,8 @@ const ProductCard = ({
               <FlexText text="NetPro share" text2={'₦' + item?.sharenetpro} />
               <FlexText text="Dealer share" text2={'₦' + item?.sharedealer} />
               <FlexText text="Market price" text2={'₦' + item?.marketprice} />
-              <FlexText text="Category" text2={item?.Category} />
-              <FlexText text="Subcategory" text2={item?.Subcategory} />
+              <FlexText text="Category" text2={item?.category!} />
+              <FlexText text="Subcategory" text2={item?.category!} />
               <FlexText text="Online" text2={item?.online === 'True' ? 'Yes' : 'No'} />
             </Stack>
           )}

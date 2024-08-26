@@ -1,25 +1,33 @@
 /* eslint-disable prettier/prettier */
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { eq } from 'drizzle-orm';
 
 import { api, getDisposal, getExpenditure, getInfo, getSale, getSalesP } from '../helper';
 import { useStore } from '../zustand/useStore';
 
-import { ProductSelect } from '~/db/schema';
+import { useDrizzle } from '~/hooks/useDrizzle';
 import { CatType, ExpType, InfoType, NotType, SalesP, SalesS, SupplyType } from '~/type';
 
 export const useProducts = () => {
   const id = useStore((state) => state.id);
-
+  const { db, schema } = useDrizzle();
   const getProducts = async () => {
     const response = await axios.get(`${api}api=getproducts&cidx=${id}`);
-    let data: ProductSelect[] = [];
+    let data = [];
     if (Object.prototype.toString.call(response.data) === '[object Object]') {
       data.push(response.data);
     } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
       data = [...response.data];
     }
-    // await db.insert(schema.product).values(data).onConflictDoNothing();
+
+    const formattedProducts = data.map((product) => ({
+      ...product,
+      category: product.Category,
+      subcategory: product.Subcategory,
+    }));
+    await db.insert(schema.product).values(formattedProducts).onConflictDoNothing();
+
     return data;
   };
   return useQuery({
@@ -29,17 +37,32 @@ export const useProducts = () => {
 };
 export const useSalesP = () => {
   const id = useStore((state) => state.id);
+  const { db, schema } = useDrizzle();
   return useQuery<SalesP[]>({
     queryKey: ['salesPharmacy', id],
-    queryFn: () => getSalesP(id!),
+    queryFn: async () => {
+      const data = await getSalesP(id!);
+      await db.insert(schema.PharmacySales).values(data).onConflictDoNothing();
+      return data;
+    },
   });
 };
 export const useSalesS = () => {
   const id = useStore((state) => state.id);
-
+  const { db, schema } = useDrizzle();
   return useQuery<SalesS[]>({
     queryKey: ['salesStore', id],
-    queryFn: () => getSale(id),
+    queryFn: async () => {
+      const data = await getSale(id!);
+      const previousStoreSales = await db.query.StoreSales.findMany();
+      data.forEach((d) => {
+        if (!previousStoreSales[d.datex]) {
+          db.insert(schema.StoreSales).values(d).onConflictDoNothing();
+        }
+      });
+
+      return data;
+    },
   });
 };
 export const useExpenditure = () => {

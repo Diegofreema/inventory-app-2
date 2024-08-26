@@ -10,15 +10,15 @@ import { Skeleton } from '../ui/Skeleton';
 import { CustomSubHeading } from '../ui/typography';
 
 import { colors, shadow } from '~/constants';
-import { ProductSelect } from '~/db/schema';
+import { ProductSelect, SalesP, SalesS } from '~/db/schema';
 import { calculateTotalSales } from '~/lib/helper';
-import { PreviewType, SalesP, SalesS } from '~/type';
+import { PreviewType } from '~/type';
 
 type DashboardType = {
   loading: boolean;
   products: ProductSelect[] | undefined;
-  salesP: SalesP[] | undefined;
-  salesS: SalesS[] | undefined;
+  salesP: SalesP[];
+  salesS: SalesS[];
 };
 export const DashBoardCards = ({
   loading,
@@ -33,7 +33,7 @@ export const DashBoardCards = ({
   const lowProducts = useMemo(() => products?.filter((p) => Number(p.qty) <= 10), [products]);
   const totalSalesFromStore = useMemo(() => {
     return calculateTotalSales(salesS?.map((p) => p?.unitprice));
-  }, [salesP]);
+  }, [salesS]);
   const totalSalesFrom247Pharm = useMemo(() => {
     return calculateTotalSales(salesP?.map((p) => p?.unitprice));
   }, [salesP]);
