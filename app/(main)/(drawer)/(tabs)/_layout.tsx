@@ -1,4 +1,4 @@
-import { Calculator, Home, ListOrdered, ShoppingBag, ShoppingCart } from '@tamagui/lucide-icons';
+import { Calculator, Home, ShoppingBag, ShoppingCart } from '@tamagui/lucide-icons';
 import { Tabs } from 'expo-router';
 
 import { CustomBarIcon } from '~/components/TabBarIcon';
