@@ -22,6 +22,7 @@ export const staff = sqliteTable('staff', {
   name: text('name').notNull(),
   email: text('email').notNull(),
   password: text('password').notNull(),
+  pharmacyId: text('pharmacy_id'),
 });
 
 export const PharmacySales = sqliteTable('pharmacy_sales', {

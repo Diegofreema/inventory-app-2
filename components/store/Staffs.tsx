@@ -14,12 +14,14 @@ import { Empty } from '../ui/empty';
 
 import { StaffSelect } from '~/db/schema';
 import { useDrizzle } from '~/hooks/useDrizzle';
+import { useStore } from '~/lib/zustand/useStore';
 
 export const Staffs = (): JSX.Element => {
   const { db, schema } = useDrizzle();
   const { data } = useLiveQuery(db.select().from(schema.staff));
   const [staffs, setStaffs] = useState<StaffSelect[]>(data);
   const [value, setValue] = useState('');
+
   useEffect(() => {}, []);
   useFocusEffect(
     useCallback(() => {
@@ -84,7 +86,8 @@ const StaffsFlatList = ({ data }: { data: StaffSelect[] }) => {
 
 const StaffCard = ({ index, item }: { item: StaffSelect; index: number }) => {
   const router = useRouter();
-
+  const isAdmin = useStore((state) => state.isAdmin);
+  console.log(isAdmin);
   const onSetDelete = async () => {
     router.push(`/deleteStaff?id=${item.id}`);
   };
@@ -96,11 +99,16 @@ const StaffCard = ({ index, item }: { item: StaffSelect; index: number }) => {
     <AnimatedCard index={index}>
       <FlexText text="Name" text2={item?.name} />
       <FlexText text="Email" text2={item?.email} />
-      <FlexText text="Password" text2={item?.password} />
-      <XStack gap={8}>
-        <MyButton title="Remove staff" mt={10} onPress={onSetDelete} />
-        <MyButton title="Edit staff" mt={10} flex={1} onPress={onEdit} />
-      </XStack>
+
+      {isAdmin && (
+        <>
+          <FlexText text="Password" text2={item?.password} />
+          <XStack gap={8}>
+            <MyButton title="Remove staff" mt={10} onPress={onSetDelete} />
+            <MyButton title="Edit staff" mt={10} flex={1} onPress={onEdit} />
+          </XStack>
+        </>
+      )}
     </AnimatedCard>
   );
 };

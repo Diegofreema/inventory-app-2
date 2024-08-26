@@ -6,7 +6,10 @@ type Store = {
   id: string | null;
   getId: (id: string) => void;
   removeId: () => void;
+  isAdmin: boolean;
+  setIsAdmin: (isAdmin: boolean) => void;
 };
+const admin = SecureStore.getItem('admin');
 export const useStore = create<Store>((set) => ({
   id: SecureStore.getItem('id') || '',
   getId: (id: string) => {
@@ -16,5 +19,10 @@ export const useStore = create<Store>((set) => ({
   removeId: () => {
     set({ id: null });
     SecureStore.deleteItemAsync('id');
+  },
+  isAdmin: !!admin,
+  setIsAdmin: (isAdmin: boolean) => {
+    set({ isAdmin });
+    SecureStore.setItem('admin', JSON.stringify(isAdmin));
   },
 }));

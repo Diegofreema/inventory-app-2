@@ -8,6 +8,13 @@
       "when": 1724675239820,
       "tag": "0000_productive_franklin_richards",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1724687015558,
+      "tag": "0001_watery_boomerang",
+      "breakpoints": true
     }
   ]
 }

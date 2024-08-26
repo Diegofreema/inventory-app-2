@@ -3,9 +3,10 @@
 // import { useSQLiteContext } from 'expo-sqlite';
 import { useMemo } from 'react';
 import { RefreshControl } from 'react-native';
-import { ScrollView } from 'tamagui';
+import { ScrollView, XStack } from 'tamagui';
 
 import { Container } from '~/components/Container';
+import { LogoutButton } from '~/components/LogoutButton';
 import { DashBoardCards } from '~/components/home/DashBoardCards';
 import { Error } from '~/components/ui/Error';
 import { ProductLoader } from '~/components/ui/Loading';
@@ -64,7 +65,10 @@ export default function Home() {
 
   return (
     <Container>
-      <CustomHeading text="Dashboard" fontSize={15} />
+      <XStack justifyContent="space-between" alignItems="center">
+        <CustomHeading text="Dashboard" fontSize={15} />
+        <LogoutButton />
+      </XStack>
 
       <ScrollView
         showsVerticalScrollIndicator={false}

@@ -1,0 +1,1 @@
+ALTER TABLE `staff` ADD `pharmacy_id` text;

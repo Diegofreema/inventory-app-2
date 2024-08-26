@@ -16,9 +16,11 @@ import { colors } from '~/constants';
 import { staff } from '~/db/schema';
 import { useDrizzle } from '~/hooks/useDrizzle';
 import { addStaffSchema } from '~/lib/validators';
+import { useStore } from '~/lib/zustand/useStore';
 
 export const AddStaffForm = (): JSX.Element => {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const pharmacyId = useStore((state) => state.id);
   const [edit, setEdit] = useState(false);
   const [secure, setSecure] = useState(true);
   const [secure2, setSecure2] = useState(true);
@@ -62,7 +64,7 @@ export const AddStaffForm = (): JSX.Element => {
   }, [id]);
   const onCreate = async (value: z.infer<typeof addStaffSchema>) => {
     try {
-      await db.insert(staff).values(value);
+      await db.insert(staff).values({ ...value, pharmacyId });
       Toast.show({
         text1: 'Success',
         text2: 'Staff added successfully',
