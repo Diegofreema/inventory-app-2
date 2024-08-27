@@ -85,11 +85,7 @@ export const CustomSelect = ({ placeholder, data, onValueChange, value, ...props
               () =>
                 data?.map((item, i) => {
                   return (
-                    <Select.Item
-                      backgroundColor="white"
-                      index={i}
-                      key={i}
-                      value={item.value.toLowerCase()}>
+                    <Select.Item backgroundColor="white" index={i} key={i} value={item.value}>
                       <Select.ItemText color="black">{item.label}</Select.ItemText>
                       <Select.ItemIndicator marginLeft="auto">
                         <Check size={16} />

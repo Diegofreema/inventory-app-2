@@ -12,14 +12,13 @@ type Props = {
 };
 
 export const SalesCard = ({ index, item }: Props): JSX.Element => {
+  const price = item?.dealershare ? item?.dealershare : item?.unitprice;
   return (
     <AnimatedCard index={index}>
       <FlexText text="Product" text2={item?.product?.product} />
       <FlexText text="Date" text2={item?.datex} />
       <FlexText text="Quantity" text2={item?.qty} />
-      <FlexText text="Price" text2={`₦${item?.unitprice}`} />
-      {item?.netproshare && <FlexText text="Netpro's share" text2={`₦${item?.netproshare}`} />}
-      {item?.dealershare && <FlexText text="Dealer's share" text2={`₦${item?.dealershare}`} />}
+      <FlexText text="Price" text2={`₦${price}`} />
       {item?.paid && <FlexText text="Paid" text2={item?.paid} />}
       {item?.paymenttype && <FlexText text="Payment type" text2={item?.paymenttype} />}
       {item?.salesreference && (

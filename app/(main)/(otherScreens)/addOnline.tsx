@@ -1,6 +1,8 @@
 /* eslint-disable prettier/prettier */
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { eq } from 'drizzle-orm';
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { Stack } from 'tamagui';
 import { z } from 'zod';
@@ -9,16 +11,28 @@ import { Container } from '~/components/Container';
 import { CustomController } from '~/components/form/CustomController';
 import { MyButton } from '~/components/ui/MyButton';
 import { NavHeader } from '~/components/ui/NavHeader';
+import { useDrizzle } from '~/hooks/useDrizzle';
+import { useGet } from '~/hooks/useGet';
 import { useAdd247 } from '~/lib/tanstack/mutations';
 import { pharmacySales } from '~/lib/validators';
 
 export default function AddOnlineScreen() {
-  const { data, mutateAsync, isPending } = useAdd247();
+  const { mutateAsync, isPending, error } = useAdd247();
+  const { products } = useGet();
+  const { db, schema } = useDrizzle();
+  const memoizedProductName = useMemo(() => {
+    if (!products) return [];
+    return products?.map((item) => ({
+      value: item?.id,
+      label: item?.product,
+    }));
+  }, [products]);
   const {
     control,
     formState: { errors },
     reset,
     handleSubmit,
+    setValue,
   } = useForm<z.infer<typeof pharmacySales>>({
     defaultValues: {
       qty: '',
@@ -28,10 +42,24 @@ export default function AddOnlineScreen() {
   });
 
   const onSubmit = async (value: z.infer<typeof pharmacySales>) => {
-    // ! to add local database query
-    await mutateAsync({ productId: '', qty: value.qty });
-    if (data?.result === 'done') {
-      reset();
+    try {
+      const productInDb = await db.query.product.findFirst({
+        where: eq(schema.product.id, value.productName),
+        columns: {
+          sellingprice: true,
+        },
+      });
+      if (!productInDb) return;
+      await mutateAsync({
+        productId: value.productName,
+        qty: value.qty,
+        unitPrice: productInDb?.sellingprice!,
+      });
+      if (!error) {
+        reset();
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
   return (
@@ -44,6 +72,9 @@ export default function AddOnlineScreen() {
           errors={errors}
           placeholder="Product Name"
           label="Product Name"
+          variant="select"
+          data={memoizedProductName}
+          setValue={setValue}
         />
         <CustomController
           name="qty"

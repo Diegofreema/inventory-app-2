@@ -95,7 +95,6 @@ const ProductCard = ({
           <FlexText text="Unit price" text2={'₦' + item?.sellingprice} />
           {show && (
             <Stack gap={10}>
-              <FlexText text="NetPro share" text2={'₦' + item?.sharenetpro} />
               <FlexText text="Dealer share" text2={'₦' + item?.sharedealer} />
               <FlexText text="Market price" text2={'₦' + item?.marketprice} />
 

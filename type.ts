@@ -50,7 +50,7 @@ export type CombinedStore = {
   id?: any;
   salesreference?: string;
   paid?: string;
-  cid: any;
+  cid?: any;
   paymenttype?: string;
   transinfo?: string;
   userid?: number;

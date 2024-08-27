@@ -45,8 +45,8 @@ export const OnlinePharmacy = (): JSX.Element => {
   const filterByDate = useMemo(() => {
     if (!startDate || !endDate || !data) return data;
 
-    const start = format(startDate, 'MM-dd-yyyy');
-    const end = format(endDate, 'MM-dd-yyyy');
+    const start = format(startDate, 'dd-MM-yyyy');
+    const end = format(endDate, 'dd-MM-yyyy');
 
     return data.filter((d) => {
       const salesDate = d.datex.split(' ')[0].replace('/', '-').replace('/', '-');
@@ -62,8 +62,9 @@ export const OnlinePharmacy = (): JSX.Element => {
     }
     const lowerCaseValue = value.toLowerCase();
     return (
-      filterByDate?.filter((d) => d.unitprice?.toString().toLowerCase().includes(lowerCaseValue)) ||
-      []
+      filterByDate?.filter((d) =>
+        d.product?.product?.toString().toLowerCase().includes(lowerCaseValue)
+      ) || []
     );
   }, [value, filterByDate]);
   const resetDates = useCallback(() => {

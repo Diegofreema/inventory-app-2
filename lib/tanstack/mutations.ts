@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { format } from 'date-fns';
+import { eq } from 'drizzle-orm';
 import Toast from 'react-native-toast-message';
 import { z } from 'zod';
 
@@ -41,29 +42,81 @@ export const useAddNewProduct = () => {
 export const useAdd247 = () => {
   const storeId = useStore((state) => state.id);
   const queryClient = useQueryClient();
+  const { db, schema } = useDrizzle();
+  const isConnected = useNetwork();
   return useMutation({
-    mutationFn: async ({ productId, qty }: { qty: string; productId: string }) => {
-      const { data } = await axios.get(
-        `${api}api=make247sale&cidx=${storeId}&qty=${qty}&productid=${productId}`
-      );
+    mutationFn: async ({
+      productId,
+      qty,
+      unitPrice,
+    }: {
+      qty: string;
+      productId: string;
+      unitPrice: string;
+    }) => {
+      try {
+        const productInDb = await db.query.product.findFirst({
+          where: eq(schema.product.id, productId),
+          columns: {
+            sharenetpro: true,
+            sharedealer: true,
+            id: true,
+          },
+        });
+        console.log({ productInDb });
 
-      return data;
+        if (!productInDb) return;
+
+        const addedData = await db
+          .insert(schema.pharmacySales)
+          .values({
+            // @ts-ignore
+            productid: productInDb?.id,
+            qty,
+            datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+            dealershare: productInDb?.sharedealer,
+            netproshare: productInDb?.sharenetpro,
+            unitprice: unitPrice,
+          })
+          .returning();
+
+        if (addedData.length && isConnected) {
+          await axios.get(
+            `${api}api=make247sale&cidx=${storeId}&qty=${qty}&productid=${productId}`
+          );
+        } else if (addedData.length && !isConnected) {
+          await db.insert(schema.pharmacySalesOffline).values({
+            // @ts-ignore
+            productid: productInDb?.id,
+            qty,
+            datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+            dealershare: productInDb?.sharedealer,
+            netproshare: productInDb?.sharenetpro,
+          });
+        } else {
+          throw new Error('Something went wrong');
+        }
+
+        return addedData;
+      } catch (error) {
+        console.log(error);
+      }
     },
 
-    onError: () => {
+    onError: (error) => {
+      console.log(error);
+
       Toast.show({
         text1: 'Something went wrong',
-        text2: 'Failed to add sale',
+        text2: error.message,
       });
     },
     onSuccess: (data) => {
-      if (data.result === 'done') {
-        Toast.show({
-          text1: 'Success',
-          text2: 'Sales has been added successfully',
-        });
-        queryClient.invalidateQueries({ queryKey: ['salesPharmacy'] });
-      }
+      Toast.show({
+        text1: 'Success',
+        text2: 'Sales has been added successfully',
+      });
+      queryClient.invalidateQueries({ queryKey: ['salesPharmacy'] });
     },
   });
 };

@@ -30,8 +30,8 @@ export const Offline = (): JSX.Element => {
   const filterByDate = useMemo(() => {
     if (!startDate || !endDate || !data) return data;
 
-    const start = format(startDate, 'MM-dd-yyyy');
-    const end = format(endDate, 'MM-dd-yyyy');
+    const start = format(startDate, 'dd-MM-yyyy');
+    const end = format(endDate, 'dd-MM-yyyy');
 
     return data.filter((d) => {
       const salesDate = d.datex.split(' ')[0].replace('/', '-').replace('/', '-');
@@ -45,7 +45,7 @@ export const Offline = (): JSX.Element => {
       return filterByDate || [];
     }
     const lowerCaseValue = value.toLowerCase();
-    // ! to change to product name
+
     return (
       filterByDate?.filter((d) =>
         // @ts-ignore
@@ -72,7 +72,6 @@ export const Offline = (): JSX.Element => {
   }, []);
   if (isError) return <Error onRetry={handleRefetch} />;
 
-  console.log(data?.[0]?.salesreference);
   return (
     <AnimatedContainer>
       <StoreActions

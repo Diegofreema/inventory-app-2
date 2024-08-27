@@ -206,6 +206,7 @@ export type ExpenseAccount = typeof expenseAccount.$inferSelect;
 
 export type SalesP = typeof pharmacySales.$inferInsert;
 export type SalesPSelect = typeof pharmacySales.$inferSelect;
+export type SalesPInsert = typeof pharmacySales.$inferInsert;
 export type SalesS = typeof storeSales.$inferInsert;
 export type SalesSSelect = typeof storeSales.$inferSelect;
 export type ProductSelect = typeof product.$inferSelect;
