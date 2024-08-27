@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
+import { format } from 'date-fns';
 import Toast from 'react-native-toast-message';
 import { z } from 'zod';
 
@@ -8,6 +9,8 @@ import { api } from '../helper';
 import { newProductSchema } from '../validators';
 import { useStore } from '../zustand/useStore';
 
+import { useDrizzle } from '~/hooks/useDrizzle';
+import { useNetwork } from '~/hooks/useNetwork';
 import { SalesStore, SupplyInsert } from '~/type';
 
 export const useAddNewProduct = () => {
@@ -171,14 +174,40 @@ export const useDisposal = () => {
 };
 export const useAddAccount = () => {
   const storeId = useStore((state) => state.id);
+  const { db, schema } = useDrizzle();
+  const isConnected = useNetwork();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ name }: { name: string }) => {
-      const { data } = await axios.get(
-        `${api}api=addexpenseact&accountname=${name}&cidx=${storeId}`
-      );
+      try {
+        const addedExpense = await db
+          .insert(schema.expenseAccount)
+          .values({
+            accountname: name,
+          })
+          .returning({ accountname: schema.expenseAccount.accountname });
 
-      return data;
+        if (addedExpense.length && isConnected) {
+          try {
+            await axios.get(
+              `${api}api=addexpenseact&accountname=${addedExpense[0].accountname}&cidx=${storeId}`
+            );
+          } catch (error) {
+            console.log(error);
+            await db.insert(schema.expenseAccountOffline).values({
+              accountname: name,
+            });
+          }
+        } else if (addedExpense.length && !isConnected) {
+          await db.insert(schema.expenseAccountOffline).values({
+            accountname: name,
+          });
+        }
+
+        return addedExpense;
+      } catch (error) {
+        console.log(error);
+      }
     },
 
     onError: () => {
@@ -199,6 +228,8 @@ export const useAddAccount = () => {
 export const useAddExp = () => {
   const storeId = useStore((state) => state.id);
   const queryClient = useQueryClient();
+  const { db, schema } = useDrizzle();
+  const isConnected = useNetwork();
   return useMutation({
     mutationFn: async ({
       description,
@@ -209,19 +240,39 @@ export const useAddExp = () => {
       amount: string;
       name: string;
     }) => {
-      const { data } = await axios.get(
-        `${api}api=addexpenses&accountname=${name}&cidx=${storeId}&description=${description}&amount=${amount}`
-      );
+      const addedExpense = await db
+        .insert(schema.expenses)
+        .values({
+          accountname: name,
+          amount,
+          descript: description,
+          datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+        })
+        .returning();
+      if (addedExpense.length && isConnected) {
+        await axios.get(
+          `${api}api=addexpenses&accountname=${name}&cidx=${storeId}&description=${description}&amount=${amount}`
+        );
+      } else if (addedExpense.length && !isConnected) {
+        await db.insert(schema.expensesOffline).values({
+          accountname: name,
+          amount,
+          descript: description,
+          datex: format(Date.now(), 'dd-MM-yyyy HH:mm:ss'),
+        });
+      } else {
+        throw new Error('Failed to add expense');
+      }
 
-      return data;
+      return addedExpense;
     },
 
     onError: (error) => {
-      console.log(error, 'error');
+      console.log(error.message, 'error');
 
       Toast.show({
         text1: 'Something went wrong',
-        text2: 'Failed to add expense to account',
+        text2: error.message,
       });
     },
     onSuccess: (data) => {

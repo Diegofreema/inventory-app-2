@@ -21,7 +21,7 @@ import { expenseSchema } from '~/lib/validators';
 
 export default function AddExpense() {
   const { name } = useLocalSearchParams<{ name: string }>();
-  const { mutateAsync, isPending, isSuccess } = useAddExp();
+  const { mutateAsync, isPending, error } = useAddExp();
   const { data: exp, isPending: expPending, isError, refetch } = useExpAcc();
   const {
     control,
@@ -51,7 +51,7 @@ export default function AddExpense() {
       name: values.accountName?.charAt(0)?.toUpperCase() + values.accountName.slice(1),
     });
 
-    if (isSuccess) {
+    if (!error) {
       reset();
     }
   };

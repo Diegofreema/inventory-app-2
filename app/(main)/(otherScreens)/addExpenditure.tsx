@@ -35,6 +35,7 @@ export default function AddExpenditure() {
     mutateAsync({
       name: values.accountName.charAt(0)?.toUpperCase() + values.accountName.slice(1),
     });
+    console.log(error);
 
     if (!error) {
       reset();
