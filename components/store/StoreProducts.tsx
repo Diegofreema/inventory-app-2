@@ -5,22 +5,18 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { StoreActions } from './StoreActions';
 import { AnimatedContainer } from '../ui/AniminatedContainer';
-import { Error } from '../ui/Error';
+import { ErrorBanner } from '../ui/ErrorBanner';
 import { ProductLoader } from '../ui/Loading';
 import { Products } from '../ui/Products';
 
+import { useGet } from '~/hooks/useGet';
 import { useProducts } from '~/lib/tanstack/queries';
 
 export const StoreProducts = (): JSX.Element => {
   const [value, setValue] = useState('');
+  const { products } = useGet();
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
-  const {
-    data: products,
-    isError,
-    isPending,
-    refetch,
-    isRefetching: isRefetchingProduct,
-  } = useProducts();
+  const { isError, isPending, refetch, isRefetching: isRefetchingProduct } = useProducts();
 
   const router = useRouter();
   const handleNav = () => {
@@ -33,7 +29,7 @@ export const StoreProducts = (): JSX.Element => {
     }
 
     return products?.filter(
-      (product) => product?.Category.toLowerCase() === selectedValue.toLowerCase()
+      (product) => product?.category?.toLowerCase() === selectedValue.toLowerCase()
     );
   }, [selectedValue, products]);
   const filteredProducts = useMemo(() => {
@@ -48,11 +44,10 @@ export const StoreProducts = (): JSX.Element => {
       ) || []
     );
   }, [selectedCategory, value]);
-  if (isError) {
-    return <Error onRetry={refetch} />;
-  }
+
   return (
     <AnimatedContainer>
+      {isError && <ErrorBanner />}
       <StoreActions
         show
         placeholder="Product name"
@@ -71,6 +66,7 @@ export const StoreProducts = (): JSX.Element => {
           onRefetch={refetch}
           isLoading={isRefetchingProduct}
           scrollEnabled
+          navigate
         />
       )}
     </AnimatedContainer>

@@ -98,8 +98,8 @@ const ProductCard = ({
               <FlexText text="NetPro share" text2={'₦' + item?.sharenetpro} />
               <FlexText text="Dealer share" text2={'₦' + item?.sharedealer} />
               <FlexText text="Market price" text2={'₦' + item?.marketprice} />
-              <FlexText text="Category" text2={item?.category!} />
-              <FlexText text="Subcategory" text2={item?.category!} />
+
+              <FlexText text="Subcategory" text2={item?.subcategory!} />
               <FlexText text="Online" text2={item?.online === 'True' ? 'Yes' : 'No'} />
             </Stack>
           )}

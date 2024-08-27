@@ -1,13 +1,15 @@
 /* eslint-disable prettier/prettier */
 
+import { eq } from 'drizzle-orm';
 import { useEffect, useState } from 'react';
 
 import { useDrizzle } from './useDrizzle';
 
-import { ProductSelect, SalesP, SalesS } from '~/db/schema';
+import { ProductSelect, SalesP, SalesS, product } from '~/db/schema';
 
-export const useGet = () => {
+export const useGet = (id?: string) => {
   const [products, setProducts] = useState<ProductSelect[] | undefined>([]);
+  const [singleProduct, setSingleProduct] = useState<ProductSelect | undefined>();
   const [onlineSales, setOnlineSales] = useState<SalesP[]>([]);
   const [storeSales, setStoreSales] = useState<SalesS[]>([]);
   const { db } = useDrizzle();
@@ -22,8 +24,12 @@ export const useGet = () => {
       setOnlineSales(online);
       setStoreSales(store);
     };
-
+    const fetchSingleProduct = async () => {
+      const p = await db.query.product.findFirst({ where: eq(product.id, id!) });
+      setSingleProduct(p);
+    };
     fetchData();
-  }, []);
-  return { products, onlineSales, storeSales };
+    if (id) fetchSingleProduct();
+  }, [id]);
+  return { products, onlineSales, storeSales, singleProduct };
 };
