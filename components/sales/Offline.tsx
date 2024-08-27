@@ -18,6 +18,7 @@ import { useSalesS } from '~/lib/tanstack/queries';
 export const Offline = (): JSX.Element => {
   const { data, isPending, isError, refetch, isRefetching } = useSalesS();
   const handleRefetch = useCallback(() => refetch(), []);
+  console.log(data?.[0]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const bottomRef = useRef<BottomSheetMethods | null>(null);
@@ -39,15 +40,17 @@ export const Offline = (): JSX.Element => {
       return isWithinInterval(salesDate, { start, end });
     });
   }, [data, startDate, endDate]);
-  const filterAccount = useMemo(() => {
+  const filterSales = useMemo(() => {
     if (!value.trim()) {
       return filterByDate || [];
     }
     const lowerCaseValue = value.toLowerCase();
     // ! to change to product name
     return (
-      filterByDate?.filter((d) => d.unitprice?.toString().toLowerCase().includes(lowerCaseValue)) ||
-      []
+      filterByDate?.filter((d) =>
+        // @ts-ignore
+        d?.product?.product?.toString().toLowerCase().includes(lowerCaseValue)
+      ) || []
     );
   }, [value, filterByDate]);
   const onOpenCalender = useCallback(() => {
@@ -86,7 +89,7 @@ export const Offline = (): JSX.Element => {
       {isPending ? (
         <ExpenseLoader />
       ) : (
-        <SalesFlatlist data={filterAccount} isLoading={isLoading} refetch={handleRefetch} />
+        <SalesFlatlist data={filterSales} isLoading={isLoading} refetch={handleRefetch} />
       )}
       <CalenderSheet
         ref={bottomRef}

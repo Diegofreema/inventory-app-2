@@ -103,31 +103,29 @@ export const useProducts = () => {
   });
 };
 export const useSalesP = () => {
-  const id = useStore((state) => state.id);
-  const { db, schema } = useDrizzle();
-  return useQuery<SalesP[]>({
-    queryKey: ['salesPharmacy', id],
+  const { db } = useDrizzle();
+  return useQuery({
+    queryKey: ['salesPharmacy'],
     queryFn: async () => {
-      const data = await getSalesP(id!);
-      await db.insert(schema.pharmacySales).values(data).onConflictDoNothing();
+      const data = await db.query.pharmacySales.findMany({
+        with: {
+          product: true,
+        },
+      });
       return data;
     },
   });
 };
 export const useSalesS = () => {
-  const id = useStore((state) => state.id);
-  const { db, schema } = useDrizzle();
-  return useQuery<SalesS[]>({
-    queryKey: ['salesStore', id],
+  const { db } = useDrizzle();
+  return useQuery({
+    queryKey: ['salesStore'],
     queryFn: async () => {
-      const data = await getSale(id!);
-      const previousStoreSales = await db.query.storeSales.findMany();
-      data.forEach((d) => {
-        if (!previousStoreSales[d.datex]) {
-          db.insert(schema.storeSales).values(d).onConflictDoNothing();
-        }
+      const data = await db.query.storeSales.findMany({
+        with: {
+          product: true,
+        },
       });
-
       return data;
     },
   });

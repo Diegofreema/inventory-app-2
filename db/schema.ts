@@ -62,7 +62,10 @@ export const pharmacySalesOffline = sqliteTable('pharmacy_sales_offline', {
 });
 
 export const pharmacySalesRelation = relations(pharmacySales, ({ one }) => ({
-  product: one(product),
+  product: one(product, {
+    fields: [pharmacySales.productid],
+    references: [product.id],
+  }),
 }));
 
 export const storeSales = sqliteTable('store_sales', {
@@ -117,7 +120,10 @@ export const storeSalesOffline = sqliteTable('store_sales_offline', {
   cid: text('cid'),
 });
 export const storeSalesRelation = relations(storeSales, ({ one }) => ({
-  product: one(product),
+  product: one(product, {
+    fields: [storeSales.productid],
+    references: [product.id],
+  }),
 }));
 
 export const storeStaffRelation = relations(storeSales, ({ one }) => ({

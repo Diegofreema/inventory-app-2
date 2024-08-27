@@ -1,3 +1,5 @@
+import { ProductSelect } from './db/schema';
+
 /* eslint-disable prettier/prettier */
 export type PreviewType = {
   title?: string;
@@ -45,15 +47,16 @@ export type CombinedStore = {
   datex: string;
   unitprice: string;
   qty: string;
-  id?: string;
+  id?: any;
   salesreference?: string;
   paid?: string;
-  cid?: string;
+  cid: any;
   paymenttype?: string;
   transinfo?: string;
-  userid?: string;
+  userid?: number;
   dealershare?: string;
   netproshare?: string;
+  product?: ProductSelect;
 };
 export type SalesS = {
   productid: string;

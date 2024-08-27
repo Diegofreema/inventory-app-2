@@ -14,7 +14,7 @@ type Props = {
 export const SalesCard = ({ index, item }: Props): JSX.Element => {
   return (
     <AnimatedCard index={index}>
-      <FlexText text="Product" text2="Panadol" />
+      <FlexText text="Product" text2={item?.product?.product} />
       <FlexText text="Date" text2={item?.datex} />
       <FlexText text="Quantity" text2={item?.qty} />
       <FlexText text="Price" text2={`₦${item?.unitprice}`} />

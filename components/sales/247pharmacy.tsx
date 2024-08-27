@@ -17,6 +17,8 @@ import { useSalesP } from '~/lib/tanstack/queries';
 
 export const OnlinePharmacy = (): JSX.Element => {
   const { data, isPending, isError, refetch, isRefetching } = useSalesP();
+  console.log({});
+
   const handleRefetch = useCallback(() => refetch(), []);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
