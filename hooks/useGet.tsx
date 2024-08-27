@@ -17,8 +17,8 @@ export const useGet = (id?: string) => {
     const fetchData = async () => {
       const [p, online, store] = await Promise.all([
         db.query.product.findMany(),
-        db.query.PharmacySales.findMany(),
-        db.query.StoreSales.findMany(),
+        db.query.pharmacySales.findMany(),
+        db.query.storeSales.findMany(),
       ]);
       setProducts(p);
       setOnlineSales(online);

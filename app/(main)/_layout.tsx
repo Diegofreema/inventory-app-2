@@ -11,6 +11,7 @@ export default function MainAppLayout() {
   const { data } = useNotify();
   useCheckNotification({ data });
   const id = useStore((state) => state.id);
+
   if (!id) return <Redirect href="/login" />;
   return (
     <>

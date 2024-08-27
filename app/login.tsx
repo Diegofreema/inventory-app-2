@@ -8,11 +8,18 @@ import { Container } from '~/components/Container';
 import { LoginForm } from '~/components/form/LoginForm';
 import { CustomScroll } from '~/components/ui/CustomScroll';
 import { CustomHeading, CustomSubHeading } from '~/components/ui/typography';
+import { useHasFetched } from '~/lib/zustand/useIsFirstTime';
 import { useStore } from '~/lib/zustand/useStore';
 
 export default function Login() {
   const id = useStore((state) => state.id);
-  if (id) return <Redirect href="/" />;
+  const { hasFetched } = useHasFetched();
+  console.log(hasFetched);
+
+  if (id && hasFetched) return <Redirect href="/" />;
+  if (id && !hasFetched) return <Redirect href="/loading" />;
+  console.log(id);
+
   return (
     <>
       <StatusBar style="dark" backgroundColor="white" translucent animated />

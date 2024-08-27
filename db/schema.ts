@@ -16,6 +16,19 @@ export const product = sqliteTable('products', {
   sharedealer: text('share_dealer'),
   sharenetpro: text('share_netpro'),
 });
+export const productOffline = sqliteTable('products_offline', {
+  id: text('id').notNull().primaryKey(),
+  category: text('category'),
+  subcategory: text('subcategory'),
+  customerproductid: text('customer_product_id'),
+  marketprice: text('market_price'),
+  online: text('online'),
+  product: text('product').notNull(),
+  qty: text('qty').notNull(),
+  sellingprice: text('seller_price'),
+  sharedealer: text('share_dealer'),
+  sharenetpro: text('share_netpro'),
+});
 
 export const staff = sqliteTable('staff', {
   id: integer('id').notNull().primaryKey(),
@@ -25,7 +38,18 @@ export const staff = sqliteTable('staff', {
   pharmacyId: text('pharmacy_id'),
 });
 
-export const PharmacySales = sqliteTable('pharmacy_sales', {
+export const pharmacySales = sqliteTable('pharmacy_sales', {
+  id: integer('id').notNull().primaryKey(),
+  productid: text('product_id')
+    .notNull()
+    .references(() => product.id),
+  qty: text('qty').notNull(),
+  unitprice: text('unit_price').notNull(),
+  datex: text('date').notNull(),
+  dealershare: text('dealer_share').notNull(),
+  netproshare: text('netpro_share').notNull(),
+});
+export const pharmacySalesOffline = sqliteTable('pharmacy_sales_offline', {
   id: integer('id').notNull().primaryKey(),
   productid: text('product_id')
     .notNull()
@@ -37,11 +61,11 @@ export const PharmacySales = sqliteTable('pharmacy_sales', {
   netproshare: text('netpro_share').notNull(),
 });
 
-export const pharmacySalesRelation = relations(PharmacySales, ({ one }) => ({
+export const pharmacySalesRelation = relations(pharmacySales, ({ one }) => ({
   product: one(product),
 }));
 
-export const StoreSales = sqliteTable('store_sales', {
+export const storeSales = sqliteTable('store_sales', {
   id: integer('id').notNull().primaryKey(),
   productid: text('product_id')
     .notNull()
@@ -58,18 +82,63 @@ export const StoreSales = sqliteTable('store_sales', {
     .references(() => staff.id),
   cid: text('cid'),
 });
-export const storeSalesRelation = relations(StoreSales, ({ one }) => ({
+export const disposedProducts = sqliteTable('disposed_products', {
+  id: integer('id').notNull().primaryKey(),
+  productid: text('product_id')
+    .notNull()
+    .references(() => product.id),
+  qty: text('qty').notNull(),
+  datex: text('date').notNull(),
+});
+export const disposedProductsOffline = sqliteTable('disposed_products_offline', {
+  id: integer('id').notNull().primaryKey(),
+  productid: text('product_id')
+    .notNull()
+    .references(() => product.id),
+  qty: text('qty').notNull(),
+  datex: text('date').notNull(),
+});
+
+export const storeSalesOffline = sqliteTable('store_sales_offline', {
+  id: integer('id').notNull().primaryKey(),
+  productid: text('product_id')
+    .notNull()
+    .references(() => product.id),
+  datex: text('date').notNull(),
+  unitprice: text('unit_price').notNull(),
+  qty: text('qty').notNull(),
+  salesreference: text('sales_reference').notNull(),
+  paymenttype: text('payment_type').notNull(),
+  transinfo: text('trans_info').notNull(),
+  paid: text('paid').notNull(),
+  userid: integer('user_id')
+    .notNull()
+    .references(() => staff.id),
+  cid: text('cid'),
+});
+export const storeSalesRelation = relations(storeSales, ({ one }) => ({
   product: one(product),
 }));
 
-export const storeStaffRelation = relations(StoreSales, ({ one }) => ({
+export const storeStaffRelation = relations(storeSales, ({ one }) => ({
   staff: one(staff),
 }));
-export const ExpenseAccount = sqliteTable('expense_account', {
+export const expenseAccount = sqliteTable('expense_account', {
   id: integer('id').notNull().primaryKey(),
   accountname: text('account_name').notNull(),
 });
-export const Expenses = sqliteTable('expenses', {
+export const expenseAccountOffline = sqliteTable('expense_account_offline', {
+  id: integer('id').notNull().primaryKey(),
+  accountname: text('account_name').notNull(),
+});
+export const expenses = sqliteTable('expenses', {
+  id: integer('id').notNull().primaryKey(),
+  accountname: text('account_name').notNull(),
+  datex: text('date').notNull(),
+  descript: text('description'),
+  amount: text('amount').notNull(),
+});
+export const expensesOffline = sqliteTable('expenses_offline', {
   id: integer('id').notNull().primaryKey(),
   accountname: text('account_name').notNull(),
   datex: text('date').notNull(),
@@ -77,13 +146,18 @@ export const Expenses = sqliteTable('expenses', {
   amount: text('amount').notNull(),
 });
 
-export const Category = sqliteTable('categories', {
+export const category = sqliteTable('categories', {
+  id: integer('id').notNull().primaryKey(),
+  category: text('category').notNull(),
+  subcategory: text('subcategory').notNull(),
+});
+export const categoryOffline = sqliteTable('categories_offline', {
   id: integer('id').notNull().primaryKey(),
   category: text('category').notNull(),
   subcategory: text('subcategory').notNull(),
 });
 
-export const PharmacyInfo = sqliteTable('pharmacy_info', {
+export const pharmacyInfo = sqliteTable('pharmacy_info', {
   id: integer('id').notNull().primaryKey(),
   statename: text('state_name').notNull(),
   businessname: text('business_name').notNull(),
@@ -101,23 +175,32 @@ export const supplyProduct = sqliteTable('supply_product', {
   unitcost: text('unit_cost').notNull(),
   datex: text('date').notNull(),
 });
+export const supplyProductOffline = sqliteTable('supply_product', {
+  id: integer('id').notNull().primaryKey(),
+  productid: text('product_id')
+    .notNull()
+    .references(() => product.id),
+  qty: text('qty').notNull(),
+  unitcost: text('unit_cost').notNull(),
+  datex: text('date').notNull(),
+});
 export const supplyRelation = relations(supplyProduct, ({ one }) => ({
   product: one(product),
 }));
 export type supplyProductSelect = typeof supplyProduct.$inferSelect;
 export type supplyProductInsert = typeof supplyProduct.$inferInsert;
+export type DisposedSelect = typeof disposedProducts.$inferSelect;
+export type CategorySelect = typeof category.$inferSelect;
+export type CategoryInsert = typeof category.$inferInsert;
+export type PharmacyType = typeof pharmacyInfo.$inferInsert;
+export type PharmacySelect = typeof pharmacyInfo.$inferSelect;
+export type ExpenseInsert = typeof expenses.$inferInsert;
+export type ExpenseSelect = typeof expenses.$inferSelect;
 
-export type CategorySelect = typeof Category.$inferSelect;
-export type CategoryInsert = typeof Category.$inferInsert;
-export type PharmacyType = typeof PharmacyInfo.$inferInsert;
-export type PharmacySelect = typeof PharmacyInfo.$inferSelect;
-export type ExpenseInsert = typeof Expenses.$inferInsert;
-export type ExpenseSelect = typeof Expenses.$inferSelect;
-
-export type SalesP = typeof PharmacySales.$inferInsert;
-export type SalesPSelect = typeof PharmacySales.$inferSelect;
-export type SalesS = typeof StoreSales.$inferInsert;
-export type SalesSSelect = typeof StoreSales.$inferSelect;
+export type SalesP = typeof pharmacySales.$inferInsert;
+export type SalesPSelect = typeof pharmacySales.$inferSelect;
+export type SalesS = typeof storeSales.$inferInsert;
+export type SalesSSelect = typeof storeSales.$inferSelect;
 export type ProductSelect = typeof product.$inferSelect;
 export type ProductInsert = typeof product.$inferInsert;
 export type StaffInsert = typeof staff.$inferInsert;

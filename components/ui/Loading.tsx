@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { LinearGradient } from 'expo-linear-gradient';
+import { FlatList, useWindowDimensions } from 'react-native';
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
 import { Spinner, Stack, View } from 'tamagui';
 
@@ -197,5 +198,28 @@ export const FormLoader = () => {
         />
       </Stack>
     </Stack>
+  );
+};
+
+export const SquareLoader = () => {
+  const { width } = useWindowDimensions();
+  const isSmallScreen = width < 411;
+  const numColumns = isSmallScreen ? 1 : 2;
+  return (
+    <FlatList
+      data={[1, 1, 1, 1]}
+      renderItem={() => (
+        <ShimmerPlaceHolder
+          LinearGradient={LinearGradient}
+          visible={false}
+          style={{ height: 200, borderRadius: 10, width: '100%', marginTop: 15 }}
+        />
+      )}
+      showsHorizontalScrollIndicator={false}
+      numColumns={numColumns}
+      contentContainerStyle={{ gap: 20 }}
+      columnWrapperStyle={isSmallScreen ? null : { gap: 20 }}
+      style={{ marginVertical: 20 }}
+    />
   );
 };

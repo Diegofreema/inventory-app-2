@@ -1,13 +1,80 @@
 /* eslint-disable prettier/prettier */
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { eq } from 'drizzle-orm';
+import { useCallback, useEffect, useState } from 'react';
 
-import { api, getDisposal, getExpenditure, getInfo, getSale, getSalesP } from '../helper';
+import {
+  api,
+  expensesAccount,
+  getDisposal,
+  getExpenditure,
+  getProducts,
+  getSale,
+  getSalesP,
+  getSupply,
+} from '../helper';
+import { useHasFetched } from '../zustand/useIsFirstTime';
 import { useStore } from '../zustand/useStore';
 
 import { useDrizzle } from '~/hooks/useDrizzle';
+import { useNetwork } from '~/hooks/useNetwork';
 import { CatType, ExpType, InfoType, NotType, SalesP, SalesS, SupplyType } from '~/type';
+
+export const useFetchAll = () => {
+  const id = useStore((state) => state.id);
+  const { hasFetched, setHasFetched } = useHasFetched();
+  const { db, schema } = useDrizzle();
+  const [fetching, setFetching] = useState(true);
+  const isConnected = useNetwork();
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchAll = useCallback(async () => {
+    try {
+      console.log('running');
+
+      const [products, online, store, expenses, disposal, account] = await Promise.all([
+        getProducts(id!),
+        getSalesP(id!),
+        getSale(id!),
+        getExpenditure(id!),
+        getDisposal(id!),
+        expensesAccount(id!),
+        getSupply(id!),
+      ]);
+      await Promise.all([
+        db.insert(schema.product).values(products),
+        db.insert(schema.storeSales).values(store),
+        db.insert(schema.expenses).values(expenses),
+        db.insert(schema.disposedProducts).values(disposal),
+        db.insert(schema.expenseAccount).values(account),
+        db.insert(schema.pharmacySales).values(online),
+      ]);
+      setHasFetched(true);
+      setError(null);
+    } catch (error) {
+      setError('Error fetching and syncing data');
+      console.log(error);
+    } finally {
+      setFetching(false);
+    }
+  }, []);
+  useEffect(() => {
+    if (!isConnected) {
+      setError('No internet connection, Internet connection needed to sync data');
+      return;
+    } else {
+      setError(null);
+    }
+
+    if (hasFetched) return;
+
+    if (id) {
+      fetchAll();
+    }
+  }, [isConnected, id, hasFetched, fetchAll]);
+
+  return { isConnected, fetching, error, fetchAll };
+};
 
 export const useProducts = () => {
   const id = useStore((state) => state.id);
@@ -42,7 +109,7 @@ export const useSalesP = () => {
     queryKey: ['salesPharmacy', id],
     queryFn: async () => {
       const data = await getSalesP(id!);
-      await db.insert(schema.PharmacySales).values(data).onConflictDoNothing();
+      await db.insert(schema.pharmacySales).values(data).onConflictDoNothing();
       return data;
     },
   });
@@ -54,10 +121,10 @@ export const useSalesS = () => {
     queryKey: ['salesStore', id],
     queryFn: async () => {
       const data = await getSale(id!);
-      const previousStoreSales = await db.query.StoreSales.findMany();
+      const previousStoreSales = await db.query.storeSales.findMany();
       data.forEach((d) => {
         if (!previousStoreSales[d.datex]) {
-          db.insert(schema.StoreSales).values(d).onConflictDoNothing();
+          db.insert(schema.storeSales).values(d).onConflictDoNothing();
         }
       });
 
@@ -107,18 +174,30 @@ export const useSupply = () => {
 
   return useQuery<SupplyType[]>({
     queryKey: ['supply', id],
-    queryFn: () => getInfo(id),
+    queryFn: () => getSupply(id),
   });
 };
 export const useExpAcc = () => {
   const id = useStore((state) => state.id);
+  const { db, schema } = useDrizzle();
   const getExpAcc = async () => {
     const response = await axios.get(`${api}api=getexpensact&cidx=${id}`);
-    let data = [];
+    let data: { accountname: string }[] = [];
     if (Object.prototype.toString.call(response.data) === '[object Object]') {
       data.push(response.data);
     } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
       data = [...response.data];
+    }
+
+    const previousExpAcc = await db.query.expenseAccount.findMany();
+    const previousAccountNames = new Set(previousExpAcc.map((acc) => acc.accountname));
+
+    const newAccounts = data.filter((d) => !previousAccountNames.has(d.accountname));
+    console.log(data.length);
+
+    if (newAccounts.length > 0) {
+      await db.insert(schema.expenseAccount).values(newAccounts).onConflictDoNothing();
+      console.log(`Inserted ${newAccounts.length} new expense accounts`);
     }
 
     return data;

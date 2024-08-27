@@ -6,26 +6,19 @@ import { FlatList, useWindowDimensions } from 'react-native';
 import { Card, CardHeader, Circle, Stack, XStack } from 'tamagui';
 
 import { CustomBarIcon } from '../TabBarIcon';
-import { Skeleton } from '../ui/Skeleton';
 import { CustomSubHeading } from '../ui/typography';
 
-import { colors, shadow } from '~/constants';
+import { colors } from '~/constants';
 import { ProductSelect, SalesP, SalesS } from '~/db/schema';
 import { calculateTotalSales } from '~/lib/helper';
 import { PreviewType } from '~/type';
 
 type DashboardType = {
-  loading: boolean;
   products: ProductSelect[] | undefined;
   salesP: SalesP[];
   salesS: SalesS[];
 };
-export const DashBoardCards = ({
-  loading,
-  products,
-  salesP,
-  salesS,
-}: DashboardType): JSX.Element => {
+export const DashBoardCards = ({ products, salesP, salesS }: DashboardType): JSX.Element => {
   const { width } = useWindowDimensions();
   const isSmallScreen = width < 411;
   const numColumns = isSmallScreen ? 1 : 2;
@@ -61,7 +54,7 @@ export const DashBoardCards = ({
     <FlatList
       data={data}
       scrollEnabled={false}
-      renderItem={({ item, index }) => <DashBoardCard {...item} index={index} loading={loading} />}
+      renderItem={({ item, index }) => <DashBoardCard {...item} index={index} />}
       numColumns={numColumns}
       contentContainerStyle={{ gap: 10, padding: 5 }}
       columnWrapperStyle={isSmallScreen ? null : { gap: 10 }}
@@ -69,12 +62,7 @@ export const DashBoardCards = ({
   );
 };
 
-const DashBoardCard = ({
-  amount,
-  title,
-  index,
-  loading,
-}: PreviewType & { index: number; loading: boolean }) => {
+const DashBoardCard = ({ amount, title, index }: PreviewType & { index: number }) => {
   const colorArray = [
     { color1: '#1A5F7A', color2: '#86C8BC' }, // Deep blue and soft teal
     { color1: '#FF6B6B', color2: '#FFD93D' }, // Coral red and warm yellow
@@ -88,36 +76,30 @@ const DashBoardCard = ({
   const Icon = IconArray[index];
   const color = colorArray[index];
   return (
-    <Skeleton
-      loading={loading}
-      style={{
-        height: 100,
-        borderRadius: 10,
-        flex: 1,
-        backgroundColor: 'white',
-        ...shadow.card,
-        borderWidth: 1,
-        borderColor: colors.lightGray,
-        width: isSmallScreen ? '100%' : '45%',
-      }}>
-      <Card flex={1} bg={colors.white}>
-        <CardHeader>
-          <XStack alignItems="center" justifyContent="space-between" gap={5}>
-            <Stack>
-              <CustomSubHeading
-                maxWidth={isSmallScreen ? '100%' : '90%'}
-                text={title!}
-                fontSize={12}
-                color={colors.grey}
-              />
-              <CustomSubHeading text={amount!} fontSize={18} color={colors.black} />
-            </Stack>
-            <Circle bg={color.color1} p={5}>
-              <CustomBarIcon icon={Icon} size={20} color={color.color2} />
-            </Circle>
-          </XStack>
-        </CardHeader>
-      </Card>
-    </Skeleton>
+    <Card
+      flex={1}
+      bg={colors.white}
+      borderRadius={10}
+      borderWidth={1}
+      borderColor={colors.lightGray}
+      width={isSmallScreen ? '100%' : '45%'}
+      backgroundColor={colors.white}>
+      <CardHeader>
+        <XStack alignItems="center" justifyContent="space-between" gap={5}>
+          <Stack>
+            <CustomSubHeading
+              maxWidth={isSmallScreen ? '100%' : '90%'}
+              text={title!}
+              fontSize={12}
+              color={colors.grey}
+            />
+            <CustomSubHeading text={amount!} fontSize={18} color={colors.black} />
+          </Stack>
+          <Circle bg={color.color1} p={5}>
+            <CustomBarIcon icon={Icon} size={20} color={color.color2} />
+          </Circle>
+        </XStack>
+      </CardHeader>
+    </Card>
   );
 };

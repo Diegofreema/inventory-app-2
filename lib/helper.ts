@@ -2,7 +2,6 @@
 import axios from 'axios';
 import { format } from 'date-fns';
 
-import { ProductSelect } from '~/db/schema';
 import { SalesS } from '~/type';
 
 export const api = process.env.EXPO_PUBLIC_API;
@@ -72,14 +71,18 @@ export const colors = [
 
 export const getProducts = async (id: string) => {
   const response = await axios.get(`${api}api=getproducts&cidx=${id}`);
-  let data: ProductSelect[] = [];
+  let data = [];
   if (Object.prototype.toString.call(response.data) === '[object Object]') {
     data.push(response.data);
   } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
     data = [...response.data];
   }
-
-  return data;
+  const formattedProducts = data.map((product) => ({
+    ...product,
+    category: product.Category,
+    subcategory: product.Subcategory,
+  }));
+  return formattedProducts;
 };
 
 export const trimText = (text: string): string => {
@@ -115,7 +118,7 @@ export const getExpenditure = async (id: any) => {
   return data;
 };
 
-export const getInfo = async (id: any) => {
+export const getSupply = async (id: any) => {
   const response = await axios.get(`${api}api=getproductsupply&cidx=${id}`);
   let data = [];
   if (Object.prototype.toString.call(response.data) === '[object Object]') {
@@ -169,6 +172,18 @@ export const calculateTotalsByPaymentType = (data: SalesS[]) => {
 export const getDisposal = async (id: any) => {
   const response = await axios.get(`${api}api=getproductdisposal&cidx=${id}`);
   let data = [];
+  if (Object.prototype.toString.call(response.data) === '[object Object]') {
+    data.push(response.data);
+  } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
+    data = [...response.data];
+  }
+
+  return data;
+};
+
+export const expensesAccount = async (id: any) => {
+  const response = await axios.get(`${api}api=getexpensact&cidx=${id}`);
+  let data: { accountname: string }[] = [];
   if (Object.prototype.toString.call(response.data) === '[object Object]') {
     data.push(response.data);
   } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
