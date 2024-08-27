@@ -1,15 +1,15 @@
 /* eslint-disable prettier/prettier */
 
 import Animated, { SlideInLeft, SlideInRight } from 'react-native-reanimated';
-import { CardHeader, Card } from 'tamagui';
+import { Card, CardHeader } from 'tamagui';
 
 import { FlexText } from '../ui/FlexText';
 
 import { colors } from '~/constants';
-import { ExpType } from '~/type';
+import { ExpenseSelect } from '~/db/schema';
 
 type Props = {
-  item: ExpType;
+  item: ExpenseSelect;
   index: number;
 };
 
@@ -29,7 +29,7 @@ export const ExpenseCard = ({ index, item }: Props): JSX.Element => {
       borderColor={colors.lightGray}>
       <CardHeader gap={5}>
         <FlexText text="Account name" text2={item?.accountname} />
-        <FlexText text="Description" text2={item?.descript} />
+        <FlexText text="Description" text2={item?.descript!} />
         <FlexText text="Amount" text2={item?.amount} />
         <FlexText text="Date" text2={item?.datex} />
       </CardHeader>

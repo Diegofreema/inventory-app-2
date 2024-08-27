@@ -14,29 +14,27 @@ import { useExpAcc } from '~/lib/tanstack/queries';
 export const Expenditure = (): JSX.Element => {
   const [value, setValue] = useState('');
   const onSetValue = useCallback((val: string) => setValue(val), [value]);
-  const { data, isError, isPending, refetch, isFetching } = useExpAcc();
+  const { refetch, data, isError, isPending, isRefetching } = useExpAcc();
   const router = useRouter();
   const handleNav = () => {
     router.push('/addExpenditure');
   };
   const onRefetch = useCallback(() => refetch, []);
   const filterAccount = useMemo(() => {
-    if (value.trim()) {
+    if (!value.trim()) {
       return data || [];
     }
+
     const lowerCaseValue = value.toLowerCase();
-    return data?.filter((d) => d?.accountname?.toLowerCase()?.includes(lowerCaseValue)) || [];
+    return data?.filter((d) => d?.accountname?.toLowerCase().includes(lowerCaseValue)) || [];
   }, [value, data]);
   if (isError) {
     return <Error onRetry={refetch} />;
   }
-
-  console.log(data);
-
   return (
     <AnimatedContainer>
       <StoreActions
-        placeholder="Expenditure name"
+        placeholder="expenditure name"
         title="Expenditure"
         setVal={onSetValue}
         val={value}
@@ -46,7 +44,7 @@ export const Expenditure = (): JSX.Element => {
       {isPending ? (
         <ExpenditureLoader />
       ) : (
-        <ExpenditureList onRefetch={onRefetch} isFetching={isFetching} data={filterAccount} />
+        <ExpenditureList onRefetch={onRefetch} isFetching={isRefetching} data={filterAccount} />
       )}
     </AnimatedContainer>
   );

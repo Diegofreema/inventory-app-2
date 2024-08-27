@@ -133,11 +133,15 @@ export const useSalesS = () => {
   });
 };
 export const useExpenditure = () => {
-  const id = useStore((state) => state.id);
+  const { db } = useDrizzle();
+  const getExpenditure = async () => {
+    const data = await db.query.expenses.findMany();
+    return data;
+  };
 
-  return useQuery<ExpType[]>({
-    queryKey: ['expenditure', id],
-    queryFn: () => getExpenditure(id),
+  return useQuery({
+    queryKey: ['expenditure'],
+    queryFn: () => getExpenditure(),
   });
 };
 export const useCat = () => {
@@ -178,32 +182,13 @@ export const useSupply = () => {
   });
 };
 export const useExpAcc = () => {
-  const id = useStore((state) => state.id);
-  const { db, schema } = useDrizzle();
+  const { db } = useDrizzle();
   const getExpAcc = async () => {
-    const response = await axios.get(`${api}api=getexpensact&cidx=${id}`);
-    let data: { accountname: string }[] = [];
-    if (Object.prototype.toString.call(response.data) === '[object Object]') {
-      data.push(response.data);
-    } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
-      data = [...response.data];
-    }
-
-    const previousExpAcc = await db.query.expenseAccount.findMany();
-    const previousAccountNames = new Set(previousExpAcc.map((acc) => acc.accountname));
-
-    const newAccounts = data.filter((d) => !previousAccountNames.has(d.accountname));
-    console.log(data.length);
-
-    if (newAccounts.length > 0) {
-      await db.insert(schema.expenseAccount).values(newAccounts).onConflictDoNothing();
-      console.log(`Inserted ${newAccounts.length} new expense accounts`);
-    }
-
+    const data = await db.query.expenseAccount.findMany();
     return data;
   };
   return useQuery<{ accountname: string }[]>({
-    queryKey: ['exp_name', id],
+    queryKey: ['exp_name'],
     queryFn: getExpAcc,
   });
 };

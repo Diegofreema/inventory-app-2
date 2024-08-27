@@ -5,18 +5,14 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { StoreActions } from './StoreActions';
 import { AnimatedContainer } from '../ui/AniminatedContainer';
-import { ErrorBanner } from '../ui/ErrorBanner';
-import { ProductLoader } from '../ui/Loading';
 import { Products } from '../ui/Products';
 
 import { useGet } from '~/hooks/useGet';
-import { useProducts } from '~/lib/tanstack/queries';
 
 export const StoreProducts = (): JSX.Element => {
   const [value, setValue] = useState('');
   const { products } = useGet();
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
-  const { isError, isPending, refetch, isRefetching: isRefetchingProduct } = useProducts();
 
   const router = useRouter();
   const handleNav = () => {
@@ -47,7 +43,6 @@ export const StoreProducts = (): JSX.Element => {
 
   return (
     <AnimatedContainer>
-      {isError && <ErrorBanner />}
       <StoreActions
         show
         placeholder="Product name"
@@ -58,17 +53,8 @@ export const StoreProducts = (): JSX.Element => {
         setValue={setSelectedValue}
         onPress={handleNav}
       />
-      {isPending ? (
-        <ProductLoader />
-      ) : (
-        <Products
-          data={filteredProducts}
-          onRefetch={refetch}
-          isLoading={isRefetchingProduct}
-          scrollEnabled
-          navigate
-        />
-      )}
+
+      <Products data={filteredProducts} scrollEnabled navigate />
     </AnimatedContainer>
   );
 };

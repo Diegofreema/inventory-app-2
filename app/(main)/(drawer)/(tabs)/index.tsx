@@ -6,15 +6,13 @@ import { ScrollView, XStack } from 'tamagui';
 import { Container } from '~/components/Container';
 import { LogoutButton } from '~/components/LogoutButton';
 import { DashBoardCards } from '~/components/home/DashBoardCards';
-import { MyButton } from '~/components/ui/MyButton';
 import { Products } from '~/components/ui/Products';
 import { CustomHeading } from '~/components/ui/typography';
 import { useGet } from '~/hooks/useGet';
-import { useHasFetched } from '~/lib/zustand/useIsFirstTime';
 
 export default function Home() {
   const { onlineSales, products, storeSales } = useGet();
-  const { setHasFetched } = useHasFetched();
+
   const limitedProducts = useMemo(() => {
     if (!products) return [];
     return products.slice(0, 5);
@@ -34,6 +32,7 @@ export default function Home() {
           text="Product list"
           linkText="View Product Page"
           href="/store"
+          navigate
         />
       </ScrollView>
     </Container>

@@ -12,7 +12,7 @@ import { ExpenseLoader } from '../ui/Loading';
 import { useExpenditure } from '~/lib/tanstack/queries';
 
 export const Expenses = (): JSX.Element => {
-  const { data, isPending, isError, refetch } = useExpenditure();
+  const { data, isPending, isError, refetch, isRefetching } = useExpenditure();
   const [value, setValue] = useState('');
   const router = useRouter();
   const handlePress = useCallback(() => router.push('/addExpense'), [router]);
@@ -45,7 +45,11 @@ export const Expenses = (): JSX.Element => {
         val={value}
         setVal={onSetValue}
       />
-      {isPending ? <ExpenseLoader /> : <ExpenseFlalist data={filteredValue} />}
+      {isPending ? (
+        <ExpenseLoader />
+      ) : (
+        <ExpenseFlalist data={filteredValue} fetching={isRefetching} refetch={refetch} />
+      )}
     </AnimatedContainer>
   );
 };
