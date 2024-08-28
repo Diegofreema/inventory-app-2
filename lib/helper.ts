@@ -194,4 +194,7 @@ export const rearrangeDateString = (date: string) => {
   return date.split('/').reverse().join('-');
 };
 
-export const findRecentPrice = () => {};
+// export const generateIdIfNotInDb = (products: ProductSelect[]) => {
+//   const id = createId()
+//   const isInDb = products.
+// };

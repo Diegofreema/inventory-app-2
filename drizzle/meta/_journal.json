@@ -8,6 +8,13 @@
       "when": 1724854220973,
       "tag": "0000_last_network",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1724861606173,
+      "tag": "0001_regular_dagger",
+      "breakpoints": true
     }
   ]
 }

@@ -52,7 +52,7 @@ export const ProductForm = (): JSX.Element => {
       customerproductid: '',
       des: '',
       marketprice: '',
-      online: '',
+      online: 'True',
       product: '',
       qty: '',
       sellingprice: '',

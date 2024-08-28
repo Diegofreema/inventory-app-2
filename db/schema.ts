@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 
-import { relations } from 'drizzle-orm';
+import { createId } from '@paralleldrive/cuid2';
+import { relations, sql } from 'drizzle-orm';
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
 export const product = sqliteTable('products', {
@@ -10,7 +11,7 @@ export const product = sqliteTable('products', {
   subcategory: text('subcategory'),
   customerproductid: text('customer_product_id'),
   marketprice: text('market_price'),
-  online: text('online'),
+  online: text('online', { enum: ['True', 'False'] }),
   product: text('product').notNull(),
   qty: text('qty').notNull(),
   sellingprice: text('seller_price'),
@@ -196,6 +197,35 @@ export const supplyRelation = relations(supplyProduct, ({ one }) => ({
   product: one(product, {
     fields: [supplyProduct.productid],
     references: [product.productId],
+  }),
+}));
+export const cart = sqliteTable('cart', {
+  id: integer('id').notNull().primaryKey(),
+  salesReference: text('sales_reference')
+    .notNull()
+    .$default(() => createId() + sql`CURRENT_TIMESTAMP`),
+});
+
+export const cartItem = sqliteTable('cart_item', {
+  id: integer('id').notNull().primaryKey(),
+  productId: text('product_id').references(() => product.productId),
+  qty: integer('qty').notNull(),
+  cartId: integer('cart_id').references(() => cart.id),
+  unitCost: integer('unit_cost').notNull(),
+});
+export const cartItemProduct = relations(cartItem, ({ one }) => ({
+  product: one(product, {
+    fields: [cartItem.productId],
+    references: [product.productId],
+  }),
+}));
+export const cartCartItemRelation = relations(cart, ({ many }) => ({
+  cartItem: many(cartItem),
+}));
+export const cartItemCartRelation = relations(cartItem, ({ one }) => ({
+  cart: one(cart, {
+    fields: [cartItem.cartId],
+    references: [cart.id],
   }),
 }));
 export type supplyProductSelect = typeof supplyProduct.$inferSelect;

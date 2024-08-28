@@ -80,7 +80,7 @@ export const newProductSchema = z.object({
   state: z.string().optional(),
   des: z.string().min(1, { message: 'Description is required' }),
   marketprice: z.string().min(1, { message: 'Price is required' }),
-  online: z.string().min(1, { message: 'Online status is required' }),
+  online: z.enum(['True', 'False']),
   sellingprice: z.string().min(1, { message: 'Selling price is required' }),
   qty: z.string().min(1, { message: 'Quantity is required' }),
   sharedealer: z.string().optional(),

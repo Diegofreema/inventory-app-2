@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import { createId } from '@paralleldrive/cuid2';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -33,6 +34,19 @@ export const useAddNewProduct = () => {
       subcategory,
       customerproductid,
     }: z.infer<typeof newProductSchema>) => {
+      let productId: string = '';
+      let isUnique = false;
+
+      while (!isUnique) {
+        productId = createId();
+        const existingProduct = await db.query.product.findFirst({
+          where: eq(schema.product.productId, productId),
+        });
+
+        if (!existingProduct) {
+          isUnique = true;
+        }
+      }
       const addedProduct = await db
         .insert(schema.product)
         .values({
@@ -46,6 +60,7 @@ export const useAddNewProduct = () => {
           sharedealer,
           sharenetpro,
           subcategory,
+          productId,
         })
         .returning();
       if (addedProduct.length && isConnected) {
@@ -68,6 +83,7 @@ export const useAddNewProduct = () => {
             sharedealer,
             sharenetpro,
             subcategory,
+            productId,
           })
           .returning();
 

@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { LinearGradient } from 'expo-linear-gradient';
-import { FlatList, useWindowDimensions } from 'react-native';
+import { FlatList } from 'react-native';
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
 import { Spinner, Stack, View } from 'tamagui';
 
