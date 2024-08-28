@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "92fe7ad7-1b8a-4e15-88d6-1d65063a8746",
+  "id": "a35a4327-5f8d-420b-add1-a1cfeed52dd4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "categories": {
@@ -76,7 +76,7 @@
         },
         "product_id": {
           "name": "product_id",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -98,15 +98,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "disposed_products_product_id_products_id_fk": {
-          "name": "disposed_products_product_id_products_id_fk",
+        "disposed_products_product_id_products_product_id_fk": {
+          "name": "disposed_products_product_id_products_product_id_fk",
           "tableFrom": "disposed_products",
           "tableTo": "products",
           "columnsFrom": [
             "product_id"
           ],
           "columnsTo": [
-            "id"
+            "product_id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -127,7 +127,7 @@
         },
         "product_id": {
           "name": "product_id",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -149,15 +149,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "disposed_products_offline_product_id_products_id_fk": {
-          "name": "disposed_products_offline_product_id_products_id_fk",
+        "disposed_products_offline_product_id_products_product_id_fk": {
+          "name": "disposed_products_offline_product_id_products_product_id_fk",
           "tableFrom": "disposed_products_offline",
           "tableTo": "products",
           "columnsFrom": [
             "product_id"
           ],
           "columnsTo": [
-            "id"
+            "product_id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -406,15 +406,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "pharmacy_sales_product_id_products_id_fk": {
-          "name": "pharmacy_sales_product_id_products_id_fk",
+        "pharmacy_sales_product_id_products_product_id_fk": {
+          "name": "pharmacy_sales_product_id_products_product_id_fk",
           "tableFrom": "pharmacy_sales",
           "tableTo": "products",
           "columnsFrom": [
             "product_id"
           ],
           "columnsTo": [
-            "id"
+            "product_id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -478,15 +478,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "pharmacy_sales_offline_product_id_products_id_fk": {
-          "name": "pharmacy_sales_offline_product_id_products_id_fk",
+        "pharmacy_sales_offline_product_id_products_product_id_fk": {
+          "name": "pharmacy_sales_offline_product_id_products_product_id_fk",
           "tableFrom": "pharmacy_sales_offline",
           "tableTo": "products",
           "columnsFrom": [
             "product_id"
           ],
           "columnsTo": [
-            "id"
+            "product_id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -502,6 +502,13 @@
           "name": "id",
           "type": "integer",
           "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
@@ -588,6 +595,13 @@
           "name": "id",
           "type": "integer",
           "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "product_id": {
+          "name": "product_id",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
@@ -794,15 +808,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "store_sales_product_id_products_id_fk": {
-          "name": "store_sales_product_id_products_id_fk",
+        "store_sales_product_id_products_product_id_fk": {
+          "name": "store_sales_product_id_products_product_id_fk",
           "tableFrom": "store_sales",
           "tableTo": "products",
           "columnsFrom": [
             "product_id"
           ],
           "columnsTo": [
-            "id"
+            "product_id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -907,15 +921,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "store_sales_offline_product_id_products_id_fk": {
-          "name": "store_sales_offline_product_id_products_id_fk",
+        "store_sales_offline_product_id_products_product_id_fk": {
+          "name": "store_sales_offline_product_id_products_product_id_fk",
           "tableFrom": "store_sales_offline",
           "tableTo": "products",
           "columnsFrom": [
             "product_id"
           ],
           "columnsTo": [
-            "id"
+            "product_id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -949,7 +963,7 @@
         },
         "product_id": {
           "name": "product_id",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -965,7 +979,7 @@
           "name": "unit_cost",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoincrement": false
         },
         "date": {
@@ -978,15 +992,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "supply_product_product_id_products_id_fk": {
-          "name": "supply_product_product_id_products_id_fk",
+        "supply_product_product_id_products_product_id_fk": {
+          "name": "supply_product_product_id_products_product_id_fk",
           "tableFrom": "supply_product",
           "tableTo": "products",
           "columnsFrom": [
             "product_id"
           ],
           "columnsTo": [
-            "id"
+            "product_id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"

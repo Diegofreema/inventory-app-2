@@ -8,23 +8,6 @@ export const api = process.env.EXPO_PUBLIC_API;
 
 export const calculateTotalSales = (sales: string[] | undefined): number =>
   sales?.reduce((total, p) => total + Number(p || 0), 0) ?? 0;
-// export function processExpenses(expenses : ExpType[]) {
-//   const result = expenses.reduce((acc, curr) => {
-//     const existingEntry = acc.find((item) => item?.accountname === curr.accountname);
-
-//     if (existingEntry) {
-//       // If the accountname already exists, add the amount
-//       existingEntry.amount = (Number(existingEntry.amount) + Number(curr.amount)).toString();
-//     } else {
-//       // If it's a new accountname, add a new entry
-//       acc.push({ name: curr.accountname, amount: curr.amount });
-//     }
-
-//     return acc;
-//   }, []);
-
-//   return result;
-// }
 
 export const colors = [
   '#F08080', // Light Coral
@@ -77,11 +60,20 @@ export const getProducts = async (id: string) => {
   } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
     data = [...response.data];
   }
+  console.log(data);
+
   const formattedProducts = data.map((product) => ({
-    ...product,
     category: product.Category,
     subcategory: product.Subcategory,
-    id: +product.id,
+    productId: product.id,
+    product: product.product,
+    customerproductid: product.customerproductid,
+    marketprice: product.marketprice,
+    online: product.online,
+    qty: product.qty,
+    sellingprice: product.sellingprice,
+    sharedealer: product.sharedealer,
+    sharenetpro: product.sharenetpro,
   }));
   return formattedProducts;
 };

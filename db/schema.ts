@@ -5,6 +5,7 @@ import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
 export const product = sqliteTable('products', {
   id: integer('id').notNull().primaryKey(),
+  productId: text('product_id').notNull(),
   category: text('category'),
   subcategory: text('subcategory'),
   customerproductid: text('customer_product_id'),
@@ -18,6 +19,7 @@ export const product = sqliteTable('products', {
 });
 export const productOffline = sqliteTable('products_offline', {
   id: integer('id').notNull().primaryKey(),
+  productId: text('product_id').notNull(),
   category: text('category'),
   subcategory: text('subcategory'),
   customerproductid: text('customer_product_id'),
@@ -42,7 +44,7 @@ export const pharmacySales = sqliteTable('pharmacy_sales', {
   id: integer('id').notNull().primaryKey(),
   productid: text('product_id')
     .notNull()
-    .references(() => product.id),
+    .references(() => product.productId),
   qty: text('qty').notNull(),
   unitprice: text('unit_price').notNull(),
   datex: text('date').notNull(),
@@ -53,7 +55,7 @@ export const pharmacySalesOffline = sqliteTable('pharmacy_sales_offline', {
   id: integer('id').notNull().primaryKey(),
   productid: text('product_id')
     .notNull()
-    .references(() => product.id),
+    .references(() => product.productId),
   qty: text('qty').notNull(),
   unitprice: text('unit_price').notNull(),
   datex: text('date').notNull(),
@@ -64,7 +66,7 @@ export const pharmacySalesOffline = sqliteTable('pharmacy_sales_offline', {
 export const pharmacySalesRelation = relations(pharmacySales, ({ one }) => ({
   product: one(product, {
     fields: [pharmacySales.productid],
-    references: [product.id],
+    references: [product.productId],
   }),
 }));
 
@@ -72,7 +74,7 @@ export const storeSales = sqliteTable('store_sales', {
   id: integer('id').notNull().primaryKey(),
   productid: text('product_id')
     .notNull()
-    .references(() => product.id),
+    .references(() => product.productId),
   datex: text('date').notNull(),
   unitprice: text('unit_price').notNull(),
   qty: text('qty').notNull(),
@@ -89,7 +91,7 @@ export const disposedProducts = sqliteTable('disposed_products', {
   id: integer('id').notNull().primaryKey(),
   productid: integer('product_id')
     .notNull()
-    .references(() => product.id),
+    .references(() => product.productId),
   qty: text('qty').notNull(),
   datex: text('date').notNull(),
 });
@@ -97,7 +99,7 @@ export const disposedProductsOffline = sqliteTable('disposed_products_offline', 
   id: integer('id').notNull().primaryKey(),
   productid: integer('product_id')
     .notNull()
-    .references(() => product.id),
+    .references(() => product.productId),
   qty: text('qty').notNull(),
   datex: text('date').notNull(),
 });
@@ -106,7 +108,7 @@ export const storeSalesOffline = sqliteTable('store_sales_offline', {
   id: integer('id').notNull().primaryKey(),
   productid: text('product_id')
     .notNull()
-    .references(() => product.id),
+    .references(() => product.productId),
   datex: text('date').notNull(),
   unitprice: text('unit_price').notNull(),
   qty: text('qty').notNull(),
@@ -122,7 +124,7 @@ export const storeSalesOffline = sqliteTable('store_sales_offline', {
 export const storeSalesRelation = relations(storeSales, ({ one }) => ({
   product: one(product, {
     fields: [storeSales.productid],
-    references: [product.id],
+    references: [product.productId],
   }),
 }));
 
@@ -176,7 +178,7 @@ export const supplyProduct = sqliteTable('supply_product', {
   id: integer('id').notNull().primaryKey(),
   productid: integer('product_id')
     .notNull()
-    .references(() => product.id),
+    .references(() => product.productId),
   qty: text('qty').notNull(),
   unitcost: text('unit_cost'),
   datex: text('date').notNull(),
@@ -185,13 +187,16 @@ export const supplyProductOffline = sqliteTable('supply_product', {
   id: integer('id').notNull().primaryKey(),
   productid: integer('product_id')
     .notNull()
-    .references(() => product.id),
+    .references(() => product.productId),
   qty: text('qty').notNull(),
   unitcost: text('unit_cost'),
   datex: text('date').notNull(),
 });
 export const supplyRelation = relations(supplyProduct, ({ one }) => ({
-  product: one(product),
+  product: one(product, {
+    fields: [supplyProduct.productid],
+    references: [product.productId],
+  }),
 }));
 export type supplyProductSelect = typeof supplyProduct.$inferSelect;
 export type supplyProductInsert = typeof supplyProduct.$inferInsert;

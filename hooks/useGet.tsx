@@ -25,7 +25,7 @@ export const useGet = (id?: string) => {
       setStoreSales(store);
     };
     const fetchSingleProduct = async () => {
-      const p = await db.query.product.findFirst({ where: eq(product.id, id!) });
+      const p = await db.query.product.findFirst({ where: eq(product.productId, id!) });
       setSingleProduct(p);
     };
     fetchData();

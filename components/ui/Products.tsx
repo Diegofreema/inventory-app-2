@@ -72,7 +72,7 @@ const ProductCard = ({
 
   const details = useMemo(
     () => ({
-      productId: item?.id,
+      productId: item?.productId,
       name: item?.product,
 
       price: item?.sellingprice!,

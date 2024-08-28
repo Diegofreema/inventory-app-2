@@ -41,6 +41,9 @@ export const useFetchAll = () => {
         expensesAccount(id!),
         getSupply(id!),
       ]);
+
+      console.log(products[0]);
+
       await Promise.all([
         db.insert(schema.product).values(products),
         db.insert(schema.storeSales).values(store),
