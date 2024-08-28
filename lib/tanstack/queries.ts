@@ -18,7 +18,7 @@ import { useStore } from '../zustand/useStore';
 
 import { useDrizzle } from '~/hooks/useDrizzle';
 import { useNetwork } from '~/hooks/useNetwork';
-import { CatType, ExpType, InfoType, NotType, SalesP, SalesS, SupplyType } from '~/type';
+import { CatType, InfoType, NotType, SupplyType } from '~/type';
 
 export const useFetchAll = () => {
   const id = useStore((state) => state.id);

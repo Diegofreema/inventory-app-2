@@ -81,6 +81,7 @@ export const getProducts = async (id: string) => {
     ...product,
     category: product.Category,
     subcategory: product.Subcategory,
+    id: +product.id,
   }));
   return formattedProducts;
 };

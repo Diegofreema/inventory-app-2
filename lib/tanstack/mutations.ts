@@ -16,6 +16,8 @@ import { SalesStore, SupplyInsert } from '~/type';
 
 export const useAddNewProduct = () => {
   const storeId = useStore((state) => state.id);
+  const isConnected = useNetwork();
+  const { db, schema } = useDrizzle();
   return useMutation({
     mutationFn: async ({
       category,
@@ -31,11 +33,48 @@ export const useAddNewProduct = () => {
       subcategory,
       customerproductid,
     }: z.infer<typeof newProductSchema>) => {
-      const { data } = await axios.get(
-        `${api}api=addproduct&customerproductid=${customerproductid}&online=${online}&productname=${product}&cidx=${storeId}&qty=${qty}&statename=${state}&description=${des}&productcategory=${category}&productsubcategory=${subcategory}&marketprice=${marketprice}&getsellingprice=${sellingprice}&getdealershare=${sharedealer}&getnetproshare=${sharenetpro}`
-      );
+      const addedProduct = await db
+        .insert(schema.product)
+        .values({
+          product,
+          qty,
+          category,
+          customerproductid,
+          marketprice,
+          online,
+          sellingprice,
+          sharedealer,
+          sharenetpro,
+          subcategory,
+        })
+        .returning();
+      if (addedProduct.length && isConnected) {
+        const { data } = await axios.get(
+          `${api}api=addproduct&customerproductid=${customerproductid}&online=${online}&productname=${product}&cidx=${storeId}&qty=${qty}&statename=${state}&description=${des}&productcategory=${category}&productsubcategory=${subcategory}&marketprice=${marketprice}&getsellingprice=${sellingprice}&getdealershare=${sharedealer}&getnetproshare=${sharenetpro}`
+        );
 
-      return data;
+        return data;
+      } else if (addedProduct.length && !isConnected) {
+        const addedProduct = await db
+          .insert(schema.productOffline)
+          .values({
+            product,
+            qty,
+            category,
+            customerproductid,
+            marketprice,
+            online,
+            sellingprice,
+            sharedealer,
+            sharenetpro,
+            subcategory,
+          })
+          .returning();
+
+        return addedProduct;
+      } else {
+        throw new Error('No internet connection');
+      }
     },
   });
 };
@@ -56,7 +95,7 @@ export const useAdd247 = () => {
     }) => {
       try {
         const productInDb = await db.query.product.findFirst({
-          where: eq(schema.product.id, productId),
+          where: eq(schema.product.id, +productId),
           columns: {
             sharenetpro: true,
             sharedealer: true,

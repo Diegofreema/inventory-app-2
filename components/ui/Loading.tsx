@@ -202,9 +202,6 @@ export const FormLoader = () => {
 };
 
 export const SquareLoader = () => {
-  const { width } = useWindowDimensions();
-  const isSmallScreen = width < 411;
-  const numColumns = isSmallScreen ? 1 : 2;
   return (
     <FlatList
       data={[1, 1, 1, 1]}
@@ -212,13 +209,13 @@ export const SquareLoader = () => {
         <ShimmerPlaceHolder
           LinearGradient={LinearGradient}
           visible={false}
-          style={{ height: 200, borderRadius: 10, width: '100%', marginTop: 15 }}
+          style={{ height: 150, borderRadius: 10, width: '100%', marginTop: 15 }}
         />
       )}
       showsHorizontalScrollIndicator={false}
-      numColumns={numColumns}
+      numColumns={2}
       contentContainerStyle={{ gap: 20 }}
-      columnWrapperStyle={isSmallScreen ? null : { gap: 20 }}
+      columnWrapperStyle={{ gap: 20 }}
       style={{ marginVertical: 20 }}
     />
   );

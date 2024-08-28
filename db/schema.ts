@@ -4,7 +4,7 @@ import { relations } from 'drizzle-orm';
 import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 
 export const product = sqliteTable('products', {
-  id: text('id').notNull().primaryKey(),
+  id: integer('id').notNull().primaryKey(),
   category: text('category'),
   subcategory: text('subcategory'),
   customerproductid: text('customer_product_id'),
@@ -17,7 +17,7 @@ export const product = sqliteTable('products', {
   sharenetpro: text('share_netpro'),
 });
 export const productOffline = sqliteTable('products_offline', {
-  id: text('id').notNull().primaryKey(),
+  id: integer('id').notNull().primaryKey(),
   category: text('category'),
   subcategory: text('subcategory'),
   customerproductid: text('customer_product_id'),
