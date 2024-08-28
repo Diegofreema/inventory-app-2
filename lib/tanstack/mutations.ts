@@ -13,7 +13,7 @@ import { useStore } from '../zustand/useStore';
 
 import { useDrizzle } from '~/hooks/useDrizzle';
 import { useNetwork } from '~/hooks/useNetwork';
-import { SalesStore, SupplyInsert } from '~/type';
+import { SupplyInsert } from '~/type';
 
 export const useAddNewProduct = () => {
   const storeId = useStore((state) => state.id);
@@ -177,22 +177,30 @@ export const useAdd247 = () => {
 };
 
 export const useAddSales = () => {
-  const storeId = useStore((state) => state.id);
+  // const storeId = useStore((state) => state.id);
   const queryClient = useQueryClient();
+  const { db, schema } = useDrizzle();
   return useMutation({
     mutationFn: async ({
       productId,
       qty,
-      paymentType,
-      salesReference,
-      salesRepId,
-      transactionInfo,
-    }: SalesStore) => {
-      const { data } = await axios.get(
-        `${api}api=makepharmacysale&cidx=${storeId}&qty=${qty}&productid=${productId}&salesref=${salesReference}&paymenttype=${paymentType}&transactioninfo=${transactionInfo}&salesrepid=${salesRepId}`
-      );
-
-      return data;
+      cartId,
+      cost,
+    }: {
+      productId: string;
+      qty: number;
+      cartId: number;
+      cost: string;
+    }) => {
+      // const { data } = await axios.get(
+      //   `${api}api=makepharmacysale&cidx=${storeId}&qty=${qty}&productid=${productId}&salesref=${salesReference}&paymenttype=${paymentType}&transactioninfo=${transactionInfo}&salesrepid=${salesRepId}`
+      // );
+      await db.insert(schema.cartItem).values({
+        qty,
+        productId,
+        cartId,
+        unitCost: +cost,
+      });
     },
 
     onError: () => {
@@ -202,13 +210,11 @@ export const useAddSales = () => {
       });
     },
     onSuccess: (data) => {
-      if (data.result === 'done') {
-        Toast.show({
-          text1: 'Success',
-          text2: 'Sales has been added successfully',
-        });
-        queryClient.invalidateQueries({ queryKey: ['salesStore'] });
-      }
+      Toast.show({
+        text1: 'Success',
+        text2: 'item has been added to cart',
+      });
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
   });
 };

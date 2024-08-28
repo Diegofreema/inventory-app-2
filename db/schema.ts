@@ -201,9 +201,6 @@ export const supplyRelation = relations(supplyProduct, ({ one }) => ({
 }));
 export const cart = sqliteTable('cart', {
   id: integer('id').notNull().primaryKey(),
-  salesReference: text('sales_reference')
-    .notNull()
-    .$default(() => createId() + sql`CURRENT_TIMESTAMP`),
 });
 
 export const cartItem = sqliteTable('cart_item', {
@@ -212,6 +209,9 @@ export const cartItem = sqliteTable('cart_item', {
   qty: integer('qty').notNull(),
   cartId: integer('cart_id').references(() => cart.id),
   unitCost: integer('unit_cost').notNull(),
+  salesReference: text('sales_reference')
+    .notNull()
+    .$default(() => createId() + sql`CURRENT_TIMESTAMP`),
 });
 export const cartItemProduct = relations(cartItem, ({ one }) => ({
   product: one(product, {
@@ -238,7 +238,8 @@ export type PharmacySelect = typeof pharmacyInfo.$inferSelect;
 export type ExpenseInsert = typeof expenses.$inferInsert;
 export type ExpenseSelect = typeof expenses.$inferSelect;
 export type ExpenseAccount = typeof expenseAccount.$inferSelect;
-
+export type CartSelect = typeof cart.$inferSelect;
+export type CartItemSelect = typeof cartItem.$inferSelect;
 export type SalesP = typeof pharmacySales.$inferInsert;
 export type SalesPSelect = typeof pharmacySales.$inferSelect;
 export type SalesPInsert = typeof pharmacySales.$inferInsert;

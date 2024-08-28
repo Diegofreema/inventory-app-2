@@ -5,43 +5,52 @@ import { useForm } from 'react-hook-form';
 import { Stack } from 'tamagui';
 import { z } from 'zod';
 
+import { CartButton } from '~/components/CartButton';
 import { Container } from '~/components/Container';
 import { CustomController } from '~/components/form/CustomController';
 import { CustomScroll } from '~/components/ui/CustomScroll';
 import { MyButton } from '~/components/ui/MyButton';
 import { NavHeader } from '~/components/ui/NavHeader';
-import { paymentType } from '~/data';
+import { useGet } from '~/hooks/useGet';
+// import { paymentType } from '~/data';
 import { useAddSales } from '~/lib/tanstack/mutations';
-import { storeSales } from '~/lib/validators';
+import { useCart } from '~/lib/tanstack/queries';
+import { addToCart } from '~/lib/validators';
 
 export default function AddOfflineScreen() {
-  const { data, mutateAsync, isPending } = useAddSales();
+  const { error, mutateAsync, isPending } = useAddSales();
+  const { data: cartData } = useCart();
+  console.log(cartData);
+
+  const { products } = useGet();
   const {
     control,
     formState: { errors },
     reset,
     handleSubmit,
-  } = useForm<z.infer<typeof storeSales>>({
+    setValue,
+  } = useForm<z.infer<typeof addToCart>>({
     defaultValues: {
       qty: '',
-      productName: '',
-      paymentType: '',
-      salesReference: '',
-    },
-    resolver: zodResolver(storeSales),
-  });
-
-  const onSubmit = async (value: z.infer<typeof storeSales>) => {
-    // ! to add local database query
-    await mutateAsync({
       productId: '',
-      qty: value.qty,
-      salesReference: '',
-      paymentType: 'Card',
-      salesRepId: '',
-      transactionInfo: '',
+    },
+    resolver: zodResolver(addToCart),
+  });
+  const formattedProducts =
+    products?.map((item) => ({
+      value: item?.productId,
+      label: item?.product,
+    })) || [];
+  const cartLength = cartData?.cartItem.length || 0;
+  const onSubmit = async (value: z.infer<typeof addToCart>) => {
+    if (!cartData?.id) return;
+    await mutateAsync({
+      productId: value.productId,
+      qty: +value.qty,
+      cartId: cartData?.id,
+      cost: value.unitCost,
     });
-    if (data?.result === 'done') {
+    if (!error) {
       reset();
     }
   };
@@ -56,6 +65,9 @@ export default function AddOfflineScreen() {
             errors={errors}
             placeholder="Product Name"
             label="Product Name"
+            variant="select"
+            data={formattedProducts}
+            setValue={setValue}
           />
           <CustomController
             name="qty"
@@ -65,6 +77,13 @@ export default function AddOfflineScreen() {
             label="Enter quantity"
           />
           <CustomController
+            name="unitCost"
+            control={control}
+            errors={errors}
+            placeholder="Enter unit cost"
+            label="Enter unit cost"
+          />
+          {/* <CustomController
             name="paymentType"
             control={control}
             errors={errors}
@@ -79,7 +98,7 @@ export default function AddOfflineScreen() {
             errors={errors}
             placeholder="Enter sale's reference number"
             label="Enter sale's reference number"
-          />
+          /> */}
         </Stack>
 
         <MyButton
@@ -91,6 +110,7 @@ export default function AddOfflineScreen() {
           onPress={handleSubmit(onSubmit)}
         />
       </CustomScroll>
+      <CartButton qty={cartLength} />
     </Container>
   );
 }

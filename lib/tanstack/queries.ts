@@ -52,6 +52,7 @@ export const useFetchAll = () => {
         db.insert(schema.expenseAccount).values(account),
         db.insert(schema.pharmacySales).values(online),
         db.insert(schema.supplyProduct).values(supply),
+        db.insert(schema.cart).values({}),
       ]);
       setHasFetched(true);
       setError(null);
@@ -224,5 +225,21 @@ export const useDisposal = () => {
   return useQuery<SupplyType[]>({
     queryKey: ['disposal', id],
     queryFn: () => getDisposal(id),
+  });
+};
+
+export const useCart = () => {
+  const { db } = useDrizzle();
+  const getCart = async () => {
+    const data = await db.query.cart.findFirst({
+      with: {
+        cartItem: true,
+      },
+    });
+    return data;
+  };
+  return useQuery({
+    queryKey: ['cart'],
+    queryFn: getCart,
   });
 };

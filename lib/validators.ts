@@ -104,6 +104,11 @@ export const storeSales = z.object({
   salesReference: z.string().min(1, { message: "Sale's reference is required" }),
   paymentType: z.string().min(1, { message: 'Payment type is required' }),
 });
+export const addToCart = z.object({
+  qty: z.string().min(1, { message: 'Quantity is required' }),
+  productId: z.string().min(1, { message: 'Product name is required' }),
+  unitCost: z.string().min(1, { message: 'Price is required' }),
+});
 export const disposeSchema = z.object({
   qty: z.string().min(1, { message: 'Quantity is required' }),
   productName: z.string().min(1, { message: 'Product name is required' }),
