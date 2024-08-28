@@ -18,7 +18,7 @@ import { useInfo } from '~/lib/tanstack/queries';
 import { productSupplySchema } from '~/lib/validators';
 
 const Restock = (): JSX.Element => {
-  const { data, isPending, mutateAsync, error } = useSupply();
+  const { isPending, mutateAsync, error } = useSupply();
   const { name, price, productId } = useLocalSearchParams<{
     productId: string;
     name: string;
@@ -44,7 +44,6 @@ const Restock = (): JSX.Element => {
   if (isError) return <Error onRetry={refetch} />;
 
   const onSubmit = async (value: z.infer<typeof productSupplySchema>) => {
-    // ! to add logic to fetch product name
     if (!info?.sharenetpro || !info?.shareprice || !info?.shareseller) return;
 
     await mutateAsync({
@@ -56,7 +55,6 @@ const Restock = (): JSX.Element => {
       qty: value.qty,
       unitCost: value.unitPrice,
     });
-    console.log({ data });
 
     if (!error) {
       console.log('done');

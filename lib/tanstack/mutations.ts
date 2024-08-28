@@ -198,6 +198,8 @@ export const useAddSales = () => {
 };
 export const useSupply = () => {
   const storeId = useStore((state) => state.id);
+  const isConnected = useNetwork();
+  const { db, schema } = useDrizzle();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -209,11 +211,49 @@ export const useSupply = () => {
       sellingPrice,
       unitCost,
     }: SupplyInsert) => {
-      const { data } = await axios.get(
-        `${api}api=addsupply&cidx=${storeId}&productid=${productId}&qty=${qty}&unitcost=${unitCost}&newprice=${newPrice}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}`
-      );
+      const addedProduct = await db
+        .insert(schema.supplyProduct)
+        // @ts-ignore
+        .values({
+          productid: +productId,
+          qty,
+          dealershare: dealerShare,
+          netproshare: netProShare,
+          newprice: newPrice,
+          sellingprice: sellingPrice,
+          unitcost: unitCost,
+          datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+        })
+        .returning();
+      await db
+        .update(schema.product)
+        .set({ sellingprice: newPrice, qty: schema.product.qty + qty })
+        .where(eq(schema.product.id, +productId));
+      if (addedProduct.length && isConnected) {
+        const { data } = await axios.get(
+          `${api}api=addsupply&cidx=${storeId}&productid=${productId}&qty=${qty}&unitcost=${unitCost}&newprice=${newPrice}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}`
+        );
 
-      return data;
+        return data;
+      } else if (addedProduct.length && !isConnected) {
+        const addedProduct = await db
+          .insert(schema.supplyProductOffline)
+          // @ts-ignore
+          .values({
+            productid: +productId,
+            qty,
+            dealershare: dealerShare,
+            netproshare: netProShare,
+            newprice: newPrice,
+            sellingprice: sellingPrice,
+            unitcost: unitCost,
+          })
+          .returning();
+
+        return addedProduct;
+      } else {
+        throw new Error('Something went wrong');
+      }
     },
 
     onError: (error: Error) => {
@@ -230,7 +270,7 @@ export const useSupply = () => {
           text1: 'Success',
           text2: 'Product has been restocked',
         });
-        queryClient.invalidateQueries({ queryKey: ['product'] });
+        queryClient.invalidateQueries({ queryKey: ['product', 'supply'] });
       }
     },
   });
@@ -238,11 +278,47 @@ export const useSupply = () => {
 export const useDisposal = () => {
   //   const storeId = useStore((state) => state.id);
   const queryClient = useQueryClient();
+  const { db, schema } = useDrizzle();
+  const isConnected = useNetwork();
   return useMutation({
     mutationFn: async ({ productId, qty }: { qty: string; productId: string }) => {
-      const { data } = await axios.get(`${api}api=adddisposal&qty=${qty}&productid=${productId}`);
+      const disposedProduct = await db
+        .insert(schema.disposedProducts)
+        .values({
+          productid: +productId,
+          qty,
+          datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+        })
+        .returning();
 
-      return data;
+      if (!disposedProduct.length) throw new Error('Failed to dispose product');
+      await db
+        .update(schema.product)
+        .set({ qty: String(Number(schema.product.qty) - Number(qty)) })
+        .where(eq(schema.product.id, +productId));
+
+      if (isConnected) {
+        const { data } = await axios.get(`${api}api=adddisposal&qty=${qty}&productid=${productId}`);
+
+        return data;
+      } else if (!isConnected) {
+        const disposedProduct = await db
+          .insert(schema.disposedProductsOffline)
+          .values({
+            productid: +productId,
+            qty,
+            datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+          })
+          .returning();
+
+        await db
+          .update(schema.product)
+          .set({ qty: String(Number(schema.product.qty) - Number(qty)) })
+          .where(eq(schema.product.id, +productId));
+        return disposedProduct;
+      } else {
+        throw new Error('Something went wrong');
+      }
     },
 
     onError: () => {

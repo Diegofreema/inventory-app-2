@@ -87,7 +87,7 @@ export const storeSales = sqliteTable('store_sales', {
 });
 export const disposedProducts = sqliteTable('disposed_products', {
   id: integer('id').notNull().primaryKey(),
-  productid: text('product_id')
+  productid: integer('product_id')
     .notNull()
     .references(() => product.id),
   qty: text('qty').notNull(),
@@ -95,7 +95,7 @@ export const disposedProducts = sqliteTable('disposed_products', {
 });
 export const disposedProductsOffline = sqliteTable('disposed_products_offline', {
   id: integer('id').notNull().primaryKey(),
-  productid: text('product_id')
+  productid: integer('product_id')
     .notNull()
     .references(() => product.id),
   qty: text('qty').notNull(),
@@ -174,20 +174,20 @@ export const pharmacyInfo = sqliteTable('pharmacy_info', {
 
 export const supplyProduct = sqliteTable('supply_product', {
   id: integer('id').notNull().primaryKey(),
-  productid: text('product_id')
+  productid: integer('product_id')
     .notNull()
     .references(() => product.id),
   qty: text('qty').notNull(),
-  unitcost: text('unit_cost').notNull(),
+  unitcost: text('unit_cost'),
   datex: text('date').notNull(),
 });
 export const supplyProductOffline = sqliteTable('supply_product', {
   id: integer('id').notNull().primaryKey(),
-  productid: text('product_id')
+  productid: integer('product_id')
     .notNull()
     .references(() => product.id),
   qty: text('qty').notNull(),
-  unitcost: text('unit_cost').notNull(),
+  unitcost: text('unit_cost'),
   datex: text('date').notNull(),
 });
 export const supplyRelation = relations(supplyProduct, ({ one }) => ({

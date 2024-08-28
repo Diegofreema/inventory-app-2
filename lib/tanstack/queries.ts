@@ -32,7 +32,7 @@ export const useFetchAll = () => {
     try {
       console.log('running');
 
-      const [products, online, store, expenses, disposal, account] = await Promise.all([
+      const [products, online, store, expenses, disposal, account, supply] = await Promise.all([
         getProducts(id!),
         getSalesP(id!),
         getSale(id!),
@@ -48,6 +48,7 @@ export const useFetchAll = () => {
         db.insert(schema.disposedProducts).values(disposal),
         db.insert(schema.expenseAccount).values(account),
         db.insert(schema.pharmacySales).values(online),
+        db.insert(schema.supplyProduct).values(supply),
       ]);
       setHasFetched(true);
       setError(null);
@@ -172,11 +173,15 @@ export const useInfo = () => {
   });
 };
 export const useSupply = () => {
-  const id = useStore((state) => state.id);
+  const { db } = useDrizzle();
+  const getData = async () => {
+    const data = await db.query.supplyProduct.findMany();
+    return data;
+  };
 
-  return useQuery<SupplyType[]>({
-    queryKey: ['supply', id],
-    queryFn: () => getSupply(id),
+  return useQuery({
+    queryKey: ['supply'],
+    queryFn: () => getData(),
   });
 };
 export const useExpAcc = () => {
