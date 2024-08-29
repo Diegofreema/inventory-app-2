@@ -1,3 +1,18 @@
+CREATE TABLE `cart` (
+	`id` integer PRIMARY KEY NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE `cart_item` (
+	`id` integer PRIMARY KEY NOT NULL,
+	`product_id` text,
+	`qty` integer NOT NULL,
+	`cart_id` integer,
+	`unit_cost` integer NOT NULL,
+	`sales_reference` text NOT NULL,
+	FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`cart_id`) REFERENCES `cart`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
 CREATE TABLE `categories` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`category` text NOT NULL,
@@ -113,6 +128,12 @@ CREATE TABLE `products_offline` (
 	`share_netpro` text
 );
 --> statement-breakpoint
+CREATE TABLE `sales_reference` (
+	`id` integer PRIMARY KEY NOT NULL,
+	`sales_reference` text NOT NULL,
+	`is_active` integer DEFAULT true
+);
+--> statement-breakpoint
 CREATE TABLE `staff` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
@@ -129,9 +150,9 @@ CREATE TABLE `store_sales` (
 	`qty` text NOT NULL,
 	`sales_reference` text NOT NULL,
 	`payment_type` text NOT NULL,
-	`trans_info` text NOT NULL,
-	`paid` text NOT NULL,
-	`user_id` integer NOT NULL,
+	`trans_info` text,
+	`paid` integer DEFAULT true NOT NULL,
+	`user_id` integer,
 	`cid` text,
 	FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`user_id`) REFERENCES `staff`(`id`) ON UPDATE no action ON DELETE no action

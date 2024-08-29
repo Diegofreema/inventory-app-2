@@ -39,6 +39,7 @@ export const staff = sqliteTable('staff', {
   email: text('email').notNull(),
   password: text('password').notNull(),
   pharmacyId: text('pharmacy_id'),
+  // isAdmin: integer('is_admin', { mode: 'boolean' }).default(false),
 });
 
 export const pharmacySales = sqliteTable('pharmacy_sales', {
@@ -80,12 +81,10 @@ export const storeSales = sqliteTable('store_sales', {
   unitprice: text('unit_price').notNull(),
   qty: text('qty').notNull(),
   salesreference: text('sales_reference').notNull(),
-  paymenttype: text('payment_type').notNull(),
-  transinfo: text('trans_info').notNull(),
-  paid: text('paid').notNull(),
-  userid: integer('user_id')
-    .notNull()
-    .references(() => staff.id),
+  paymenttype: text('payment_type', { enum: ['Cash', 'Card', 'Transfer'] }).notNull(),
+  transinfo: text('trans_info'),
+  paid: integer('paid', { mode: 'boolean' }).notNull().default(true),
+  userid: integer('user_id').references(() => staff.id),
   cid: text('cid'),
 });
 export const disposedProducts = sqliteTable('disposed_products', {

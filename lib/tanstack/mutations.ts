@@ -14,7 +14,9 @@ import { useStore } from '../zustand/useStore';
 
 import { useDrizzle } from '~/hooks/useDrizzle';
 import { useNetwork } from '~/hooks/useNetwork';
-import { SupplyInsert } from '~/type';
+import { ExtraSalesType, SupplyInsert } from '~/type';
+import { CartItemWithProductField } from '~/components/CartFlatList';
+import { SalesRefType, SalesS } from '~/db/schema';
 
 export const useAddNewProduct = () => {
   const storeId = useStore((state) => state.id);
@@ -177,6 +179,53 @@ export const useAdd247 = () => {
   });
 };
 
+export const useCart = () => {
+  // const storeId = useStore((state) => state.id);
+  const queryClient = useQueryClient();
+  const { db, schema } = useDrizzle();
+
+  return useMutation({
+    mutationFn: async ({
+      data,
+      extraData,
+    }: {
+      data: CartItemWithProductField[];
+      extraData: ExtraSalesType;
+    }) => {
+      const productsToAdd: SalesS[] = data.map((item) => ({
+        productid: item?.productId!,
+        datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+        qty: item?.qty.toString(),
+        paymenttype: extraData.paymentType,
+        userid: extraData.salesRepId,
+        paid: true,
+        salesreference: item?.salesReference,
+        transinfo: extraData.transactionInfo,
+        unitprice: item?.product.sellingprice!,
+        cid: item?.product.customerproductid,
+      }));
+      const addedSales = await db.insert(schema.storeSales).values(productsToAdd);
+
+      // const { data } = await axios.get(
+      //   `${api}api=makepharmacysale&cidx=${storeId}&qty=${qty}&productid=${productId}&salesref=${salesReference}&paymenttype=${paymentType}&transactioninfo=${transactionInfo}&salesrepid=${salesRepId}`
+      // );
+    },
+
+    onError: () => {
+      Toast.show({
+        text1: 'Something went wrong',
+        text2: 'Failed to add sales',
+      });
+    },
+    onSuccess: (data) => {
+      Toast.show({
+        text1: 'Success',
+        text2: 'item has been added to cart',
+      });
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+    },
+  });
+};
 export const useAddSales = () => {
   // const storeId = useStore((state) => state.id);
   const queryClient = useQueryClient();
@@ -238,6 +287,7 @@ export const useAddSales = () => {
         text2: 'item has been added to cart',
       });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
     },
   });
 };

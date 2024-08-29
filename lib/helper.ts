@@ -78,8 +78,8 @@ export const getProducts = async (id: string) => {
   return formattedProducts;
 };
 
-export const trimText = (text: string): string => {
-  if (text.length > 10) return text.substring(0, 10) + '...';
+export const trimText = (text: string, limit = 10): string => {
+  if (text.length > limit) return text.substring(0, limit) + '...';
   return text;
 };
 

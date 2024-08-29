@@ -1,25 +1,90 @@
 /* eslint-disable prettier/prettier */
-
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as SecureStore from 'expo-secure-store';
+import { useMemo } from 'react';
+import { useForm } from 'react-hook-form';
 import { FlatList } from 'react-native';
+import { z } from 'zod';
 
+import { ExtraDataForm } from './ExtraDataForm';
 import { AnimatedCard } from './ui/AnimatedCard';
 import { FlexText } from './ui/FlexText';
+import { MyButton } from './ui/MyButton';
 import { Empty } from './ui/empty';
 
 import { CartItemSelect, ProductSelect } from '~/db/schema';
+import { trimText } from '~/lib/helper';
+import { useCart } from '~/lib/tanstack/mutations';
+import { extraDataSchema } from '~/lib/validators';
+import { ExtraSalesType } from '~/type';
+
 export type CartItemWithProductField = CartItemSelect & { product: ProductSelect };
 type Props = {
   data: CartItemWithProductField[];
 };
 
 export const CartFlatList = ({ data }: Props): JSX.Element => {
+  const { mutateAsync, isError } = useCart();
+
+  const {
+    formState: { errors, isSubmitting },
+    reset,
+    handleSubmit,
+    control,
+    setValue,
+  } = useForm<z.infer<typeof extraDataSchema>>({
+    defaultValues: {
+      paymentType: 'Cash',
+      transferInfo: '',
+    },
+
+    resolver: zodResolver(extraDataSchema),
+  });
+  const salesRepId = Number(SecureStore.getItem('staffId')) || 0;
+
+  const onSubmit = async (values: z.infer<typeof extraDataSchema>) => {
+    const extraData: ExtraSalesType = {
+      paymentType: values.paymentType,
+      salesRepId,
+      transactionInfo: values.transferInfo,
+    };
+    await mutateAsync({ data, extraData });
+    if (!isError) {
+      reset();
+    }
+  };
+  const totalPrice = data.reduce(
+    (acc, cur) => acc + Number(cur?.product.sellingprice) * Number(cur?.qty),
+    0
+  );
+
+  const isLoading = useMemo(() => isSubmitting, [isSubmitting]);
+
   return (
     <FlatList
       data={data}
+      ListHeaderComponent={() => <FlexText text="Total" text2={`₦${totalPrice}`} />}
       renderItem={({ item, index }) => <CartCard item={item} index={index} />}
+      style={{ flex: 1 }}
       showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ gap: 20, paddingBottom: 20 }}
+      contentContainerStyle={{ gap: 20, paddingBottom: 20, flexGrow: 1 }}
       ListEmptyComponent={() => <Empty text="No item in cart" />}
+      keyExtractor={(item, index) => index.toString()}
+      ListFooterComponent={() => (
+        <>
+          <ExtraDataForm control={control} errors={errors} setValue={setValue} />
+
+          <MyButton
+            title="Checkout"
+            mt={30}
+            height={50}
+            onPress={handleSubmit(onSubmit)}
+            loading={isLoading}
+            disabled={isLoading}
+          />
+        </>
+      )}
+      ListFooterComponentStyle={{ marginTop: 'auto', marginBottom: 30 }}
     />
   );
 };
@@ -27,12 +92,8 @@ export const CartFlatList = ({ data }: Props): JSX.Element => {
 const CartCard = ({ item, index }: { item: CartItemWithProductField; index: number }) => {
   return (
     <AnimatedCard index={index}>
-      <FlexText text="Product" text2={item?.product.product} />
-      <FlexText
-        text="Price"
-        text2={`
-₦${item?.product.sellingprice!}`}
-      />
+      <FlexText text="Product" text2={trimText(item?.product.product, 25)} />
+      <FlexText text="Price" text2={`₦${item?.product.sellingprice!}`} />
       <FlexText text="Quantity" text2={item?.qty.toString()} />
     </AnimatedCard>
   );

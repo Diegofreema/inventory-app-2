@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
 import { eq } from 'drizzle-orm';
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
+import * as SecureStore from 'expo-secure-store';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { StyleSheet } from 'react-native';
@@ -123,6 +124,7 @@ export const LoginForm = (): JSX.Element => {
         text1: 'Success',
         text2: 'Welcome back',
       });
+      SecureStore.setItem('staffId', staffExists.id.toString());
       getId(staffExists.pharmacyId!);
       onSetAdmin(false);
       reset();
