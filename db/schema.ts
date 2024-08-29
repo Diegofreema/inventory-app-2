@@ -203,15 +203,21 @@ export const cart = sqliteTable('cart', {
   id: integer('id').notNull().primaryKey(),
 });
 
+export const salesreference = sqliteTable('sales_reference', {
+  id: integer('id').notNull().primaryKey(),
+  salesReference: text('sales_reference')
+    .notNull()
+    .$default(() => createId() + sql`CURRENT_TIMESTAMP`),
+  isActive: integer('is_active', { mode: 'boolean' }).default(true),
+});
+
 export const cartItem = sqliteTable('cart_item', {
   id: integer('id').notNull().primaryKey(),
   productId: text('product_id').references(() => product.productId),
   qty: integer('qty').notNull(),
   cartId: integer('cart_id').references(() => cart.id),
   unitCost: integer('unit_cost').notNull(),
-  salesReference: text('sales_reference')
-    .notNull()
-    .$default(() => createId() + sql`CURRENT_TIMESTAMP`),
+  salesReference: text('sales_reference').notNull(),
 });
 export const cartItemProduct = relations(cartItem, ({ one }) => ({
   product: one(product, {
@@ -230,6 +236,8 @@ export const cartItemCartRelation = relations(cartItem, ({ one }) => ({
 }));
 export type supplyProductSelect = typeof supplyProduct.$inferSelect;
 export type supplyProductInsert = typeof supplyProduct.$inferInsert;
+export type SalesRefType = typeof salesreference.$inferInsert;
+export type SalesRefSelect = typeof salesreference.$inferSelect;
 export type DisposedSelect = typeof disposedProducts.$inferSelect;
 export type CategorySelect = typeof category.$inferSelect;
 export type CategoryInsert = typeof category.$inferInsert;

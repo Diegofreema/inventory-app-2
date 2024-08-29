@@ -1,0 +1,1 @@
+ALTER TABLE `sales_reference` ADD `is_active` integer DEFAULT true;

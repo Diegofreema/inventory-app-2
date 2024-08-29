@@ -19,6 +19,8 @@ import { useStore } from '../zustand/useStore';
 import { useDrizzle } from '~/hooks/useDrizzle';
 import { useNetwork } from '~/hooks/useNetwork';
 import { CatType, InfoType, NotType, SupplyType } from '~/type';
+import { eq } from 'drizzle-orm';
+import { CartItemWithProductField } from '~/components/CartFlatList';
 
 export const useFetchAll = () => {
   const id = useStore((state) => state.id);
@@ -229,7 +231,7 @@ export const useDisposal = () => {
 };
 
 export const useCart = () => {
-  const { db } = useDrizzle();
+  const { db, schema } = useDrizzle();
   const getCart = async () => {
     const data = await db.query.cart.findFirst({
       with: {
@@ -241,5 +243,33 @@ export const useCart = () => {
   return useQuery({
     queryKey: ['cart'],
     queryFn: getCart,
+  });
+};
+export const useSalesRef = () => {
+  const { db } = useDrizzle();
+  const getCart = async () => {
+    const data = await db.query.salesreference.findMany();
+    return data;
+  };
+  return useQuery({
+    queryKey: ['sales_ref'],
+    queryFn: getCart,
+  });
+};
+
+export const useCartItemsWithRef = (safeRef: string) => {
+  const { db, schema } = useDrizzle();
+  const getCartItem = async (): Promise<CartItemWithProductField[]> => {
+    const data = await db.query.cartItem.findMany({
+      where: eq(schema.cartItem.salesReference, safeRef),
+      with: {
+        product: true,
+      },
+    });
+    return data as CartItemWithProductField[];
+  };
+  return useQuery<CartItemWithProductField[]>({
+    queryKey: ['cart_item'],
+    queryFn: getCartItem,
   });
 };

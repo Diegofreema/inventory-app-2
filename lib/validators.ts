@@ -107,7 +107,6 @@ export const storeSales = z.object({
 export const addToCart = z.object({
   qty: z.string().min(1, { message: 'Quantity is required' }),
   productId: z.string().min(1, { message: 'Product name is required' }),
-  unitCost: z.string().min(1, { message: 'Price is required' }),
 });
 export const disposeSchema = z.object({
   qty: z.string().min(1, { message: 'Quantity is required' }),

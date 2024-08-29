@@ -9,10 +9,7 @@ import { CustomSubHeading } from './ui/typography';
 
 import { colors } from '~/constants';
 
-export const CartButton = ({ qty }: { qty: number }) => {
-  console.log(qty);
-
-  const onPress = () => {};
+export const CartButton = ({ qty, onPress }: { qty: number; onPress: () => void }) => {
   return (
     <CustomPressable onPress={onPress} style={styles.cart}>
       <View

@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { eq } from 'drizzle-orm';
+import * as SecureStore from 'expo-secure-store';
 import Toast from 'react-native-toast-message';
 import { z } from 'zod';
 
@@ -180,6 +181,7 @@ export const useAddSales = () => {
   // const storeId = useStore((state) => state.id);
   const queryClient = useQueryClient();
   const { db, schema } = useDrizzle();
+
   return useMutation({
     mutationFn: async ({
       productId,
@@ -195,11 +197,32 @@ export const useAddSales = () => {
       // const { data } = await axios.get(
       //   `${api}api=makepharmacysale&cidx=${storeId}&qty=${qty}&productid=${productId}&salesref=${salesReference}&paymenttype=${paymentType}&transactioninfo=${transactionInfo}&salesrepid=${salesRepId}`
       // );
+      let salesref: string = '';
+
+      const salesReference = await db.query.salesreference.findFirst({
+        where: eq(schema.salesreference.isActive, true),
+        columns: {
+          salesReference: true,
+        },
+      });
+
+      if (salesReference?.salesReference) {
+        salesref = salesReference.salesReference;
+      } else {
+        const newSalesreference = await db
+          .insert(schema.salesreference)
+          .values({})
+          .returning({ salesReference: schema.salesreference.salesReference });
+        salesref = newSalesreference[0].salesReference;
+      }
+      SecureStore.setItem('salesRef', salesref);
+
       await db.insert(schema.cartItem).values({
         qty,
         productId,
         cartId,
         unitCost: +cost,
+        salesReference: salesref,
       });
     },
 
