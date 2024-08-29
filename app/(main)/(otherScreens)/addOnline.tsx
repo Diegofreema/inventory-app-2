@@ -23,7 +23,7 @@ export default function AddOnlineScreen() {
   const memoizedProductName = useMemo(() => {
     if (!products) return [];
     return products?.map((item) => ({
-      value: item?.id,
+      value: item?.productId,
       label: item?.product,
     }));
   }, [products]);
@@ -44,7 +44,7 @@ export default function AddOnlineScreen() {
   const onSubmit = async (value: z.infer<typeof pharmacySales>) => {
     try {
       const productInDb = await db.query.product.findFirst({
-        where: eq(schema.product.id, value.productName),
+        where: eq(schema.product.productId, value.productName),
         columns: {
           sellingprice: true,
         },

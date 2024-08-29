@@ -31,5 +31,6 @@ export const useGet = (id?: string) => {
     fetchData();
     if (id) fetchSingleProduct();
   }, [id]);
+
   return { products, onlineSales, storeSales, singleProduct };
 };

@@ -70,7 +70,7 @@ export const getProducts = async (id: string) => {
     customerproductid: product.customerproductid,
     marketprice: product.marketprice,
     online: product.online,
-    qty: product.qty,
+    qty: +product.qty,
     sellingprice: product.sellingprice,
     sharedealer: product.sharedealer,
     sharenetpro: product.sharenetpro,
@@ -95,8 +95,11 @@ export const getSalesP = async (id: string) => {
   } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
     data = [...response.data];
   }
-
-  return data;
+  const formattedData = data?.map((sale) => ({
+    ...sale,
+    qty: +sale.qty,
+  }));
+  return formattedData;
 };
 
 export const getExpenditure = async (id: any) => {
@@ -120,7 +123,11 @@ export const getSupply = async (id: any) => {
     data = [...response.data];
   }
 
-  return data;
+  const formattedData = data?.map((sale) => ({
+    ...sale,
+    qty: +sale.qty,
+  }));
+  return formattedData;
 };
 
 export const getSale = async (id: any) => {
@@ -132,7 +139,12 @@ export const getSale = async (id: any) => {
     data = [...response.data];
   }
 
-  return data;
+  const formattedData = data?.map((sale) => ({
+    ...sale,
+    qty: +sale.qty,
+  }));
+
+  return formattedData;
 };
 
 type PaymentType = 'Cash' | 'Card' | 'Transfer';
@@ -171,7 +183,11 @@ export const getDisposal = async (id: any) => {
     data = [...response.data];
   }
 
-  return data;
+  const formattedData = data?.map((sale) => ({
+    ...sale,
+    qty: +sale.qty,
+  }));
+  return formattedData;
 };
 
 export const expensesAccount = async (id: any) => {

@@ -12,14 +12,11 @@ import { AnimatedContainer } from '../ui/AniminatedContainer';
 import { Error } from '../ui/Error';
 import { ExpenseLoader } from '../ui/Loading';
 
-import { useGet } from '~/hooks/useGet';
 import { formattedDate } from '~/lib/helper';
 import { useSalesP } from '~/lib/tanstack/queries';
 
 export const OnlinePharmacy = (): JSX.Element => {
   const { data, isPending, isError, refetch, isRefetching } = useSalesP();
-  const { singleProduct } = useGet('H1817V8185');
-  console.log(singleProduct);
 
   const handleRefetch = useCallback(() => refetch(), []);
   const [startDate, setStartDate] = useState('');

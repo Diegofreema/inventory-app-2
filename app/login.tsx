@@ -14,11 +14,9 @@ import { useStore } from '~/lib/zustand/useStore';
 export default function Login() {
   const id = useStore((state) => state.id);
   const { hasFetched } = useHasFetched();
-  console.log(hasFetched);
 
   if (id && hasFetched) return <Redirect href="/" />;
   if (id && !hasFetched) return <Redirect href="/loading" />;
-  console.log(id);
 
   return (
     <>

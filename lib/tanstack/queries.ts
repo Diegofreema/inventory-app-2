@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
+import { eq } from 'drizzle-orm';
 import { useCallback, useEffect, useState } from 'react';
 
 import {
@@ -16,11 +17,10 @@ import {
 import { useHasFetched } from '../zustand/useIsFirstTime';
 import { useStore } from '../zustand/useStore';
 
+import { CartItemWithProductField } from '~/components/CartFlatList';
 import { useDrizzle } from '~/hooks/useDrizzle';
 import { useNetwork } from '~/hooks/useNetwork';
 import { CatType, InfoType, NotType, SupplyType } from '~/type';
-import { eq } from 'drizzle-orm';
-import { CartItemWithProductField } from '~/components/CartFlatList';
 
 export const useFetchAll = () => {
   const id = useStore((state) => state.id);
@@ -43,8 +43,6 @@ export const useFetchAll = () => {
         expensesAccount(id!),
         getSupply(id!),
       ]);
-
-      console.log(products[0]);
 
       await Promise.all([
         db.insert(schema.product).values(products),
@@ -231,7 +229,7 @@ export const useDisposal = () => {
 };
 
 export const useCart = () => {
-  const { db, schema } = useDrizzle();
+  const { db } = useDrizzle();
   const getCart = async () => {
     const data = await db.query.cart.findFirst({
       with: {

@@ -91,7 +91,7 @@ const ProductCard = ({
             <CustomSubHeading text={item?.product} fontSize={17} />
           </XStack>
           <FlexText text="Category" text2={item?.category!} />
-          <FlexText text={`Stock ${isLow ? '(low stock)' : ''}`} text2={item?.qty} />
+          <FlexText text={`Stock ${isLow ? '(low stock)' : ''}`} text2={item?.qty.toString()} />
           <FlexText text="Unit price" text2={'₦' + item?.sellingprice} />
           {show && (
             <Stack gap={10}>

@@ -19,6 +19,7 @@ export default function Home() {
     if (!products) return [];
     return products.slice(0, 5);
   }, [products]);
+  console.log('🚀 ~ Home ~ products:', products?.length);
   // const createCart = async () => {
   //   await db.insert(schema.cart).values({});
   // };

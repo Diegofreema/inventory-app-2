@@ -13,7 +13,7 @@ export const product = sqliteTable('products', {
   marketprice: text('market_price'),
   online: text('online', { enum: ['True', 'False'] }),
   product: text('product').notNull(),
-  qty: text('qty').notNull(),
+  qty: integer('qty').notNull(),
   sellingprice: text('seller_price'),
   sharedealer: text('share_dealer'),
   sharenetpro: text('share_netpro'),
@@ -25,9 +25,9 @@ export const productOffline = sqliteTable('products_offline', {
   subcategory: text('subcategory'),
   customerproductid: text('customer_product_id'),
   marketprice: text('market_price'),
-  online: text('online'),
+  online: text('online', { enum: ['True', 'False'] }),
   product: text('product').notNull(),
-  qty: text('qty').notNull(),
+  qty: integer('qty').notNull(),
   sellingprice: text('seller_price'),
   sharedealer: text('share_dealer'),
   sharenetpro: text('share_netpro'),
@@ -47,7 +47,7 @@ export const pharmacySales = sqliteTable('pharmacy_sales', {
   productid: text('product_id')
     .notNull()
     .references(() => product.productId),
-  qty: text('qty').notNull(),
+  qty: integer('qty').notNull(),
   unitprice: text('unit_price').notNull(),
   datex: text('date').notNull(),
   dealershare: text('dealer_share').notNull(),
@@ -58,7 +58,7 @@ export const pharmacySalesOffline = sqliteTable('pharmacy_sales_offline', {
   productid: text('product_id')
     .notNull()
     .references(() => product.productId),
-  qty: text('qty').notNull(),
+  qty: integer('qty').notNull(),
   unitprice: text('unit_price').notNull(),
   datex: text('date').notNull(),
   dealershare: text('dealer_share').notNull(),
@@ -79,7 +79,7 @@ export const storeSales = sqliteTable('store_sales', {
     .references(() => product.productId),
   datex: text('date').notNull(),
   unitprice: text('unit_price').notNull(),
-  qty: text('qty').notNull(),
+  qty: integer('qty').notNull(),
   salesreference: text('sales_reference').notNull(),
   paymenttype: text('payment_type', { enum: ['Cash', 'Card', 'Transfer'] }).notNull(),
   transinfo: text('trans_info'),
@@ -92,7 +92,7 @@ export const disposedProducts = sqliteTable('disposed_products', {
   productid: integer('product_id')
     .notNull()
     .references(() => product.productId),
-  qty: text('qty').notNull(),
+  qty: integer('qty').notNull(),
   datex: text('date').notNull(),
 });
 export const disposedProductsOffline = sqliteTable('disposed_products_offline', {
@@ -100,7 +100,7 @@ export const disposedProductsOffline = sqliteTable('disposed_products_offline', 
   productid: integer('product_id')
     .notNull()
     .references(() => product.productId),
-  qty: text('qty').notNull(),
+  qty: integer('qty').notNull(),
   datex: text('date').notNull(),
 });
 
@@ -111,7 +111,7 @@ export const storeSalesOffline = sqliteTable('store_sales_offline', {
     .references(() => product.productId),
   datex: text('date').notNull(),
   unitprice: text('unit_price').notNull(),
-  qty: text('qty').notNull(),
+  qty: integer('qty').notNull(),
   salesreference: text('sales_reference').notNull(),
   paymenttype: text('payment_type').notNull(),
   transinfo: text('trans_info').notNull(),
@@ -179,7 +179,7 @@ export const supplyProduct = sqliteTable('supply_product', {
   productid: integer('product_id')
     .notNull()
     .references(() => product.productId),
-  qty: text('qty').notNull(),
+  qty: integer('qty').notNull(),
   unitcost: text('unit_cost'),
   datex: text('date').notNull(),
 });
@@ -188,7 +188,7 @@ export const supplyProductOffline = sqliteTable('supply_product', {
   productid: integer('product_id')
     .notNull()
     .references(() => product.productId),
-  qty: text('qty').notNull(),
+  qty: integer('qty').notNull(),
   unitcost: text('unit_cost'),
   datex: text('date').notNull(),
 });

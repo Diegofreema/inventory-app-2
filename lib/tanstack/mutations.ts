@@ -3,7 +3,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { format } from 'date-fns';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import * as SecureStore from 'expo-secure-store';
 import Toast from 'react-native-toast-message';
 import { z } from 'zod';
@@ -12,11 +12,11 @@ import { api } from '../helper';
 import { newProductSchema } from '../validators';
 import { useStore } from '../zustand/useStore';
 
+import { CartItemWithProductField } from '~/components/CartFlatList';
+import { SalesS } from '~/db/schema';
 import { useDrizzle } from '~/hooks/useDrizzle';
 import { useNetwork } from '~/hooks/useNetwork';
 import { ExtraSalesType, SupplyInsert } from '~/type';
-import { CartItemWithProductField } from '~/components/CartFlatList';
-import { SalesRefType, SalesS } from '~/db/schema';
 
 export const useAddNewProduct = () => {
   const storeId = useStore((state) => state.id);
@@ -54,7 +54,7 @@ export const useAddNewProduct = () => {
         .insert(schema.product)
         .values({
           product,
-          qty,
+          qty: +qty,
           category,
           customerproductid,
           marketprice,
@@ -77,7 +77,7 @@ export const useAddNewProduct = () => {
           .insert(schema.productOffline)
           .values({
             product,
-            qty,
+            qty: +qty,
             category,
             customerproductid,
             marketprice,
@@ -121,7 +121,6 @@ export const useAdd247 = () => {
             id: true,
           },
         });
-        console.log({ productInDb });
 
         if (!productInDb) return;
 
@@ -180,10 +179,10 @@ export const useAdd247 = () => {
 };
 
 export const useCart = () => {
-  // const storeId = useStore((state) => state.id);
+  const storeId = useStore((state) => state.id);
   const queryClient = useQueryClient();
   const { db, schema } = useDrizzle();
-
+  const isConnected = useNetwork();
   return useMutation({
     mutationFn: async ({
       data,
@@ -195,7 +194,7 @@ export const useCart = () => {
       const productsToAdd: SalesS[] = data.map((item) => ({
         productid: item?.productId!,
         datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
-        qty: item?.qty.toString(),
+        qty: item?.qty,
         paymenttype: extraData.paymentType,
         userid: extraData.salesRepId,
         paid: true,
@@ -204,11 +203,37 @@ export const useCart = () => {
         unitprice: item?.product.sellingprice!,
         cid: item?.product.customerproductid,
       }));
-      const addedSales = await db.insert(schema.storeSales).values(productsToAdd);
+      const addedSales = await db.insert(schema.storeSales).values(productsToAdd).returning();
+      queryClient.invalidateQueries({ queryKey: ['salesStore'] });
 
-      // const { data } = await axios.get(
-      //   `${api}api=makepharmacysale&cidx=${storeId}&qty=${qty}&productid=${productId}&salesref=${salesReference}&paymenttype=${paymentType}&transactioninfo=${transactionInfo}&salesrepid=${salesRepId}`
-      // );
+      if (addedSales.length) {
+        await db
+          .delete(schema.cartItem)
+          .where(eq(schema.cartItem.salesReference, addedSales[0].salesreference));
+        queryClient.invalidateQueries({ queryKey: ['cart'] });
+        queryClient.invalidateQueries({ queryKey: ['cart_item'] });
+        addedSales.forEach(async (item) => {
+          await db
+            .update(schema.product)
+            .set({ qty: sql`${schema.product.qty} - ${item.qty}.00` })
+            .where(eq(schema.product.productId, item.productid));
+        });
+        queryClient.invalidateQueries({ queryKey: ['product'] });
+
+        if (addedSales.length && isConnected) {
+          addedSales.forEach(async (item) => {
+            const { data } = await axios.get(
+              `${api}api=makepharmacysale&cidx=${storeId}&qty=${item.qty}&productid=${item?.productid}&salesref=${item.salesreference}&paymenttype=${extraData.paymentType}&transactioninfo=${extraData.transactionInfo}&salesrepid=${extraData.salesRepId}`
+            );
+
+            return data;
+          });
+        } else if (addedSales && !isConnected) {
+          await db.insert(schema.storeSales).values(productsToAdd);
+        } else {
+          throw new Error('Something went wrong');
+        }
+      }
     },
 
     onError: () => {
@@ -322,7 +347,7 @@ export const useSupply = () => {
         .returning();
       await db
         .update(schema.product)
-        .set({ sellingprice: newPrice, qty: schema.product.qty + qty })
+        .set({ sellingprice: newPrice, qty: sql`${schema.product.qty} + ${qty}.00` })
         .where(eq(schema.product.id, +productId));
       if (addedProduct.length && isConnected) {
         const { data } = await axios.get(
@@ -381,7 +406,7 @@ export const useDisposal = () => {
         .insert(schema.disposedProducts)
         .values({
           productid: +productId,
-          qty,
+          qty: +qty,
           datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
         })
         .returning();
@@ -389,7 +414,7 @@ export const useDisposal = () => {
       if (!disposedProduct.length) throw new Error('Failed to dispose product');
       await db
         .update(schema.product)
-        .set({ qty: String(Number(schema.product.qty) - Number(qty)) })
+        .set({ qty: sql`${schema.product.qty} - ${qty}.00` })
         .where(eq(schema.product.id, +productId));
 
       if (isConnected) {
@@ -401,14 +426,14 @@ export const useDisposal = () => {
           .insert(schema.disposedProductsOffline)
           .values({
             productid: +productId,
-            qty,
+            qty: +qty,
             datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
           })
           .returning();
 
         await db
           .update(schema.product)
-          .set({ qty: String(Number(schema.product.qty) - Number(qty)) })
+          .set({ qty: sql`${schema.product.qty} - ${qty}.00` })
           .where(eq(schema.product.id, +productId));
         return disposedProduct;
       } else {

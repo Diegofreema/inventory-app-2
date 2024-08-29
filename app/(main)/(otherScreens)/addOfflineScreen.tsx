@@ -59,8 +59,6 @@ export default function AddOfflineScreen() {
     return products?.find((item) => item?.productId === productId)?.sellingprice;
   }, [products, productId]);
 
-  console.log(memoizedPrice, 'price', productId);
-
   const cartLength = cartData?.cartItem.length || 0;
   const onSubmit = async (value: z.infer<typeof addToCart>) => {
     if (!cartData?.id || !memoizedPrice) return;
@@ -78,7 +76,6 @@ export default function AddOfflineScreen() {
   const onPress = useCallback(() => {
     router.push('/cart');
   }, []);
-  console.log(error, 'error');
 
   return (
     <Container>
@@ -212,7 +209,7 @@ const SalesRefFlatList = ({ data }: { data: SalesRefSelect[] }) => {
               borderRadius={5}
               p={5}
               alignItems="center">
-              <Text>New Customer</Text>
+              <Text fontSize={18}>New Customer</Text>
             </View>
           </CustomPressable>
         )

@@ -35,7 +35,6 @@ export const Offline = (): JSX.Element => {
 
     return data.filter((d) => {
       const salesDate = d.datex.split(' ')[0].replace('/', '-').replace('/', '-');
-      console.log({ salesDate });
 
       return isWithinInterval(salesDate, { start, end });
     });
@@ -88,6 +87,7 @@ export const Offline = (): JSX.Element => {
       {isPending ? (
         <ExpenseLoader />
       ) : (
+        // @ts-ignore
         <SalesFlatlist data={filterSales} isLoading={isLoading} refetch={handleRefetch} />
       )}
       <CalenderSheet

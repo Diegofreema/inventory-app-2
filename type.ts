@@ -46,16 +46,22 @@ export type SalesP = {
   netproshare: string;
 };
 
+enum PaymentEnum {
+  Cash,
+  Card,
+  Transfer,
+}
+
 export type CombinedStore = {
   productid: string;
   datex: string;
   unitprice: string;
-  qty: string;
+  qty: number;
   id?: any;
   salesreference?: string;
-  paid?: string;
+  paid?: boolean;
   cid?: any;
-  paymenttype?: string;
+  paymenttype?: PaymentEnum;
   transinfo?: string;
   userid?: number;
   dealershare?: string;

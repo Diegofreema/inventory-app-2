@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "a481e354-7b78-4688-bb37-15099444f260",
+  "id": "db37875e-bf39-4e12-930d-8eb8ac98e55d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "cart": {
@@ -177,7 +177,7 @@
         },
         "qty": {
           "name": "qty",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -228,7 +228,7 @@
         },
         "qty": {
           "name": "qty",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -464,7 +464,7 @@
         },
         "qty": {
           "name": "qty",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -536,7 +536,7 @@
         },
         "qty": {
           "name": "qty",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -650,7 +650,7 @@
         },
         "qty": {
           "name": "qty",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -743,7 +743,7 @@
         },
         "qty": {
           "name": "qty",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -883,7 +883,7 @@
         },
         "qty": {
           "name": "qty",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -997,7 +997,7 @@
         },
         "qty": {
           "name": "qty",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1096,7 +1096,7 @@
         },
         "qty": {
           "name": "qty",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false

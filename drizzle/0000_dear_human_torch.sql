@@ -28,7 +28,7 @@ CREATE TABLE `categories_offline` (
 CREATE TABLE `disposed_products` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`product_id` integer NOT NULL,
-	`qty` text NOT NULL,
+	`qty` integer NOT NULL,
 	`date` text NOT NULL,
 	FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON UPDATE no action ON DELETE no action
 );
@@ -36,7 +36,7 @@ CREATE TABLE `disposed_products` (
 CREATE TABLE `disposed_products_offline` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`product_id` integer NOT NULL,
-	`qty` text NOT NULL,
+	`qty` integer NOT NULL,
 	`date` text NOT NULL,
 	FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON UPDATE no action ON DELETE no action
 );
@@ -79,7 +79,7 @@ CREATE TABLE `pharmacy_info` (
 CREATE TABLE `pharmacy_sales` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`product_id` text NOT NULL,
-	`qty` text NOT NULL,
+	`qty` integer NOT NULL,
 	`unit_price` text NOT NULL,
 	`date` text NOT NULL,
 	`dealer_share` text NOT NULL,
@@ -90,7 +90,7 @@ CREATE TABLE `pharmacy_sales` (
 CREATE TABLE `pharmacy_sales_offline` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`product_id` text NOT NULL,
-	`qty` text NOT NULL,
+	`qty` integer NOT NULL,
 	`unit_price` text NOT NULL,
 	`date` text NOT NULL,
 	`dealer_share` text NOT NULL,
@@ -107,7 +107,7 @@ CREATE TABLE `products` (
 	`market_price` text,
 	`online` text,
 	`product` text NOT NULL,
-	`qty` text NOT NULL,
+	`qty` integer NOT NULL,
 	`seller_price` text,
 	`share_dealer` text,
 	`share_netpro` text
@@ -122,7 +122,7 @@ CREATE TABLE `products_offline` (
 	`market_price` text,
 	`online` text,
 	`product` text NOT NULL,
-	`qty` text NOT NULL,
+	`qty` integer NOT NULL,
 	`seller_price` text,
 	`share_dealer` text,
 	`share_netpro` text
@@ -147,7 +147,7 @@ CREATE TABLE `store_sales` (
 	`product_id` text NOT NULL,
 	`date` text NOT NULL,
 	`unit_price` text NOT NULL,
-	`qty` text NOT NULL,
+	`qty` integer NOT NULL,
 	`sales_reference` text NOT NULL,
 	`payment_type` text NOT NULL,
 	`trans_info` text,
@@ -163,7 +163,7 @@ CREATE TABLE `store_sales_offline` (
 	`product_id` text NOT NULL,
 	`date` text NOT NULL,
 	`unit_price` text NOT NULL,
-	`qty` text NOT NULL,
+	`qty` integer NOT NULL,
 	`sales_reference` text NOT NULL,
 	`payment_type` text NOT NULL,
 	`trans_info` text NOT NULL,
@@ -177,7 +177,7 @@ CREATE TABLE `store_sales_offline` (
 CREATE TABLE `supply_product` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`product_id` integer NOT NULL,
-	`qty` text NOT NULL,
+	`qty` integer NOT NULL,
 	`unit_cost` text,
 	`date` text NOT NULL,
 	FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON UPDATE no action ON DELETE no action

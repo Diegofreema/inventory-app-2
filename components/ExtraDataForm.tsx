@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 
 import { Control, FieldErrors, UseFormSetValue } from 'react-hook-form';
-import { Text, View } from 'tamagui';
+import { View } from 'tamagui';
 import { z } from 'zod';
 
 import { CustomController } from './form/CustomController';
