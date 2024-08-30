@@ -396,30 +396,28 @@ export const useDisposal = () => {
   const { db, schema } = useDrizzle();
   const isConnected = useNetwork();
   return useMutation({
-    mutationFn: async ({
-      productId,
-      qty,
-      unitCost,
-    }: {
-      qty: string;
-      productId: string;
-      unitCost: string;
-    }) => {
+    mutationFn: async ({ productId, qty }: { qty: string; productId: string }) => {
+      const productIsInDb = await db.query.product.findFirst({
+        where: eq(schema.product.productId, productId),
+      });
+
+      if (!productIsInDb) throw new Error('Product not found');
+      if (productIsInDb.qty < +qty) throw Error('Not enough stock to dispose');
       const disposedProduct = await db
         .insert(schema.disposedProducts)
         .values({
-          productId,
+          productId: productIsInDb.productId,
           qty: +qty,
           dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
-          unitCost: +unitCost,
+          unitCost: productIsInDb.sellingPrice,
         })
         .returning();
 
-      if (!disposedProduct.length) throw new Error('Failed to dispose product');
+      if (!disposedProduct.length) throw Error('Failed to dispose product');
       await db
         .update(schema.product)
-        .set({ qty: sql`${schema.product.qty} - ${qty}.00` })
-        .where(eq(schema.product.id, +productId));
+        .set({ qty: sql`${schema.product.qty} - ${qty}` })
+        .where(eq(schema.product.productId, productIsInDb.productId));
 
       if (isConnected) {
         const { data } = await axios.get(`${api}api=adddisposal&qty=${qty}&productid=${productId}`);
@@ -432,7 +430,7 @@ export const useDisposal = () => {
             productId,
             qty: +qty,
             dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
-            unitCost: +unitCost,
+            unitCost: productIsInDb.sellingPrice,
           })
           .returning();
 
@@ -446,22 +444,18 @@ export const useDisposal = () => {
       }
     },
 
-    onError: () => {
+    onError: (error) => {
       Toast.show({
         text1: 'Something went wrong',
-        text2: 'Failed to add product to disposal',
+        text2: error.message,
       });
     },
-    onSuccess: (data) => {
-      console.log(data);
-
-      if (data.result === 'done') {
-        Toast.show({
-          text1: 'Success',
-          text2: 'Product has been disposed',
-        });
-        queryClient.invalidateQueries({ queryKey: ['product'] });
-      }
+    onSuccess: () => {
+      Toast.show({
+        text1: 'Success',
+        text2: 'Product has been disposed',
+      });
+      queryClient.invalidateQueries({ queryKey: ['product'] });
     },
   });
 };

@@ -47,15 +47,19 @@ const Restock = (): JSX.Element => {
   const onSubmit = async (value: z.infer<typeof productSupplySchema>) => {
     if (!info?.sharenetpro || !info?.shareprice || !info?.shareseller) return;
 
-    await mutateAsync({
-      dealerShare: info?.shareseller!,
-      netProShare: info?.sharenetpro!,
-      sellingPrice: info?.shareprice!,
-      newPrice: value.newPrice,
-      productId,
-      qty: value.qty,
-      unitCost: value.unitPrice,
-    });
+    try {
+      await mutateAsync({
+        dealerShare: info?.shareseller!,
+        netProShare: info?.sharenetpro!,
+        sellingPrice: info?.shareprice!,
+        newPrice: value.newPrice,
+        productId,
+        qty: value.qty,
+        unitCost: value.unitPrice,
+      });
+    } catch (error) {
+      console.log(error);
+    }
     if (error) {
       console.log('🚀 ~ onSubmit ~ error:', error);
     }
