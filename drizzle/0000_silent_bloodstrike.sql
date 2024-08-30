@@ -27,17 +27,19 @@ CREATE TABLE `categories_offline` (
 --> statement-breakpoint
 CREATE TABLE `disposed_products` (
 	`id` integer PRIMARY KEY NOT NULL,
-	`product_id` integer NOT NULL,
+	`product_id` text NOT NULL,
 	`qty` integer NOT NULL,
 	`date` text NOT NULL,
+	`unit_cost` integer,
 	FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `disposed_products_offline` (
 	`id` integer PRIMARY KEY NOT NULL,
-	`product_id` integer NOT NULL,
+	`product_id` text NOT NULL,
 	`qty` integer NOT NULL,
 	`date` text NOT NULL,
+	`unit_cost` integer,
 	FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
@@ -56,7 +58,7 @@ CREATE TABLE `expenses` (
 	`account_name` text NOT NULL,
 	`date` text NOT NULL,
 	`description` text,
-	`amount` text NOT NULL
+	`amount` integer NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `expenses_offline` (
@@ -65,6 +67,28 @@ CREATE TABLE `expenses_offline` (
 	`date` text NOT NULL,
 	`description` text,
 	`amount` text NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE `online_sales` (
+	`id` integer PRIMARY KEY NOT NULL,
+	`product_id` text NOT NULL,
+	`qty` integer NOT NULL,
+	`unit_price` integer NOT NULL,
+	`date` text NOT NULL,
+	`dealer_share` integer NOT NULL,
+	`netpro_share` integer NOT NULL,
+	FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `online_sales_offline` (
+	`id` integer PRIMARY KEY NOT NULL,
+	`product_id` text NOT NULL,
+	`qty` integer NOT NULL,
+	`unit_price` integer NOT NULL,
+	`date` text NOT NULL,
+	`dealer_share` text NOT NULL,
+	`netpro_share` text NOT NULL,
+	FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `pharmacy_info` (
@@ -76,41 +100,19 @@ CREATE TABLE `pharmacy_info` (
 	`share_price` text NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE `pharmacy_sales` (
-	`id` integer PRIMARY KEY NOT NULL,
-	`product_id` text NOT NULL,
-	`qty` integer NOT NULL,
-	`unit_price` text NOT NULL,
-	`date` text NOT NULL,
-	`dealer_share` text NOT NULL,
-	`netpro_share` text NOT NULL,
-	FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON UPDATE no action ON DELETE no action
-);
---> statement-breakpoint
-CREATE TABLE `pharmacy_sales_offline` (
-	`id` integer PRIMARY KEY NOT NULL,
-	`product_id` text NOT NULL,
-	`qty` integer NOT NULL,
-	`unit_price` text NOT NULL,
-	`date` text NOT NULL,
-	`dealer_share` text NOT NULL,
-	`netpro_share` text NOT NULL,
-	FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON UPDATE no action ON DELETE no action
-);
---> statement-breakpoint
 CREATE TABLE `products` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`product_id` text NOT NULL,
 	`category` text,
 	`subcategory` text,
 	`customer_product_id` text,
-	`market_price` text,
-	`online` text,
+	`market_price` integer,
+	`online` integer,
 	`product` text NOT NULL,
 	`qty` integer NOT NULL,
-	`seller_price` text,
-	`share_dealer` text,
-	`share_netpro` text
+	`seller_price` integer,
+	`share_dealer` integer,
+	`share_netpro` integer
 );
 --> statement-breakpoint
 CREATE TABLE `products_offline` (
@@ -119,13 +121,13 @@ CREATE TABLE `products_offline` (
 	`category` text,
 	`subcategory` text,
 	`customer_product_id` text,
-	`market_price` text,
-	`online` text,
+	`market_price` integer,
+	`online` integer,
 	`product` text NOT NULL,
 	`qty` integer NOT NULL,
-	`seller_price` text,
-	`share_dealer` text,
-	`share_netpro` text
+	`seller_price` integer,
+	`share_dealer` integer,
+	`share_netpro` integer
 );
 --> statement-breakpoint
 CREATE TABLE `sales_reference` (
@@ -146,12 +148,12 @@ CREATE TABLE `store_sales` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`product_id` text NOT NULL,
 	`date` text NOT NULL,
-	`unit_price` text NOT NULL,
+	`unit_price` integer NOT NULL,
 	`qty` integer NOT NULL,
 	`sales_reference` text NOT NULL,
 	`payment_type` text NOT NULL,
 	`trans_info` text,
-	`paid` integer DEFAULT true NOT NULL,
+	`paid` integer DEFAULT true,
 	`user_id` integer,
 	`cid` text,
 	FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON UPDATE no action ON DELETE no action,
@@ -162,13 +164,13 @@ CREATE TABLE `store_sales_offline` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`product_id` text NOT NULL,
 	`date` text NOT NULL,
-	`unit_price` text NOT NULL,
+	`unit_price` integer NOT NULL,
 	`qty` integer NOT NULL,
 	`sales_reference` text NOT NULL,
-	`payment_type` text NOT NULL,
-	`trans_info` text NOT NULL,
-	`paid` text NOT NULL,
-	`user_id` integer NOT NULL,
+	`payment_type` text,
+	`trans_info` text,
+	`paid` integer DEFAULT true,
+	`user_id` integer,
 	`cid` text,
 	FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`user_id`) REFERENCES `staff`(`id`) ON UPDATE no action ON DELETE no action
@@ -176,9 +178,18 @@ CREATE TABLE `store_sales_offline` (
 --> statement-breakpoint
 CREATE TABLE `supply_product` (
 	`id` integer PRIMARY KEY NOT NULL,
-	`product_id` integer NOT NULL,
+	`product_id` text NOT NULL,
 	`qty` integer NOT NULL,
-	`unit_cost` text,
-	`date` text NOT NULL,
+	`unit_cost` integer,
+	`date` text,
+	FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `supply_product_offline` (
+	`id` integer PRIMARY KEY NOT NULL,
+	`product_id` text NOT NULL,
+	`qty` integer NOT NULL,
+	`unit_cost` integer,
+	`date` text,
 	FOREIGN KEY (`product_id`) REFERENCES `products`(`product_id`) ON UPDATE no action ON DELETE no action
 );

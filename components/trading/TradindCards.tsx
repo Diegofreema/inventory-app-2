@@ -6,15 +6,16 @@ import { FlexText } from '../ui/FlexText';
 
 import { AnimatedCard } from '~/components/ui/AnimatedCard';
 import { CustomSubHeading } from '~/components/ui/typography';
+import { ExpenseSelect } from '~/db/schema';
 import { totalAmount } from '~/lib/helper';
-import { ExpType, GroupedExpense } from '~/type';
+import { GroupedExpense } from '~/type';
 type Props = {
   data: {
     supply: number;
     disposal: number;
     onlineSales: number;
     offlineSales: number;
-    expenses: ExpType[];
+    expenses: ExpenseSelect[];
     openingStock: number;
     closingStock: number;
   };

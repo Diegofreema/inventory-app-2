@@ -24,6 +24,7 @@ type Props = {
   isLoading?: boolean;
   onRefetch?: () => void;
   navigate?: boolean;
+  onAdd?: () => void;
 };
 
 export const Products = ({
@@ -36,7 +37,12 @@ export const Products = ({
   isLoading,
   onRefetch,
   navigate,
+  onAdd,
 }: Props): JSX.Element => {
+  const onIncrease = () => {
+    onAdd && onAdd();
+  };
+
   return (
     <FlatList
       onRefresh={onRefetch}
@@ -51,6 +57,10 @@ export const Products = ({
       style={{ flex: 1, backgroundColor: 'transparent', marginTop: 10 }}
       ListEmptyComponent={() => <Empty text="No products in store" />}
       showsVerticalScrollIndicator={false}
+      onEndReached={onIncrease}
+      onEndReachedThreshold={0.5}
+      keyExtractor={(item, index) => index.toString()}
+      viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
     />
   );
 };
@@ -74,14 +84,13 @@ const ProductCard = ({
     () => ({
       productId: item?.productId,
       name: item?.product,
-
-      price: item?.sellingprice!,
+      price: item?.sellingPrice!,
     }),
-    []
+    [item?.productId, item?.product, item?.sellingPrice]
   );
   const onPress = () => {
     if (!nav) return;
-    router.push(`/product/${item.id}`);
+    router.push(`/product/${item.productId}`);
   };
   return (
     <CustomPressable onPress={onPress}>
@@ -92,14 +101,14 @@ const ProductCard = ({
           </XStack>
           <FlexText text="Category" text2={item?.category!} />
           <FlexText text={`Stock ${isLow ? '(low stock)' : ''}`} text2={item?.qty.toString()} />
-          <FlexText text="Unit price" text2={'₦' + item?.sellingprice} />
+          <FlexText text="Unit price" text2={'₦' + item?.sellingPrice} />
           {show && (
             <Stack gap={10}>
-              <FlexText text="Dealer share" text2={'₦' + item?.sharedealer} />
-              <FlexText text="Market price" text2={'₦' + item?.marketprice} />
+              <FlexText text="Dealer share" text2={'₦' + item?.shareDealer} />
+              <FlexText text="Market price" text2={'₦' + item?.marketPrice} />
 
               <FlexText text="Subcategory" text2={item?.subcategory!} />
-              <FlexText text="Online" text2={item?.online === 'True' ? 'Yes' : 'No'} />
+              <FlexText text="Online" text2={item?.online ? 'Yes' : 'No'} />
             </Stack>
           )}
 

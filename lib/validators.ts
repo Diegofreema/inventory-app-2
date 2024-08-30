@@ -80,7 +80,7 @@ export const newProductSchema = z.object({
   state: z.string().optional(),
   des: z.string().min(1, { message: 'Description is required' }),
   marketprice: z.string().min(1, { message: 'Price is required' }),
-  online: z.enum(['True', 'False']),
+  online: z.boolean(),
   sellingprice: z.string().min(1, { message: 'Selling price is required' }),
   qty: z.string().min(1, { message: 'Quantity is required' }),
   sharedealer: z.string().optional(),
@@ -111,6 +111,7 @@ export const addToCart = z.object({
 export const disposeSchema = z.object({
   qty: z.string().min(1, { message: 'Quantity is required' }),
   productName: z.string().min(1, { message: 'Product name is required' }),
+  unitCost: z.string().min(1, { message: 'Unit cost is required' }),
 });
 export const extraDataSchema = z.object({
   transferInfo: z.string().optional(),

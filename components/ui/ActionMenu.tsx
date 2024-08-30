@@ -16,7 +16,7 @@ type Props = {
   details: {
     productId: string;
     name: string;
-    price: string;
+    price: number;
   };
 };
 

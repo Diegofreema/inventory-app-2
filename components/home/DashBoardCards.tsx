@@ -25,10 +25,10 @@ export const DashBoardCards = ({ products, salesP, salesS }: DashboardType): JSX
   const totalProducts = useMemo(() => products?.length, [products]);
   const lowProducts = useMemo(() => products?.filter((p) => Number(p.qty) <= 10), [products]);
   const totalSalesFromStore = useMemo(() => {
-    return calculateTotalSales(salesS?.map((p) => p?.unitprice));
+    return calculateTotalSales(salesS?.map((p) => p?.unitPrice));
   }, [salesS]);
   const totalSalesFrom247Pharm = useMemo(() => {
-    return calculateTotalSales(salesP?.map((p) => p?.unitprice));
+    return calculateTotalSales(salesP?.map((p) => p?.unitPrice));
   }, [salesP]);
 
   const data = [

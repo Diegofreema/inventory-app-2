@@ -25,6 +25,7 @@ import { useStore } from '~/lib/zustand/useStore';
 export const LoginForm = (): JSX.Element => {
   const [secure, setSecure] = useState(true);
   const [admin, setAdmin] = useState(true);
+  const [loading, setLoading] = useState(false);
   const getId = useStore((state) => state.getId);
   const onSetAdmin = useStore((state) => state.setIsAdmin);
   const { db, schema } = useDrizzle();
@@ -138,11 +139,13 @@ export const LoginForm = (): JSX.Element => {
     }
   };
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
+    setLoading(true);
     if (admin) {
       onAdminLogin(values);
     } else {
       onStaffLogin(values);
     }
+    setLoading(false);
   };
 
   const handleSecure = useCallback(() => setSecure((prev) => !prev), []);
@@ -194,8 +197,8 @@ export const LoginForm = (): JSX.Element => {
       <MyButton
         title="Login"
         mt={20}
-        disabled={isSubmitting}
-        loading={isSubmitting}
+        disabled={loading}
+        loading={loading}
         onPress={handleSubmit(onSubmit)}
         backgroundColor={colors.green}
         height={55}

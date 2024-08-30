@@ -32,7 +32,7 @@ export const Expenditure = (): JSX.Element => {
     }
 
     const lowerCaseValue = value.toLowerCase();
-    return data?.filter((d) => d?.accountname?.toLowerCase().includes(lowerCaseValue)) || [];
+    return data?.filter((d) => d?.accountName?.toLowerCase().includes(lowerCaseValue)) || [];
   }, [value, data]);
   if (isError) {
     return <Error onRetry={refetch} />;

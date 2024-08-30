@@ -32,7 +32,7 @@ const Dispose = (): JSX.Element => {
   });
 
   const onSubmit = async (values: z.infer<typeof disposeSchema>) => {
-    await mutateAsync({ qty: values.qty, productId });
+    await mutateAsync({ qty: values.qty, productId, unitCost: values.unitCost });
     if (!error) {
       reset();
       router.back();
@@ -57,6 +57,13 @@ const Dispose = (): JSX.Element => {
             name="qty"
             label="Quantity"
             placeholder="Quantity"
+          />
+          <CustomController
+            control={control}
+            errors={errors}
+            name="unitCost"
+            label="Unit cost"
+            placeholder="Unit cost"
           />
           <MyButton
             title="Dispose"

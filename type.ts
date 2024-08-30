@@ -47,25 +47,25 @@ export type SalesP = {
 };
 
 enum PaymentEnum {
-  Cash,
-  Card,
-  Transfer,
+  Cash = 'Cash',
+  Card = 'Card',
+  Transfer = 'Transfer',
 }
 
 export type CombinedStore = {
-  productid: string;
-  datex: string;
-  unitprice: string;
+  productId: string;
+  dateX: string;
+  unitPrice: number;
   qty: number;
   id?: any;
-  salesreference?: string;
+  salesReference?: string;
   paid?: boolean;
   cid?: any;
-  paymenttype?: PaymentEnum;
-  transinfo?: string;
-  userid?: number;
-  dealershare?: string;
-  netproshare?: string;
+  paymentType?: PaymentEnum;
+  transferInfo?: string;
+  userId?: number;
+  dealerShare?: number;
+  netProShare?: number;
   product?: ProductSelect;
 };
 export type SalesS = {

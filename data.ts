@@ -31,8 +31,8 @@ export const cats = [
 ];
 
 export const online = [
-  { label: 'Yes', value: '1' },
-  { label: 'No', value: '0' },
+  { label: 'Yes', value: true },
+  { label: 'No', value: false },
 ];
 export const paymentType = [
   { label: 'Card', value: 'Card' },

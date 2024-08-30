@@ -6,7 +6,7 @@ import { ExpenditureCard } from '../ui/ExpenditureCard';
 import { Empty } from '../ui/empty';
 
 type Props = {
-  data: { accountname: string }[];
+  data: { accountName: string }[];
   onRefetch: () => void;
   isFetching: boolean;
 };
@@ -17,7 +17,7 @@ export const ExpenditureList = ({ data, onRefetch, isFetching }: Props): JSX.Ele
       data={data}
       onRefresh={onRefetch}
       refreshing={isFetching}
-      renderItem={({ item, index }) => <ExpenditureCard item={item?.accountname} index={index} />}
+      renderItem={({ item, index }) => <ExpenditureCard item={item?.accountName} index={index} />}
       style={{ marginTop: 10 }}
       ListEmptyComponent={() => <Empty text="No Expenditure yet" />}
       keyExtractor={(item, index) => index.toString()}

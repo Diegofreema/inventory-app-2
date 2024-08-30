@@ -6,8 +6,8 @@ import { SalesS } from '~/type';
 
 export const api = process.env.EXPO_PUBLIC_API;
 
-export const calculateTotalSales = (sales: string[] | undefined): number =>
-  sales?.reduce((total, p) => total + Number(p || 0), 0) ?? 0;
+export const calculateTotalSales = (sales: number[] | undefined): number =>
+  sales?.reduce((total, p) => total + p || 0, 0) ?? 0;
 
 export const colors = [
   '#F08080', // Light Coral
@@ -67,13 +67,13 @@ export const getProducts = async (id: string) => {
     subcategory: product.Subcategory,
     productId: product.id,
     product: product.product,
-    customerproductid: product.customerproductid,
-    marketprice: product.marketprice,
-    online: product.online,
+    customerProductId: product.customerproductid,
+    marketPrice: +product.marketprice,
+    online: product.online === 'True',
     qty: +product.qty,
-    sellingprice: product.sellingprice,
-    sharedealer: product.sharedealer,
-    sharenetpro: product.sharenetpro,
+    sellingPrice: +product.sellingprice,
+    shareDealer: +product.sharedealer,
+    shareNetpro: +product.sharenetpro,
   }));
   return formattedProducts;
 };
@@ -96,8 +96,13 @@ export const getSalesP = async (id: string) => {
     data = [...response.data];
   }
   const formattedData = data?.map((sale) => ({
-    ...sale,
+    id: +sale.id,
+    productId: sale.productid,
     qty: +sale.qty,
+    unitPrice: +sale.unitprice,
+    dateX: sale.datex,
+    dealerShare: sale.dealershare,
+    netProShare: sale.netproshare,
   }));
   return formattedData;
 };
@@ -111,7 +116,14 @@ export const getExpenditure = async (id: any) => {
     data = [...response.data];
   }
 
-  return data;
+  const formattedExpenditure = data?.map((sale) => ({
+    accountName: sale?.accountname,
+    dateX: sale.datex,
+    description: sale.descript,
+    amount: sale.amount,
+  }));
+
+  return formattedExpenditure;
 };
 
 export const getSupply = async (id: any) => {
@@ -124,8 +136,10 @@ export const getSupply = async (id: any) => {
   }
 
   const formattedData = data?.map((sale) => ({
-    ...sale,
     qty: +sale.qty,
+    productId: sale.productid,
+    unitCost: +sale.unitcost,
+    dateX: sale.datex,
   }));
   return formattedData;
 };
@@ -140,8 +154,15 @@ export const getSale = async (id: any) => {
   }
 
   const formattedData = data?.map((sale) => ({
-    ...sale,
+    productId: sale.productid as string,
     qty: +sale.qty,
+    dateX: sale.datex as string,
+    unitPrice: +sale.unitprice,
+    paid: sale.paid === 'True',
+    paymentType: sale.paymenttype as string,
+    salesReference: sale.salesreference as string,
+    transferInfo: sale.transferinfo as string,
+    cid: sale.cid as string,
   }));
 
   return formattedData;
@@ -184,8 +205,10 @@ export const getDisposal = async (id: any) => {
   }
 
   const formattedData = data?.map((sale) => ({
-    ...sale,
+    productId: sale.productid,
+    dateX: sale.datex,
     qty: +sale.qty,
+    unitCost: +sale.unitcost,
   }));
   return formattedData;
 };
@@ -199,7 +222,10 @@ export const expensesAccount = async (id: any) => {
     data = [...response.data];
   }
 
-  return data;
+  const formattedData = data?.map((sale) => ({
+    accountName: sale.accountname,
+  }));
+  return formattedData;
 };
 
 export const totalAmount = (numbers: number[]) => {

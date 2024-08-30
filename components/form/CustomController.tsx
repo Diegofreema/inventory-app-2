@@ -18,7 +18,7 @@ type Props = {
   handleSecure?: () => void;
   type?: KeyboardTypeOptions;
   variant?: 'text' | 'textarea' | 'select';
-  data?: { value: string; label: string }[];
+  data?: { value: any; label: string }[];
 };
 
 export const CustomController = ({

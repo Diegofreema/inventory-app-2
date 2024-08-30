@@ -28,10 +28,10 @@ export const ExpenseCard = ({ index, item }: Props): JSX.Element => {
       borderWidth={1}
       borderColor={colors.lightGray}>
       <CardHeader gap={5}>
-        <FlexText text="Account name" text2={item?.accountname} />
-        <FlexText text="Description" text2={item?.descript!} />
-        <FlexText text="Amount" text2={item?.amount} />
-        <FlexText text="Date" text2={item?.datex} />
+        <FlexText text="Account name" text2={item?.accountName} />
+        <FlexText text="Description" text2={item?.description!} />
+        <FlexText text="Amount" text2={item?.amount.toString()} />
+        <FlexText text="Date" text2={item?.dateX} />
       </CardHeader>
     </AnimatedCard>
   );

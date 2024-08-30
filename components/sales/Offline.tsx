@@ -34,7 +34,7 @@ export const Offline = (): JSX.Element => {
     const end = format(endDate, 'dd-MM-yyyy');
 
     return data.filter((d) => {
-      const salesDate = d.datex.split(' ')[0].replace('/', '-').replace('/', '-');
+      const salesDate = d.dateX.split(' ')[0].replace('/', '-').replace('/', '-');
 
       return isWithinInterval(salesDate, { start, end });
     });

@@ -20,7 +20,7 @@ import { useStore } from '../zustand/useStore';
 import { CartItemWithProductField } from '~/components/CartFlatList';
 import { useDrizzle } from '~/hooks/useDrizzle';
 import { useNetwork } from '~/hooks/useNetwork';
-import { CatType, InfoType, NotType, SupplyType } from '~/type';
+import { CatType, InfoType, NotType } from '~/type';
 
 export const useFetchAll = () => {
   const id = useStore((state) => state.id);
@@ -50,7 +50,7 @@ export const useFetchAll = () => {
         db.insert(schema.expenses).values(expenses),
         db.insert(schema.disposedProducts).values(disposal),
         db.insert(schema.expenseAccount).values(account),
-        db.insert(schema.pharmacySales).values(online),
+        db.insert(schema.onlineSale).values(online),
         db.insert(schema.supplyProduct).values(supply),
         db.insert(schema.cart).values({}),
       ]);
@@ -112,7 +112,7 @@ export const useSalesP = () => {
   return useQuery({
     queryKey: ['salesPharmacy'],
     queryFn: async () => {
-      const data = await db.query.pharmacySales.findMany({
+      const data = await db.query.onlineSale.findMany({
         with: {
           product: true,
         },
@@ -194,7 +194,7 @@ export const useExpAcc = () => {
     const data = await db.query.expenseAccount.findMany();
     return data;
   };
-  return useQuery<{ accountname: string }[]>({
+  return useQuery<{ accountName: string }[]>({
     queryKey: ['exp_name'],
     queryFn: getExpAcc,
   });
@@ -220,11 +220,15 @@ export const useNotify = () => {
   });
 };
 export const useDisposal = () => {
-  const id = useStore((state) => state.id);
+  const { db } = useDrizzle();
 
-  return useQuery<SupplyType[]>({
-    queryKey: ['disposal', id],
-    queryFn: () => getDisposal(id),
+  const getDisposal = async () => {
+    const data = await db.query.disposedProducts.findMany();
+    return data;
+  };
+  return useQuery({
+    queryKey: ['disposal'],
+    queryFn: () => getDisposal(),
   });
 };
 
@@ -246,7 +250,7 @@ export const useCart = () => {
 export const useSalesRef = () => {
   const { db } = useDrizzle();
   const getCart = async () => {
-    const data = await db.query.salesreference.findMany();
+    const data = await db.query.salesReference.findMany();
     return data;
   };
   return useQuery({

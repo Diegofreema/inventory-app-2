@@ -27,7 +27,7 @@ export const Expenses = (): JSX.Element => {
     return (
       data?.filter((d) => {
         return (
-          d.accountname.toLowerCase().includes(lowerCaseValue) ||
+          d.accountName.toLowerCase().includes(lowerCaseValue) ||
           d.amount.toString().toLowerCase().includes(lowerCaseValue)
         );
       }) || []

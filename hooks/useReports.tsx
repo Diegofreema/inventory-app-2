@@ -3,18 +3,20 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
-import { getDisposal, getExpenditure, getInfo, getSale, getSalesP } from '~/lib/helper';
+import { useDrizzle } from './useDrizzle';
+
+import { DisposedSelect, ExpenseSelect, SalesP, SalesS, supplyProductSelect } from '~/db/schema';
 import { useStore } from '~/lib/zustand/useStore';
-import { ExpType, SalesP, SalesS, SupplyType } from '~/type';
 
 export const useReports = () => {
   const id = useStore((state) => state.id);
   const [storeSales, setStoreSales] = useState<SalesS[]>([]);
   const [onlineSales, setOnlineSales] = useState<SalesP[]>([]);
-  const [productSupply, setProductSupply] = useState<SupplyType[]>([]);
-  const [expense, setExpense] = useState<ExpType[]>([]);
-  const [disposal, setDisposal] = useState<SupplyType[]>([]);
+  const [productSupply, setProductSupply] = useState<supplyProductSelect[]>([]);
+  const [expense, setExpense] = useState<ExpenseSelect[]>([]);
+  const [disposal, setDisposal] = useState<DisposedSelect[]>([]);
   const queryClient = useQueryClient();
+  const { db } = useDrizzle();
 
   useEffect(() => {
     const getData = async () => {
@@ -22,24 +24,47 @@ export const useReports = () => {
       try {
         const [store, supply, expenseData, disposalData, sales] = await Promise.all([
           queryClient.fetchQuery({
-            queryKey: ['salesStore', id],
-            queryFn: () => getSale(id), // Changed to getSalesS
+            queryKey: ['salesStore'],
+            queryFn: async () => {
+              const data = await db.query.storeSales.findMany({
+                with: {
+                  product: true,
+                },
+              });
+              return data;
+            },
           }),
           queryClient.fetchQuery({
-            queryKey: ['supply', id],
-            queryFn: () => getInfo(id),
+            queryKey: ['supply'],
+            queryFn: async () => {
+              const data = await db.query.supplyProduct.findMany();
+              return data;
+            },
           }),
           queryClient.fetchQuery({
-            queryKey: ['expenditure', id],
-            queryFn: () => getExpenditure(id),
+            queryKey: ['expenditure'],
+            queryFn: async () => {
+              const data = await db.query.expenses.findMany();
+              return data;
+            },
           }),
           queryClient.fetchQuery({
-            queryKey: ['disposal', id],
-            queryFn: () => getDisposal(id),
+            queryKey: ['disposal'],
+            queryFn: async () => {
+              const data = await db.query.disposedProducts.findMany();
+              return data;
+            },
           }),
           queryClient.fetchQuery({
-            queryKey: ['salesPharmacy', id],
-            queryFn: () => getSalesP(id),
+            queryKey: ['salesPharmacy'],
+            queryFn: async () => {
+              const data = await db.query.onlineSale.findMany({
+                with: {
+                  product: true,
+                },
+              });
+              return data;
+            },
           }),
         ]);
 

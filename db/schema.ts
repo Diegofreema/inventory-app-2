@@ -9,28 +9,28 @@ export const product = sqliteTable('products', {
   productId: text('product_id').notNull(),
   category: text('category'),
   subcategory: text('subcategory'),
-  customerproductid: text('customer_product_id'),
-  marketprice: text('market_price'),
-  online: text('online', { enum: ['True', 'False'] }),
+  customerProductId: text('customer_product_id'),
+  marketPrice: integer('market_price', { mode: 'number' }),
+  online: integer('online', { mode: 'boolean' }),
   product: text('product').notNull(),
   qty: integer('qty').notNull(),
-  sellingprice: text('seller_price'),
-  sharedealer: text('share_dealer'),
-  sharenetpro: text('share_netpro'),
+  sellingPrice: integer('seller_price', { mode: 'number' }),
+  shareDealer: integer('share_dealer', { mode: 'number' }),
+  shareNetpro: integer('share_netpro', { mode: 'number' }),
 });
 export const productOffline = sqliteTable('products_offline', {
   id: integer('id').notNull().primaryKey(),
   productId: text('product_id').notNull(),
   category: text('category'),
   subcategory: text('subcategory'),
-  customerproductid: text('customer_product_id'),
-  marketprice: text('market_price'),
-  online: text('online', { enum: ['True', 'False'] }),
+  customerProductId: text('customer_product_id'),
+  marketPrice: integer('market_price', { mode: 'number' }),
+  online: integer('online', { mode: 'boolean' }),
   product: text('product').notNull(),
   qty: integer('qty').notNull(),
-  sellingprice: text('seller_price'),
-  sharedealer: text('share_dealer'),
-  sharenetpro: text('share_netpro'),
+  sellingPrice: integer('seller_price', { mode: 'number' }),
+  shareDealer: integer('share_dealer', { mode: 'number' }),
+  shareNetpro: integer('share_netpro', { mode: 'number' }),
 });
 
 export const staff = sqliteTable('staff', {
@@ -42,90 +42,86 @@ export const staff = sqliteTable('staff', {
   // isAdmin: integer('is_admin', { mode: 'boolean' }).default(false),
 });
 
-export const pharmacySales = sqliteTable('pharmacy_sales', {
+export const onlineSale = sqliteTable('online_sales', {
   id: integer('id').notNull().primaryKey(),
-  productid: text('product_id')
+  productId: text('product_id')
     .notNull()
     .references(() => product.productId),
   qty: integer('qty').notNull(),
-  unitprice: text('unit_price').notNull(),
-  datex: text('date').notNull(),
-  dealershare: text('dealer_share').notNull(),
-  netproshare: text('netpro_share').notNull(),
+  unitPrice: integer('unit_price', { mode: 'number' }).notNull(),
+  dateX: text('date').notNull(),
+  dealerShare: integer('dealer_share', { mode: 'number' }).notNull(),
+  netProShare: integer('netpro_share', { mode: 'number' }).notNull(),
 });
-export const pharmacySalesOffline = sqliteTable('pharmacy_sales_offline', {
+export const onlineSaleOffline = sqliteTable('online_sales_offline', {
   id: integer('id').notNull().primaryKey(),
-  productid: text('product_id')
+  productId: text('product_id')
     .notNull()
     .references(() => product.productId),
   qty: integer('qty').notNull(),
-  unitprice: text('unit_price').notNull(),
-  datex: text('date').notNull(),
-  dealershare: text('dealer_share').notNull(),
-  netproshare: text('netpro_share').notNull(),
+  unitPrice: integer('unit_price', { mode: 'number' }).notNull(),
+  dateX: text('date').notNull(),
+  dealerShare: text('dealer_share').notNull(),
+  netProShare: text('netpro_share').notNull(),
 });
 
-export const pharmacySalesRelation = relations(pharmacySales, ({ one }) => ({
+export const onlineSaleRelation = relations(onlineSale, ({ one }) => ({
   product: one(product, {
-    fields: [pharmacySales.productid],
+    fields: [onlineSale.productId],
     references: [product.productId],
   }),
 }));
 
-export const storeSales = sqliteTable('store_sales', {
-  id: integer('id').notNull().primaryKey(),
-  productid: text('product_id')
-    .notNull()
-    .references(() => product.productId),
-  datex: text('date').notNull(),
-  unitprice: text('unit_price').notNull(),
-  qty: integer('qty').notNull(),
-  salesreference: text('sales_reference').notNull(),
-  paymenttype: text('payment_type', { enum: ['Cash', 'Card', 'Transfer'] }).notNull(),
-  transinfo: text('trans_info'),
-  paid: integer('paid', { mode: 'boolean' }).notNull().default(true),
-  userid: integer('user_id').references(() => staff.id),
-  cid: text('cid'),
-});
 export const disposedProducts = sqliteTable('disposed_products', {
   id: integer('id').notNull().primaryKey(),
-  productid: integer('product_id')
+  productId: text('product_id')
     .notNull()
     .references(() => product.productId),
   qty: integer('qty').notNull(),
-  datex: text('date').notNull(),
+  dateX: text('date').notNull(),
+  unitCost: integer('unit_cost', { mode: 'number' }),
 });
 export const disposedProductsOffline = sqliteTable('disposed_products_offline', {
   id: integer('id').notNull().primaryKey(),
-  productid: integer('product_id')
+  productId: text('product_id')
     .notNull()
     .references(() => product.productId),
   qty: integer('qty').notNull(),
-  datex: text('date').notNull(),
+  dateX: text('date').notNull(),
+  unitCost: integer('unit_cost', { mode: 'number' }),
 });
-
+export const storeSales = sqliteTable('store_sales', {
+  id: integer('id').notNull().primaryKey(),
+  productId: text('product_id')
+    .notNull()
+    .references(() => product.productId),
+  dateX: text('date').notNull(),
+  unitPrice: integer('unit_price', { mode: 'number' }).notNull(),
+  qty: integer('qty').notNull(),
+  salesReference: text('sales_reference').notNull(),
+  paymentType: text('payment_type').notNull(),
+  transferInfo: text('trans_info'),
+  paid: integer('paid', { mode: 'boolean' }).default(true),
+  userId: integer('user_id').references(() => staff.id),
+  cid: text('cid'),
+});
 export const storeSalesOffline = sqliteTable('store_sales_offline', {
   id: integer('id').notNull().primaryKey(),
-  productid: text('product_id')
+  productId: text('product_id')
     .notNull()
     .references(() => product.productId),
-  datex: text('date').notNull(),
-  unitprice: text('unit_price').notNull(),
+  dateX: text('date').notNull(),
+  unitPrice: integer('unit_price', { mode: 'number' }).notNull(),
   qty: integer('qty').notNull(),
-  salesreference: text('sales_reference').notNull(),
-  paymenttype: text('payment_type').notNull(),
-  transinfo: text('trans_info').notNull(),
-  paid: text('paid').notNull(),
-  userid: integer('user_id')
-    .notNull()
-    .references(() => staff.id),
+  salesReference: text('sales_reference').notNull(),
+  paymentType: text('payment_type'),
+  transferInfo: text('trans_info'),
+  paid: integer('paid', { mode: 'boolean' }).default(true),
+  userId: integer('user_id').references(() => staff.id),
   cid: text('cid'),
 });
 export const storeSalesRelation = relations(storeSales, ({ one }) => ({
-  product: one(product, {
-    fields: [storeSales.productid],
-    references: [product.productId],
-  }),
+  product: one(product, { fields: [storeSales.productId], references: [product.productId] }),
 }));
 
 export const storeStaffRelation = relations(storeSales, ({ one }) => ({
@@ -133,7 +129,7 @@ export const storeStaffRelation = relations(storeSales, ({ one }) => ({
 }));
 export const expenseAccount = sqliteTable('expense_account', {
   id: integer('id').notNull().primaryKey(),
-  accountname: text('account_name').notNull(),
+  accountName: text('account_name').notNull(),
 });
 export const expenseAccountOffline = sqliteTable('expense_account_offline', {
   id: integer('id').notNull().primaryKey(),
@@ -141,10 +137,10 @@ export const expenseAccountOffline = sqliteTable('expense_account_offline', {
 });
 export const expenses = sqliteTable('expenses', {
   id: integer('id').notNull().primaryKey(),
-  accountname: text('account_name').notNull(),
-  datex: text('date').notNull(),
-  descript: text('description'),
-  amount: text('amount').notNull(),
+  accountName: text('account_name').notNull(),
+  dateX: text('date').notNull(),
+  description: text('description'),
+  amount: integer('amount', { mode: 'number' }).notNull(),
 });
 export const expensesOffline = sqliteTable('expenses_offline', {
   id: integer('id').notNull().primaryKey(),
@@ -176,25 +172,27 @@ export const pharmacyInfo = sqliteTable('pharmacy_info', {
 
 export const supplyProduct = sqliteTable('supply_product', {
   id: integer('id').notNull().primaryKey(),
-  productid: integer('product_id')
+  productId: text('product_id')
     .notNull()
     .references(() => product.productId),
   qty: integer('qty').notNull(),
-  unitcost: text('unit_cost'),
-  datex: text('date').notNull(),
+  unitCost: integer('unit_cost', { mode: 'number' }),
+
+  dateX: text('date'),
 });
-export const supplyProductOffline = sqliteTable('supply_product', {
+export const supplyProductOffline = sqliteTable('supply_product_offline', {
   id: integer('id').notNull().primaryKey(),
-  productid: integer('product_id')
+  productId: text('product_id')
     .notNull()
     .references(() => product.productId),
   qty: integer('qty').notNull(),
-  unitcost: text('unit_cost'),
-  datex: text('date').notNull(),
+  unitCost: integer('unit_cost', { mode: 'number' }),
+
+  dateX: text('date'),
 });
 export const supplyRelation = relations(supplyProduct, ({ one }) => ({
   product: one(product, {
-    fields: [supplyProduct.productid],
+    fields: [supplyProduct.productId],
     references: [product.productId],
   }),
 }));
@@ -202,7 +200,7 @@ export const cart = sqliteTable('cart', {
   id: integer('id').notNull().primaryKey(),
 });
 
-export const salesreference = sqliteTable('sales_reference', {
+export const salesReference = sqliteTable('sales_reference', {
   id: integer('id').notNull().primaryKey(),
   salesReference: text('sales_reference')
     .notNull()
@@ -234,9 +232,11 @@ export const cartItemCartRelation = relations(cartItem, ({ one }) => ({
   }),
 }));
 export type supplyProductSelect = typeof supplyProduct.$inferSelect;
+export type supplyOffline = typeof supplyProductOffline.$inferSelect;
+export type supplyOfflineInsert = typeof supplyProductOffline.$inferInsert;
 export type supplyProductInsert = typeof supplyProduct.$inferInsert;
-export type SalesRefType = typeof salesreference.$inferInsert;
-export type SalesRefSelect = typeof salesreference.$inferSelect;
+export type SalesRefType = typeof salesReference.$inferInsert;
+export type SalesRefSelect = typeof salesReference.$inferSelect;
 export type DisposedSelect = typeof disposedProducts.$inferSelect;
 export type CategorySelect = typeof category.$inferSelect;
 export type CategoryInsert = typeof category.$inferInsert;
@@ -247,9 +247,9 @@ export type ExpenseSelect = typeof expenses.$inferSelect;
 export type ExpenseAccount = typeof expenseAccount.$inferSelect;
 export type CartSelect = typeof cart.$inferSelect;
 export type CartItemSelect = typeof cartItem.$inferSelect;
-export type SalesP = typeof pharmacySales.$inferInsert;
-export type SalesPSelect = typeof pharmacySales.$inferSelect;
-export type SalesPInsert = typeof pharmacySales.$inferInsert;
+export type SalesP = typeof onlineSale.$inferInsert;
+export type SalesPSelect = typeof onlineSale.$inferSelect;
+export type SalesPInsert = typeof onlineSale.$inferInsert;
 export type SalesS = typeof storeSales.$inferInsert;
 export type SalesSSelect = typeof storeSales.$inferSelect;
 export type ProductSelect = typeof product.$inferSelect;

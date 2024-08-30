@@ -56,12 +56,12 @@ export const useAddNewProduct = () => {
           product,
           qty: +qty,
           category,
-          customerproductid,
-          marketprice,
-          online,
-          sellingprice,
-          sharedealer,
-          sharenetpro,
+          customerProductId: customerproductid,
+          marketPrice: +marketprice,
+          online: !!online,
+          sellingPrice: +sellingprice,
+          shareDealer: Number(sharedealer),
+          shareNetpro: Number(sharenetpro),
           subcategory,
           productId,
         })
@@ -79,12 +79,12 @@ export const useAddNewProduct = () => {
             product,
             qty: +qty,
             category,
-            customerproductid,
-            marketprice,
-            online,
-            sellingprice,
-            sharedealer,
-            sharenetpro,
+            customerProductId: customerproductid,
+            marketPrice: +marketprice,
+            online: !!online,
+            sellingPrice: +sellingprice,
+            shareDealer: Number(sharedealer),
+            shareNetpro: Number(sharenetpro),
             subcategory,
             productId,
           })
@@ -110,30 +110,30 @@ export const useAdd247 = () => {
     }: {
       qty: string;
       productId: string;
-      unitPrice: string;
+      unitPrice: number;
     }) => {
       try {
         const productInDb = await db.query.product.findFirst({
-          where: eq(schema.product.id, +productId),
+          where: eq(schema.product.productId, productId),
           columns: {
-            sharenetpro: true,
-            sharedealer: true,
-            id: true,
+            shareDealer: true,
+            shareNetpro: true,
+            productId: true,
           },
         });
 
         if (!productInDb) return;
 
         const addedData = await db
-          .insert(schema.pharmacySales)
+          .insert(schema.onlineSale)
           .values({
             // @ts-ignore
-            productid: productInDb?.id,
+            productId: productInDb?.productId,
+            dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
             qty,
-            datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
-            dealershare: productInDb?.sharedealer,
-            netproshare: productInDb?.sharenetpro,
-            unitprice: unitPrice,
+            dealerShare: productInDb?.shareDealer,
+            unitPrice: +unitPrice,
+            netProShare: productInDb?.shareNetpro,
           })
           .returning();
 
@@ -142,13 +142,14 @@ export const useAdd247 = () => {
             `${api}api=make247sale&cidx=${storeId}&qty=${qty}&productid=${productId}`
           );
         } else if (addedData.length && !isConnected) {
-          await db.insert(schema.pharmacySalesOffline).values({
+          await db.insert(schema.onlineSaleOffline).values({
             // @ts-ignore
-            productid: productInDb?.id,
+            unitPrice: +unitPrice,
+            productId: productInDb?.productId,
             qty,
-            datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
-            dealershare: productInDb?.sharedealer,
-            netproshare: productInDb?.sharenetpro,
+            dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+            dealerShare: productInDb?.shareDealer,
+            netProShare: productInDb?.shareNetpro,
           });
         } else {
           throw new Error('Something went wrong');
@@ -192,16 +193,16 @@ export const useCart = () => {
       extraData: ExtraSalesType;
     }) => {
       const productsToAdd: SalesS[] = data.map((item) => ({
-        productid: item?.productId!,
-        datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+        productId: item?.productId!,
+        dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
         qty: item?.qty,
-        paymenttype: extraData.paymentType,
-        userid: extraData.salesRepId,
+        paymentType: extraData.paymentType,
+        userId: extraData.salesRepId,
         paid: true,
-        salesreference: item?.salesReference,
-        transinfo: extraData.transactionInfo,
-        unitprice: item?.product.sellingprice!,
-        cid: item?.product.customerproductid,
+        salesReference: item?.salesReference,
+        transInfo: extraData.transactionInfo!,
+        unitPrice: item?.product.sellingPrice!,
+        cid: item?.product.customerProductId,
       }));
       const addedSales = await db.insert(schema.storeSales).values(productsToAdd).returning();
       queryClient.invalidateQueries({ queryKey: ['salesStore'] });
@@ -209,21 +210,21 @@ export const useCart = () => {
       if (addedSales.length) {
         await db
           .delete(schema.cartItem)
-          .where(eq(schema.cartItem.salesReference, addedSales[0].salesreference));
+          .where(eq(schema.cartItem.salesReference, addedSales[0].salesReference));
         queryClient.invalidateQueries({ queryKey: ['cart'] });
         queryClient.invalidateQueries({ queryKey: ['cart_item'] });
         addedSales.forEach(async (item) => {
           await db
             .update(schema.product)
             .set({ qty: sql`${schema.product.qty} - ${item.qty}.00` })
-            .where(eq(schema.product.productId, item.productid));
+            .where(eq(schema.product.productId, item.productId));
         });
         queryClient.invalidateQueries({ queryKey: ['product'] });
 
         if (addedSales.length && isConnected) {
           addedSales.forEach(async (item) => {
             const { data } = await axios.get(
-              `${api}api=makepharmacysale&cidx=${storeId}&qty=${item.qty}&productid=${item?.productid}&salesref=${item.salesreference}&paymenttype=${extraData.paymentType}&transactioninfo=${extraData.transactionInfo}&salesrepid=${extraData.salesRepId}`
+              `${api}api=makepharmacysale&cidx=${storeId}&qty=${item.qty}&productid=${item?.productId}&salesref=${item.salesReference}&paymenttype=${extraData.paymentType}&transactioninfo=${extraData.transactionInfo}&salesrepid=${extraData.salesRepId}`
             );
 
             return data;
@@ -266,15 +267,15 @@ export const useAddSales = () => {
       productId: string;
       qty: number;
       cartId: number;
-      cost: string;
+      cost: number;
     }) => {
       // const { data } = await axios.get(
       //   `${api}api=makepharmacysale&cidx=${storeId}&qty=${qty}&productid=${productId}&salesref=${salesReference}&paymenttype=${paymentType}&transactioninfo=${transactionInfo}&salesrepid=${salesRepId}`
       // );
       let salesref: string = '';
 
-      const salesReference = await db.query.salesreference.findFirst({
-        where: eq(schema.salesreference.isActive, true),
+      const salesReference = await db.query.salesReference.findFirst({
+        where: eq(schema.salesReference.isActive, true),
         columns: {
           salesReference: true,
         },
@@ -284,9 +285,9 @@ export const useAddSales = () => {
         salesref = salesReference.salesReference;
       } else {
         const newSalesreference = await db
-          .insert(schema.salesreference)
+          .insert(schema.salesReference)
           .values({})
-          .returning({ salesReference: schema.salesreference.salesReference });
+          .returning({ salesReference: schema.salesReference.salesReference });
         salesref = newSalesreference[0].salesReference;
       }
       SecureStore.setItem('salesRef', salesref);
@@ -333,21 +334,18 @@ export const useSupply = () => {
     }: SupplyInsert) => {
       const addedProduct = await db
         .insert(schema.supplyProduct)
-        // @ts-ignore
         .values({
-          productid: +productId,
-          qty,
-          dealershare: dealerShare,
-          netproshare: netProShare,
-          newprice: newPrice,
-          sellingprice: sellingPrice,
-          unitcost: unitCost,
+          // @ts-ignore
+          productId,
           datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+          qty,
+          sellingPrice,
+          unitCost,
         })
         .returning();
       await db
         .update(schema.product)
-        .set({ sellingprice: newPrice, qty: sql`${schema.product.qty} + ${qty}.00` })
+        .set({ sellingPrice: +newPrice, qty: sql`${schema.product.qty} + ${qty}` })
         .where(eq(schema.product.id, +productId));
       if (addedProduct.length && isConnected) {
         const { data } = await axios.get(
@@ -358,15 +356,13 @@ export const useSupply = () => {
       } else if (addedProduct.length && !isConnected) {
         const addedProduct = await db
           .insert(schema.supplyProductOffline)
-          // @ts-ignore
           .values({
-            productid: +productId,
+            // @ts-ignore
+            productId,
+            datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
             qty,
-            dealershare: dealerShare,
-            netproshare: netProShare,
-            newprice: newPrice,
-            sellingprice: sellingPrice,
-            unitcost: unitCost,
+            sellingPrice,
+            unitCost,
           })
           .returning();
 
@@ -391,6 +387,7 @@ export const useSupply = () => {
           text2: 'Product has been restocked',
         });
         queryClient.invalidateQueries({ queryKey: ['product', 'supply'] });
+        queryClient.invalidateQueries({ queryKey: ['supply'] });
       }
     },
   });
@@ -401,13 +398,22 @@ export const useDisposal = () => {
   const { db, schema } = useDrizzle();
   const isConnected = useNetwork();
   return useMutation({
-    mutationFn: async ({ productId, qty }: { qty: string; productId: string }) => {
+    mutationFn: async ({
+      productId,
+      qty,
+      unitCost,
+    }: {
+      qty: string;
+      productId: string;
+      unitCost: string;
+    }) => {
       const disposedProduct = await db
         .insert(schema.disposedProducts)
         .values({
-          productid: +productId,
+          productId,
           qty: +qty,
-          datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+          dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+          unitCost: +unitCost,
         })
         .returning();
 
@@ -425,15 +431,16 @@ export const useDisposal = () => {
         const disposedProduct = await db
           .insert(schema.disposedProductsOffline)
           .values({
-            productid: +productId,
+            productId,
             qty: +qty,
-            datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+            dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+            unitCost: +unitCost,
           })
           .returning();
 
         await db
           .update(schema.product)
-          .set({ qty: sql`${schema.product.qty} - ${qty}.00` })
+          .set({ qty: sql`${schema.product.qty} - ${qty}` })
           .where(eq(schema.product.id, +productId));
         return disposedProduct;
       } else {

@@ -56,7 +56,7 @@ export default function AddOfflineScreen() {
   const { productId } = watch();
   const memoizedPrice = useMemo(() => {
     if (!productId) return null;
-    return products?.find((item) => item?.productId === productId)?.sellingprice;
+    return products?.find((item) => item?.productId === productId)?.sellingPrice;
   }, [products, productId]);
 
   const cartLength = cartData?.cartItem.length || 0;
@@ -151,31 +151,31 @@ const SalesRefFlatList = ({ data }: { data: SalesRefSelect[] }) => {
   const onPress = async (salesRef: string) => {
     SecureStore.setItem('salesRef', salesRef);
     await db
-      .update(schema.salesreference)
+      .update(schema.salesReference)
       .set({ isActive: false })
-      .where(ne(schema.salesreference.salesReference, salesRef));
+      .where(ne(schema.salesReference.salesReference, salesRef));
     await db
-      .update(schema.salesreference)
+      .update(schema.salesReference)
       .set({ isActive: true })
-      .where(eq(schema.salesreference.salesReference, salesRef));
+      .where(eq(schema.salesReference.salesReference, salesRef));
 
     queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
   };
   const onNewCustomer = async () => {
-    const activeCustomer = await db.query.salesreference.findFirst({
-      where: eq(schema.salesreference.isActive, true),
+    const activeCustomer = await db.query.salesReference.findFirst({
+      where: eq(schema.salesReference.isActive, true),
     });
 
     if (activeCustomer) {
       await db
-        .update(schema.salesreference)
+        .update(schema.salesReference)
         .set({ isActive: false })
-        .where(eq(schema.salesreference.salesReference, activeCustomer.salesReference));
+        .where(eq(schema.salesReference.salesReference, activeCustomer.salesReference));
     }
     const newCustomerRef = await db
-      .insert(schema.salesreference)
+      .insert(schema.salesReference)
       .values({})
-      .returning({ salesReference: schema.salesreference.salesReference });
+      .returning({ salesReference: schema.salesReference.salesReference });
     SecureStore.setItem('salesRef', newCustomerRef[0].salesReference);
     queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
   };

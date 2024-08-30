@@ -46,14 +46,14 @@ export default function AddOnlineScreen() {
       const productInDb = await db.query.product.findFirst({
         where: eq(schema.product.productId, value.productName),
         columns: {
-          sellingprice: true,
+          sellingPrice: true,
         },
       });
       if (!productInDb) return;
       await mutateAsync({
         productId: value.productName,
         qty: value.qty,
-        unitPrice: productInDb?.sellingprice!,
+        unitPrice: productInDb?.sellingPrice!,
       });
       if (!error) {
         reset();

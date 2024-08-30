@@ -52,7 +52,7 @@ export const ProductForm = (): JSX.Element => {
       customerproductid: '',
       des: '',
       marketprice: '',
-      online: 'True',
+      online: true,
       product: '',
       qty: '',
       sellingprice: '',
@@ -117,6 +117,7 @@ export const ProductForm = (): JSX.Element => {
       sharedealer: info?.shareseller,
       sharenetpro: info?.sharenetpro,
       state: info?.statename,
+      online: values.online,
     });
 
     if (data.result) {

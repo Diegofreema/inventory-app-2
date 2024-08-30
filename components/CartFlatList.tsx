@@ -59,7 +59,7 @@ export const CartFlatList = ({ data }: Props): JSX.Element => {
     }
   };
   const totalPrice = data.reduce(
-    (acc, cur) => acc + Number(cur?.product.sellingprice) * Number(cur?.qty),
+    (acc, cur) => acc + Number(cur?.product.sellingPrice) * Number(cur?.qty),
     0
   );
   const disable = !data?.length;
@@ -70,8 +70,8 @@ export const CartFlatList = ({ data }: Props): JSX.Element => {
       .delete(schema.cartItem)
       .where(eq(schema.cartItem.salesReference, data[0]?.salesReference));
     await db
-      .delete(schema.salesreference)
-      .where(eq(schema.salesreference.salesReference, data[0]?.salesReference));
+      .delete(schema.salesReference)
+      .where(eq(schema.salesReference.salesReference, data[0]?.salesReference));
     queryClient.invalidateQueries({ queryKey: ['cart_item'] });
     queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
     queryClient.invalidateQueries({ queryKey: ['cart'] });
@@ -143,7 +143,7 @@ const CartCard = ({ item, index }: { item: CartItemWithProductField; index: numb
   return (
     <AnimatedCard index={index}>
       <FlexText text="Product" text2={trimText(item?.product.product, 25)} />
-      <FlexText text="Price" text2={`₦${item?.product.sellingprice!}`} />
+      <FlexText text="Price" text2={`₦${item?.product.sellingPrice!}`} />
       <FlexText text="Quantity" text2={item?.qty.toString()} />
       <XStack mt={5} gap={10}>
         <MyButton title="Remove" flex={1} onPress={onReduce} />

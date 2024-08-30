@@ -14,20 +14,20 @@ export const useRefetchProduct = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
   useEffect(() => {
-    const getfn = async () => {
+    const getFn = async () => {
       try {
         const data = await queryClient.fetchQuery({
           queryKey: ['products', id],
           queryFn: () => getProducts(id!),
         });
-
+        // @ts-ignore
         setProducts(data);
       } catch (error) {
         console.log(error);
         router.back();
       }
     };
-    getfn();
+    getFn();
   }, []);
 
   return products;
