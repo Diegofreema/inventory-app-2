@@ -3,7 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
 import { eq } from 'drizzle-orm';
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
 import * as SecureStore from 'expo-secure-store';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -13,6 +12,7 @@ import { Stack, Text, XStack } from 'tamagui';
 import { z } from 'zod';
 
 import { CustomController } from './CustomController';
+import { LoadingModal } from '../modals/LoadingModal';
 import { CustomPressable } from '../ui/CustomPressable';
 import { MyButton } from '../ui/MyButton';
 
@@ -29,14 +29,12 @@ export const LoginForm = (): JSX.Element => {
   const getId = useStore((state) => state.getId);
   const onSetAdmin = useStore((state) => state.setIsAdmin);
   const { db, schema } = useDrizzle();
-  const { data } = useLiveQuery(db.select().from(schema.staff));
-  console.log(data);
 
   const {
     control,
     handleSubmit,
     reset,
-    formState: { isSubmitting, errors },
+    formState: { errors },
   } = useForm<z.infer<typeof loginSchema>>({
     defaultValues: {
       email: '',
@@ -46,6 +44,7 @@ export const LoginForm = (): JSX.Element => {
   });
 
   const onAdminLogin = async (values: z.infer<typeof loginSchema>) => {
+    setLoading(true);
     try {
       const { data } = await axios.get(
         `${api}api=adminlogin&email=${values.email}&pasword=${values.password}`
@@ -95,10 +94,13 @@ export const LoginForm = (): JSX.Element => {
         text1: 'Error',
         text2: 'Something went wrong, please try again',
       });
+    } finally {
+      setLoading(false);
     }
   };
 
   const onStaffLogin = async (values: z.infer<typeof loginSchema>) => {
+    setLoading(true);
     try {
       const staffExists = await db.query.staff.findFirst({
         where: eq(schema.staff.email, values.email),
@@ -136,6 +138,8 @@ export const LoginForm = (): JSX.Element => {
         text1: 'Error',
         text2: 'Something went wrong, please try again',
       });
+    } finally {
+      setLoading(false);
     }
   };
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
@@ -150,64 +154,69 @@ export const LoginForm = (): JSX.Element => {
 
   const handleSecure = useCallback(() => setSecure((prev) => !prev), []);
   return (
-    <Stack gap={10}>
-      <CustomController
-        name="email"
-        placeholder="E.g. Johndoe@gmail.com"
-        control={control}
-        errors={errors}
-        label="Email"
-        type="email-address"
-      />
-      <CustomController
-        name="password"
-        placeholder="*********"
-        control={control}
-        errors={errors}
-        label="Password"
-        secure={secure}
-        password
-        handleSecure={handleSecure}
-      />
-      <XStack justifyContent="space-between" gap={10}>
-        <CustomPressable
-          onPress={() => setAdmin(true)}
-          style={[
-            styles.container,
-            {
-              backgroundColor: admin ? colors.green : 'transparent',
-              borderColor: colors.green,
-            },
-          ]}>
-          <Text color={admin ? colors.white : colors.green} textAlign="center">
-            Admin login
-          </Text>
-        </CustomPressable>
-        <CustomPressable
-          style={[
-            styles.container,
-            { backgroundColor: admin ? 'transparent' : colors.green, borderColor: colors.green },
-          ]}
-          onPress={() => setAdmin(false)}>
-          <Text color={admin ? colors.green : colors.white} textAlign="center">
-            Staff login
-          </Text>
-        </CustomPressable>
-      </XStack>
-      <MyButton
-        title="Login"
-        mt={20}
-        disabled={loading}
-        loading={loading}
-        onPress={handleSubmit(onSubmit)}
-        backgroundColor={colors.green}
-        height={55}
-        borderRadius={5}
-        pressStyle={{
-          opacity: 0.5,
-        }}
-      />
-    </Stack>
+    <>
+      <LoadingModal visible={loading} />
+      <Stack gap={10}>
+        <CustomController
+          name="email"
+          placeholder="E.g. Johndoe@gmail.com"
+          control={control}
+          errors={errors}
+          label="Email"
+          type="email-address"
+        />
+        <CustomController
+          name="password"
+          placeholder="*********"
+          control={control}
+          errors={errors}
+          label="Password"
+          secure={secure}
+          password
+          handleSecure={handleSecure}
+        />
+        <XStack justifyContent="space-between" gap={10}>
+          <CustomPressable
+            onPress={() => setAdmin(true)}
+            style={[
+              styles.container,
+              {
+                backgroundColor: admin ? colors.green : 'transparent',
+                borderColor: colors.green,
+              },
+            ]}>
+            <Text color={admin ? colors.white : colors.green} textAlign="center">
+              Admin login
+            </Text>
+          </CustomPressable>
+          <CustomPressable
+            style={[
+              styles.container,
+              { backgroundColor: admin ? 'transparent' : colors.green, borderColor: colors.green },
+            ]}
+            onPress={() => setAdmin(false)}>
+            <Text color={admin ? colors.green : colors.white} textAlign="center">
+              Staff login
+            </Text>
+          </CustomPressable>
+        </XStack>
+        {!loading && (
+          <MyButton
+            title="Login"
+            mt={20}
+            disabled={loading}
+            loading={loading}
+            onPress={handleSubmit(onSubmit)}
+            backgroundColor={colors.green}
+            height={55}
+            borderRadius={5}
+            pressStyle={{
+              opacity: 0.5,
+            }}
+          />
+        )}
+      </Stack>
+    </>
   );
 };
 
