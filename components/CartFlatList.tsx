@@ -6,6 +6,7 @@ import * as SecureStore from 'expo-secure-store';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { FlatList } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { XStack } from 'tamagui';
 import { z } from 'zod';
 
@@ -21,7 +22,6 @@ import { trimText } from '~/lib/helper';
 import { useCart } from '~/lib/tanstack/mutations';
 import { extraDataSchema } from '~/lib/validators';
 import { ExtraSalesType } from '~/type';
-import Toast from 'react-native-toast-message';
 
 export type CartItemWithProductField = CartItemSelect & { product: ProductSelect };
 type Props = {

@@ -7,6 +7,7 @@ import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Dimensions, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { Stack, View } from 'tamagui';
 import { z } from 'zod';
 
@@ -111,17 +112,21 @@ export const ProductForm = (): JSX.Element => {
   if (infoPending || catPending) return <FormLoader />;
   const onSubmit = (values: z.infer<typeof newProductSchema>) => {
     console.log({ values });
+    try {
+      mutateAsync({
+        ...values,
+        sharedealer: info?.shareseller,
+        sharenetpro: info?.sharenetpro,
+        state: info?.statename,
+        online: values.online,
+      });
 
-    mutateAsync({
-      ...values,
-      sharedealer: info?.shareseller,
-      sharenetpro: info?.sharenetpro,
-      state: info?.statename,
-      online: values.online,
-    });
-
-    if (data.result) {
       reset();
+    } catch (error: any) {
+      Toast.show({
+        text1: 'Failed',
+        text2: error?.message,
+      });
     }
   };
 

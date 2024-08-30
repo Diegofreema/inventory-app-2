@@ -22,6 +22,7 @@ export const useAddNewProduct = () => {
   const storeId = useStore((state) => state.id);
   const isConnected = useNetwork();
   const { db, schema } = useDrizzle();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
       category,
@@ -66,13 +67,14 @@ export const useAddNewProduct = () => {
           productId,
         })
         .returning();
-      if (addedProduct.length && isConnected) {
+      if (!addedProduct.length) throw Error('Failed to add product');
+      if (isConnected) {
         const { data } = await axios.get(
           `${api}api=addproduct&customerproductid=${customerproductid}&online=${online}&productname=${product}&cidx=${storeId}&qty=${qty}&statename=${state}&description=${des}&productcategory=${category}&productsubcategory=${subcategory}&marketprice=${marketprice}&getsellingprice=${sellingprice}&getdealershare=${sharedealer}&getnetproshare=${sharenetpro}`
         );
 
         return data;
-      } else if (addedProduct.length && !isConnected) {
+      } else if (!isConnected) {
         const addedProduct = await db
           .insert(schema.productOffline)
           .values({
@@ -91,9 +93,20 @@ export const useAddNewProduct = () => {
           .returning();
 
         return addedProduct;
-      } else {
-        throw new Error('No internet connection');
       }
+    },
+    onError: (err) => {
+      Toast.show({
+        text1: 'Failed to add product',
+        text2: err.message,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['product'] });
+      Toast.show({
+        text1: 'Success',
+        text2: 'Product has been added successfully',
+      });
     },
   });
 };
