@@ -56,7 +56,9 @@ const Restock = (): JSX.Element => {
       qty: value.qty,
       unitCost: value.unitPrice,
     });
-
+    if (error) {
+      console.log('🚀 ~ onSubmit ~ error:', error);
+    }
     if (!error) {
       console.log('done');
 

@@ -130,7 +130,7 @@ export const useAdd247 = () => {
             // @ts-ignore
             productId: productInDb?.productId,
             dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
-            qty,
+            qty: +qty,
             dealerShare: productInDb?.shareDealer,
             unitPrice: +unitPrice,
             netProShare: productInDb?.shareNetpro,
@@ -337,16 +337,15 @@ export const useSupply = () => {
         .values({
           // @ts-ignore
           productId,
-          datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
-          qty,
-          sellingPrice,
-          unitCost,
+          dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+          qty: +qty,
+          unitCost: Number(unitCost || newPrice),
         })
         .returning();
       await db
         .update(schema.product)
         .set({ sellingPrice: +newPrice, qty: sql`${schema.product.qty} + ${qty}` })
-        .where(eq(schema.product.id, +productId));
+        .where(eq(schema.product.productId, productId));
       if (addedProduct.length && isConnected) {
         const { data } = await axios.get(
           `${api}api=addsupply&cidx=${storeId}&productid=${productId}&qty=${qty}&unitcost=${unitCost}&newprice=${newPrice}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}`
@@ -359,10 +358,9 @@ export const useSupply = () => {
           .values({
             // @ts-ignore
             productId,
-            datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
-            qty,
-            sellingPrice,
-            unitCost,
+            dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+            qty: +qty,
+            unitCost: Number(unitCost || newPrice),
           })
           .returning();
 
@@ -386,7 +384,7 @@ export const useSupply = () => {
           text1: 'Success',
           text2: 'Product has been restocked',
         });
-        queryClient.invalidateQueries({ queryKey: ['product', 'supply'] });
+        queryClient.invalidateQueries({ queryKey: ['product'] });
         queryClient.invalidateQueries({ queryKey: ['supply'] });
       }
     },
@@ -478,14 +476,14 @@ export const useAddAccount = () => {
         const addedExpense = await db
           .insert(schema.expenseAccount)
           .values({
-            accountname: name,
+            accountName: name,
           })
-          .returning({ accountname: schema.expenseAccount.accountname });
+          .returning({ accountName: schema.expenseAccount.accountName });
 
         if (addedExpense.length && isConnected) {
           try {
             await axios.get(
-              `${api}api=addexpenseact&accountname=${addedExpense[0].accountname}&cidx=${storeId}`
+              `${api}api=addexpenseact&accountname=${addedExpense[0].accountName}&cidx=${storeId}`
             );
           } catch (error) {
             console.log(error);
@@ -538,10 +536,10 @@ export const useAddExp = () => {
       const addedExpense = await db
         .insert(schema.expenses)
         .values({
-          accountname: name,
-          amount,
-          descript: description,
-          datex: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+          accountName: name,
+          amount: +amount,
+          description,
+          dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
         })
         .returning();
       if (addedExpense.length && isConnected) {

@@ -177,7 +177,6 @@ export const supplyProduct = sqliteTable('supply_product', {
     .references(() => product.productId),
   qty: integer('qty').notNull(),
   unitCost: integer('unit_cost', { mode: 'number' }),
-
   dateX: text('date'),
 });
 export const supplyProductOffline = sqliteTable('supply_product_offline', {

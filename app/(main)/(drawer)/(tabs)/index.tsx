@@ -1,21 +1,40 @@
 /* eslint-disable prettier/prettier */
 
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { ScrollView, XStack } from 'tamagui';
 
 import { Container } from '~/components/Container';
 import { LogoutButton } from '~/components/LogoutButton';
 import { DashBoardCards } from '~/components/home/DashBoardCards';
+import { Error } from '~/components/ui/Error';
+import { ProductLoader } from '~/components/ui/Loading';
 // import { MyButton } from '~/components/ui/MyButton';
 import { Products } from '~/components/ui/Products';
 import { CustomHeading } from '~/components/ui/typography';
 // import { useDrizzle } from '~/hooks/useDrizzle';
-import { useGet } from '~/hooks/useGet';
 import { getSupply } from '~/lib/helper';
+import { useProducts, useSalesP, useSalesS } from '~/lib/tanstack/queries';
 import { useStore } from '~/lib/zustand/useStore';
 
 export default function Home() {
-  const { onlineSales, products, storeSales } = useGet();
+  const {
+    data: products,
+    isError: isErrorProducts,
+    isPending: isPendingProducts,
+    refetch,
+  } = useProducts();
+  const {
+    data: onlineSales,
+    isError: isErrorOnline,
+    isPending: isPendingOnline,
+    refetch: refetchOnline,
+  } = useSalesP();
+  const {
+    data: storeSales,
+    isError: isErrorStore,
+    isPending: isPendingStore,
+    refetch: refetchStore,
+  } = useSalesS();
   const id = useStore((state) => state.id);
   // const { db, schema } = useDrizzle();
   const limitedProducts = useMemo(() => {
@@ -30,10 +49,14 @@ export default function Home() {
 
     fetchData();
   }, []);
+  const handleError = useCallback(() => {
+    refetch();
+    refetchOnline();
+    refetchStore();
+  }, []);
   console.log('🚀 ~ Home ~ products:', products?.length);
-  // const createCart = async () => {
-  //   await db.insert(schema.cart).values({});
-  // };
+  if (isErrorOnline || isErrorProducts || isErrorStore) return <Error onRetry={handleError} />;
+  if (isPendingOnline || isPendingProducts || isPendingStore) return <ProductLoader />;
   return (
     <Container>
       <XStack justifyContent="space-between" alignItems="center">

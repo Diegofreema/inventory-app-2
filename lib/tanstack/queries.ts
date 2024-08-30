@@ -82,28 +82,13 @@ export const useFetchAll = () => {
 };
 
 export const useProducts = () => {
-  const id = useStore((state) => state.id);
-  const { db, schema } = useDrizzle();
+  const { db } = useDrizzle();
   const getProducts = async () => {
-    const response = await axios.get(`${api}api=getproducts&cidx=${id}`);
-    let data = [];
-    if (Object.prototype.toString.call(response.data) === '[object Object]') {
-      data.push(response.data);
-    } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
-      data = [...response.data];
-    }
-
-    const formattedProducts = data.map((product) => ({
-      ...product,
-      category: product.Category,
-      subcategory: product.Subcategory,
-    }));
-    await db.insert(schema.product).values(formattedProducts).onConflictDoNothing();
-
-    return data;
+    const products = await db.query.product.findMany();
+    return products;
   };
   return useQuery({
-    queryKey: ['product', id],
+    queryKey: ['product'],
     queryFn: getProducts,
   });
 };
