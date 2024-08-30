@@ -7,15 +7,15 @@ import { StoreActions } from './StoreActions';
 import { AnimatedContainer } from '../ui/AniminatedContainer';
 import { Products } from '../ui/Products';
 
-import { useGet, usePaginatedProducts } from '~/hooks/useGet';
+import { usePaginatedProducts } from '~/hooks/useGet';
 
 export const StoreProducts = (): JSX.Element => {
   const [value, setValue] = useState('');
-  const [page, setPage] = useState(1);
-  const { products } = usePaginatedProducts(page);
+
+  const { products, fetchData, fetching } = usePaginatedProducts();
   console.log('🚀 ~ StoreProducts ~ products:', products);
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
-  const increasePage = useCallback(() => setPage((prev) => prev + 1), []);
+
   const router = useRouter();
   const handleNav = () => {
     router.push('/newItem');
@@ -56,7 +56,13 @@ export const StoreProducts = (): JSX.Element => {
         onPress={handleNav}
       />
 
-      <Products data={filteredProducts} scrollEnabled navigate onAdd={increasePage} />
+      <Products
+        data={filteredProducts}
+        scrollEnabled
+        navigate
+        onRefetch={fetchData}
+        isLoading={fetching}
+      />
     </AnimatedContainer>
   );
 };

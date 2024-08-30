@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 
 import { eq } from 'drizzle-orm';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useDrizzle } from './useDrizzle';
 
@@ -39,23 +39,25 @@ export const useGet = (id?: string) => {
 
   return { products, onlineSales, storeSales, singleProduct };
 };
-export const usePaginatedProducts = (page: number) => {
+export const usePaginatedProducts = () => {
   const [products, setProducts] = useState<ProductSelect[] | undefined>([]);
-  const limit = 5;
-  const offset = limit * (page - 1);
+  const [fetching, setFetching] = useState(false);
   const { db } = useDrizzle();
-  useEffect(() => {
-    const fetchData = async () => {
-      const products = await db.query.product.findMany({
-        limit,
-        offset,
-      });
+  const fetchData = useCallback(async () => {
+    setFetching(true);
+    try {
+      const products = await db.query.product.findMany();
 
       setProducts(products);
-    };
-
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setFetching(false);
+    }
+  }, []);
+  useEffect(() => {
     fetchData();
-  }, [page]);
+  }, [fetchData]);
 
-  return { products };
+  return { products, fetchData, fetching };
 };

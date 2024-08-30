@@ -24,7 +24,6 @@ type Props = {
   isLoading?: boolean;
   onRefetch?: () => void;
   navigate?: boolean;
-  onAdd?: () => void;
 };
 
 export const Products = ({
@@ -37,12 +36,7 @@ export const Products = ({
   isLoading,
   onRefetch,
   navigate,
-  onAdd,
 }: Props): JSX.Element => {
-  const onIncrease = () => {
-    onAdd && onAdd();
-  };
-
   return (
     <FlatList
       onRefresh={onRefetch}
@@ -57,10 +51,7 @@ export const Products = ({
       style={{ flex: 1, backgroundColor: 'transparent', marginTop: 10 }}
       ListEmptyComponent={() => <Empty text="No products in store" />}
       showsVerticalScrollIndicator={false}
-      onEndReached={onIncrease}
-      onEndReachedThreshold={0.5}
       keyExtractor={(item, index) => index.toString()}
-      viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
     />
   );
 };

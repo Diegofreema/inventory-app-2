@@ -16,7 +16,7 @@ import { disposeSchema } from '~/lib/validators';
 
 const Dispose = (): JSX.Element => {
   const { name, productId } = useLocalSearchParams<{ productId: string; name: string }>();
-  const { isPending, error, mutateAsync } = useDisposal();
+  const { isPending, mutateAsync } = useDisposal();
   const router = useRouter();
   const {
     formState: { errors },

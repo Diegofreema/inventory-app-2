@@ -29,9 +29,9 @@ export const ExpenseCard = ({ index, item }: Props): JSX.Element => {
       borderColor={colors.lightGray}>
       <CardHeader gap={5}>
         <FlexText text="Account name" text2={item?.accountName} />
-        <FlexText text="Description" text2={item?.description!} />
-        <FlexText text="Amount" text2={item?.amount.toString()} />
+        <FlexText text="Amount" text2={`₦${item?.amount}`} />
         <FlexText text="Date" text2={item?.dateX} />
+        <FlexText text="Description" text2={item?.description!} />
       </CardHeader>
     </AnimatedCard>
   );

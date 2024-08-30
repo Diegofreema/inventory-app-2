@@ -40,8 +40,8 @@ export default function AddExpense() {
   });
   const expenses = useMemo(() => {
     return exp?.map((ex) => ({
-      label: ex.accountname,
-      value: ex.accountname,
+      label: ex.accountName,
+      value: ex.accountName,
     }));
   }, [exp]);
   const onSubmit = (values: z.infer<typeof expenseSchema>) => {
