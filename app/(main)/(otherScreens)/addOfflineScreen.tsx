@@ -8,6 +8,7 @@ import * as SecureStore from 'expo-secure-store';
 import { useCallback, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { FlatList } from 'react-native';
+import Toast from 'react-native-toast-message';
 import { Stack, Text, View } from 'tamagui';
 import { z } from 'zod';
 
@@ -31,6 +32,7 @@ import { addToCart } from '~/lib/validators';
 export default function AddOfflineScreen() {
   const { error, mutateAsync, isPending } = useAddSales();
   const { data: cartData } = useCart();
+  const { db, schema } = useDrizzle();
   const { data } = useSalesRef();
   const router = useRouter();
   const { products } = useGet();
@@ -62,7 +64,19 @@ export default function AddOfflineScreen() {
   const cartLength = cartData?.cartItem.length || 0;
   const onSubmit = async (value: z.infer<typeof addToCart>) => {
     if (!cartData?.id || !memoizedPrice) return;
+    const product = await db.query.product.findFirst({
+      where: eq(schema.product.productId, value.productId),
+      columns: {
+        qty: true,
+      },
+    });
 
+    if (product && product?.qty < +value.qty) {
+      return Toast.show({
+        text1: 'Product out of stock',
+        text2: `Only ${product?.qty} items are available`,
+      });
+    }
     await mutateAsync({
       productId: value.productId,
       qty: +value.qty,

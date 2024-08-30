@@ -203,7 +203,7 @@ export const salesReference = sqliteTable('sales_reference', {
   id: integer('id').notNull().primaryKey(),
   salesReference: text('sales_reference')
     .notNull()
-    .$default(() => createId() + sql`CURRENT_TIMESTAMP`),
+    .$default(() => sql`CURRENT_TIMESTAMP` + createId()),
   isActive: integer('is_active', { mode: 'boolean' }).default(true),
 });
 

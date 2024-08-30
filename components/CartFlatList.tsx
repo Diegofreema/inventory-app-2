@@ -21,6 +21,7 @@ import { trimText } from '~/lib/helper';
 import { useCart } from '~/lib/tanstack/mutations';
 import { extraDataSchema } from '~/lib/validators';
 import { ExtraSalesType } from '~/type';
+import Toast from 'react-native-toast-message';
 
 export type CartItemWithProductField = CartItemSelect & { product: ProductSelect };
 type Props = {
@@ -121,7 +122,23 @@ export const CartFlatList = ({ data }: Props): JSX.Element => {
 const CartCard = ({ item, index }: { item: CartItemWithProductField; index: number }) => {
   const { db, schema } = useDrizzle();
   const queryClient = useQueryClient();
+  console.log(item.productId, 'sahjbdhsaj');
+
   const onAdd = async () => {
+    if (!item?.productId) return Toast.show({ text1: 'Error', text2: 'Could not add item' });
+    const productQty = await db.query.product.findFirst({
+      where: eq(schema.product.productId, item?.productId),
+      columns: {
+        qty: true,
+      },
+    });
+    if (productQty && productQty?.qty <= item.qty) {
+      return Toast.show({
+        text1: 'Cannot update item',
+        text2: `Only ${productQty.qty} Item  is left in stock`,
+      });
+    }
+
     await db
       .update(schema.cartItem)
       .set({ qty: item?.qty! + 1 })

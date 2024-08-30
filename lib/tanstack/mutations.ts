@@ -136,8 +136,12 @@ export const useAdd247 = () => {
             netProShare: productInDb?.shareNetpro,
           })
           .returning();
-
-        if (addedData.length && isConnected) {
+        if (!addedData.length) throw new Error('Failed to add sales');
+        await db
+          .update(schema.product)
+          .set({ qty: sql`${schema.product.qty} - ${qty}` })
+          .where(eq(schema.product.productId, productId));
+        if (isConnected) {
           await axios.get(
             `${api}api=make247sale&cidx=${storeId}&qty=${qty}&productid=${productId}`
           );
@@ -175,6 +179,7 @@ export const useAdd247 = () => {
         text2: 'Sales has been added successfully',
       });
       queryClient.invalidateQueries({ queryKey: ['salesPharmacy'] });
+      queryClient.invalidateQueries({ queryKey: ['product'] });
     },
   });
 };
@@ -211,12 +216,16 @@ export const useCart = () => {
         await db
           .delete(schema.cartItem)
           .where(eq(schema.cartItem.salesReference, addedSales[0].salesReference));
+        await db
+          .delete(schema.salesReference)
+          .where(eq(schema.salesReference.salesReference, addedSales[0].salesReference));
+        queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
         queryClient.invalidateQueries({ queryKey: ['cart'] });
         queryClient.invalidateQueries({ queryKey: ['cart_item'] });
         addedSales.forEach(async (item) => {
           await db
             .update(schema.product)
-            .set({ qty: sql`${schema.product.qty} - ${item.qty}.00` })
+            .set({ qty: sql`${schema.product.qty} - ${item.qty}` })
             .where(eq(schema.product.productId, item.productId));
         });
         queryClient.invalidateQueries({ queryKey: ['product'] });
@@ -246,7 +255,7 @@ export const useCart = () => {
     onSuccess: (data) => {
       Toast.show({
         text1: 'Success',
-        text2: 'item has been added to cart',
+        text2: 'Sales has been made',
       });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     },

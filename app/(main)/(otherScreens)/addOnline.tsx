@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { eq } from 'drizzle-orm';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
+import Toast from 'react-native-toast-message';
 import { Stack } from 'tamagui';
 import { z } from 'zod';
 
@@ -47,9 +48,16 @@ export default function AddOnlineScreen() {
         where: eq(schema.product.productId, value.productName),
         columns: {
           sellingPrice: true,
+          qty: true,
         },
       });
       if (!productInDb) return;
+      if (productInDb.qty < +value.qty) {
+        return Toast.show({
+          text1: 'Product is out of stock',
+          text2: `Only ${productInDb.qty} left in stock`,
+        });
+      }
       await mutateAsync({
         productId: value.productName,
         qty: value.qty,
