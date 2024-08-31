@@ -25,7 +25,7 @@ import { useCat, useInfo } from '~/lib/tanstack/queries';
 import { Cats } from '~/type';
 const { height, width } = Dimensions.get('window');
 export const ProductForm = (): JSX.Element => {
-  const { data, isPending, mutateAsync } = useAddNewProduct();
+  const { isPending, mutateAsync } = useAddNewProduct();
   const { data: info, isPending: infoPending, isError, refetch } = useInfo();
   const { height, width } = useWindowDimensions();
   const cameraRef = useRef<CameraView>(null);
