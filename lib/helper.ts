@@ -5,7 +5,8 @@ import { z } from 'zod';
 
 import { newProductSchema } from './validators';
 
-import { SalesS, SupplyInsert } from '~/type';
+import { SupplyInsert } from '~/type';
+import { SalesS } from '~/db/schema';
 
 export const api = process.env.EXPO_PUBLIC_API;
 
@@ -178,8 +179,8 @@ type DataItem = { paymenttype: PaymentType; unitprice: string | number };
 export const calculateTotalsByPaymentType = (data: SalesS[]) => {
   // @ts-ignore
   const dataItem: DataItem[] = data?.map((d) => ({
-    paymenttype: d.paymenttype,
-    unitprice: d?.unitprice,
+    paymenttype: d.paymentType,
+    unitprice: d?.unitPrice,
   }));
   const totals = dataItem.reduce(
     (acc, item) => {

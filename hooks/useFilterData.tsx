@@ -3,15 +3,15 @@
 import { format, isWithinInterval } from 'date-fns';
 import { useMemo } from 'react';
 
-import { ExpType, SalesS, SupplyType } from '~/type';
+import { DisposedSelect, ExpenseSelect, SalesS, supplyProductSelect } from '~/db/schema';
 
 type Props = {
   startDate: string;
   endDate: string;
-  productSupply: SupplyType[];
+  productSupply: supplyProductSelect[];
   storeSales: SalesS[];
-  expense: ExpType[];
-  disposal: SupplyType[]
+  expense: ExpenseSelect[];
+  disposal: DisposedSelect[];
 };
 
 export const useFilterData = ({
@@ -20,7 +20,7 @@ export const useFilterData = ({
   startDate,
   productSupply,
   storeSales,
-  disposal
+  disposal,
 }: Props) => {
   const filterData = useMemo(() => {
     if (!startDate || !endDate || !storeSales) return [];
@@ -28,10 +28,8 @@ export const useFilterData = ({
     const start = format(startDate, 'dd-MM-yyyy');
     const end = format(endDate, 'dd-MM-yyyy');
 
-
-
     return storeSales.filter((d) => {
-      const salesDate = d.datex.split(' ')[0].replace('/', '-').replace('/', '-');
+      const salesDate = d.dateX.split(' ')[0].replace('/', '-').replace('/', '-');
 
       return isWithinInterval(salesDate, { start, end });
     });
@@ -42,11 +40,9 @@ export const useFilterData = ({
     const start = format(startDate, 'dd-MM-yyyy');
     const end = format(endDate, 'dd-MM-yyyy');
 
-
-
     return productSupply.filter((d) => {
-      const salesDate = d.datex.split(' ')[0].replace('/', '-').replace('/', '-');
-
+      const salesDate = d?.dateX?.split(' ')[0].replace('/', '-').replace('/', '-');
+      if (!salesDate) return productSupply;
       return isWithinInterval(salesDate, { start, end });
     });
   }, [startDate, endDate, productSupply]);
@@ -56,12 +52,10 @@ export const useFilterData = ({
     const start = format(startDate, 'dd-MM-yyyy');
     const end = format(endDate, 'dd-MM-yyyy');
     return expense.filter((d) => {
-      const salesDate = d.datex.split(' ')[0].replace('/', '-').replace('/', '-');
+      const salesDate = d.dateX.split(' ')[0].replace('/', '-').replace('/', '-');
 
       return isWithinInterval(salesDate, { start, end });
     });
-
-
   }, [startDate, endDate, expense]);
   const filteredDisposal = useMemo(() => {
     if (!startDate || !endDate || !disposal) return [];
@@ -69,14 +63,11 @@ export const useFilterData = ({
     const start = format(startDate, 'dd-MM-yyyy');
     const end = format(endDate, 'dd-MM-yyyy');
     return disposal.filter((d) => {
-      const salesDate = d.datex.split(' ')[0].replace('/', '-').replace('/', '-');
+      const salesDate = d.dateX.split(' ')[0].replace('/', '-').replace('/', '-');
 
       return isWithinInterval(salesDate, { start, end });
     });
-
-
   }, [startDate, endDate, disposal]);
 
-
-  return { filterExpense, filterSupply, filterData,filteredDisposal };
+  return { filterExpense, filterSupply, filterData, filteredDisposal };
 };

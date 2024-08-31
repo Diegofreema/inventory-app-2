@@ -8,17 +8,21 @@ import { MyButton } from '../ui/MyButton';
 import { Empty } from '../ui/empty';
 import { CustomSubHeading } from '../ui/typography';
 
+import { SalesS } from '~/db/schema';
+import { useGet } from '~/hooks/useGet';
 import { calculateTotalsByPaymentType } from '~/lib/helper';
-import { SalesS } from '~/type';
+
 type Props = {
   data: SalesS[];
+  scroll?: boolean;
 };
 
-export const SalesFlatList = ({ data }: Props): JSX.Element => {
+export const SalesFlatList = ({ data, scroll = true }: Props): JSX.Element => {
   const dt = calculateTotalsByPaymentType(data);
 
   return (
     <FlatList
+      scrollEnabled={scroll}
       ListHeaderComponent={() => <CustomSubHeading text="Store Sales" fontSize={20} />}
       data={data}
       renderItem={({ item, index }) => <SalesCard item={item} index={index} />}
@@ -33,16 +37,17 @@ export const SalesFlatList = ({ data }: Props): JSX.Element => {
 };
 
 const SalesCard = ({ item, index }: { item: SalesS; index: number }) => {
-  const price = +item?.qty * +item?.unitprice;
+  const { singleProduct, worker } = useGet(item?.productId, item.userId!);
+  const price = +item?.qty * +item?.unitPrice;
 
   return (
     <AnimatedCard index={index}>
-      <FlexText text="Product" text2={`${item?.qty} ${item?.productid}`} />
-      <FlexText text="Date" text2={item?.datex} />
-      <FlexText text="Mode" text2={item?.paymenttype} />
-      <FlexText text="Info" text2={item?.transinfo} />
+      <FlexText text="Product" text2={singleProduct?.product} />
+      <FlexText text="Date" text2={item?.dateX} />
+      <FlexText text="Mode" text2={item?.paymentType} />
+      {item?.transferInfo && <FlexText text="Transfer Info" text2={item?.transferInfo!} />}
       <FlexText text="Price" text2={`₦${price.toString()}`} />
-      <FlexText text="Personnel" text2="John" />
+      <FlexText text="Personnel" text2={worker?.name || 'Admin'} />
       <MyButton title="Print" onPress={() => {}} />
     </AnimatedCard>
   );

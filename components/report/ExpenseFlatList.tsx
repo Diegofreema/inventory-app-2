@@ -7,15 +7,17 @@ import { FlexText } from '../ui/FlexText';
 import { Empty } from '../ui/empty';
 import { CustomSubHeading } from '../ui/typography';
 
-import { ExpType } from '~/type';
+import { ExpenseSelect } from '~/db/schema';
 
 type Props = {
-  data: ExpType[];
+  data: ExpenseSelect[];
+  scroll?: boolean;
 };
 
-export const ExpenseFlatList = ({ data }: Props): JSX.Element => {
+export const ExpenseFlatList = ({ data, scroll = true }: Props): JSX.Element => {
   return (
     <FlatList
+      scrollEnabled={scroll}
       ListHeaderComponent={() => <CustomSubHeading text="Expense" fontSize={20} />}
       data={data}
       renderItem={({ item, index }) => <ExpenseCard item={item} index={index} />}
@@ -26,13 +28,13 @@ export const ExpenseFlatList = ({ data }: Props): JSX.Element => {
   );
 };
 
-const ExpenseCard = ({ item, index }: { item: ExpType; index: number }) => {
+const ExpenseCard = ({ item, index }: { item: ExpenseSelect; index: number }) => {
   return (
     <AnimatedCard index={index}>
-      <FlexText text="Expense" text2={item?.accountname} />
-      <FlexText text="Date" text2={item?.datex} />
+      <FlexText text="Expense" text2={item?.accountName} />
+      <FlexText text="Date" text2={item?.dateX} />
       <FlexText text="Amount" text2={'₦' + item?.amount} />
-      {item?.descript && <FlexText text="Description" text2={item?.descript} />}
+      {item?.description && <FlexText text="Description" text2={item?.description} />}
     </AnimatedCard>
   );
 };

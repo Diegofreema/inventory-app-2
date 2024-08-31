@@ -7,15 +7,18 @@ import { FlexText } from '../ui/FlexText';
 import { Empty } from '../ui/empty';
 import { CustomSubHeading } from '../ui/typography';
 
-import { SupplyType } from '~/type';
+import { supplyProductSelect } from '~/db/schema';
+import { useGet } from '~/hooks/useGet';
 
 type Props = {
-  data: SupplyType[];
+  data: supplyProductSelect[];
+  scroll?: boolean;
 };
 
-export const ProductSupply = ({ data }: Props): JSX.Element => {
+export const ProductSupply = ({ data, scroll = true }: Props): JSX.Element => {
   return (
     <FlatList
+      scrollEnabled={scroll}
       ListHeaderComponent={() => <CustomSubHeading text="Product Supply" fontSize={20} />}
       data={data}
       renderItem={({ item, index }) => <SupplyCard item={item} index={index} />}
@@ -26,13 +29,14 @@ export const ProductSupply = ({ data }: Props): JSX.Element => {
   );
 };
 
-const SupplyCard = ({ item, index }: { item: SupplyType; index: number }) => {
-  const totalPrice = Number(item.unitcost) * Number(item?.qty);
+const SupplyCard = ({ item, index }: { item: supplyProductSelect; index: number }) => {
+  const { singleProduct } = useGet(item?.productId);
+  const totalPrice = Number(item.unitCost) * Number(item?.qty);
   return (
     <AnimatedCard index={index}>
-      <FlexText text="Date" text2={item?.datex} />
-      <FlexText text="Product" text2={item?.productid} />
-      <FlexText text="Quantity" text2={item?.qty} />
+      <FlexText text="Product" text2={singleProduct?.product} />
+      <FlexText text="Date" text2={item?.dateX!} />
+      <FlexText text="Quantity" text2={item?.qty.toString()} />
       <FlexText text="Cost" text2={'₦' + totalPrice.toString()} />
     </AnimatedCard>
   );
