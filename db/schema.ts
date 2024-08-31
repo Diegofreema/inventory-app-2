@@ -31,6 +31,7 @@ export const productOffline = sqliteTable('products_offline', {
   sellingPrice: integer('seller_price', { mode: 'number' }),
   shareDealer: integer('share_dealer', { mode: 'number' }),
   shareNetpro: integer('share_netpro', { mode: 'number' }),
+  description: text('description'),
 });
 
 export const staff = sqliteTable('staff', {

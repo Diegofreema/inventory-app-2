@@ -1,14 +1,21 @@
 /* eslint-disable prettier/prettier */
 import { createId } from '@paralleldrive/cuid2';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
 import { format } from 'date-fns';
 import { eq, sql } from 'drizzle-orm';
 import * as SecureStore from 'expo-secure-store';
 import Toast from 'react-native-toast-message';
 import { z } from 'zod';
 
-import { api } from '../helper';
+import {
+  addAccountName,
+  addExpenses,
+  addOfflineSales,
+  addOnlineSales,
+  addProduct,
+  sendDisposedProducts,
+  supplyProducts,
+} from '../helper';
 import { newProductSchema } from '../validators';
 import { useStore } from '../zustand/useStore';
 
@@ -69,9 +76,21 @@ export const useAddNewProduct = () => {
         .returning();
       if (!addedProduct.length) throw Error('Failed to add product');
       if (isConnected) {
-        const { data } = await axios.get(
-          `${api}api=addproduct&customerproductid=${customerproductid}&online=${online}&productname=${product}&cidx=${storeId}&qty=${qty}&statename=${state}&description=${des}&productcategory=${category}&productsubcategory=${subcategory}&marketprice=${marketprice}&getsellingprice=${sellingprice}&getdealershare=${sharedealer}&getnetproshare=${sharenetpro}`
-        );
+        const data = await addProduct({
+          category,
+          des,
+          marketprice,
+          online,
+          product,
+          qty,
+          sellingprice,
+          sharedealer,
+          sharenetpro,
+          state,
+          subcategory,
+          customerproductid,
+          id: storeId!,
+        });
 
         return data;
       } else if (!isConnected) {
@@ -155,9 +174,24 @@ export const useAdd247 = () => {
           .set({ qty: sql`${schema.product.qty} - ${qty}` })
           .where(eq(schema.product.productId, productId));
         if (isConnected) {
-          await axios.get(
-            `${api}api=make247sale&cidx=${storeId}&qty=${qty}&productid=${productId}`
-          );
+          try {
+            await addOnlineSales({
+              productId: productInDb?.productId,
+              qty: +qty,
+              storeId: storeId!,
+            });
+          } catch (error) {
+            console.log(error);
+            await db.insert(schema.onlineSaleOffline).values({
+              // @ts-ignore
+              unitPrice: +unitPrice,
+              productId: productInDb?.productId,
+              qty,
+              dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+              dealerShare: productInDb?.shareDealer,
+              netProShare: productInDb?.shareNetpro,
+            });
+          }
         } else if (addedData.length && !isConnected) {
           await db.insert(schema.onlineSaleOffline).values({
             // @ts-ignore
@@ -244,15 +278,18 @@ export const useCart = () => {
         queryClient.invalidateQueries({ queryKey: ['product'] });
 
         if (addedSales.length && isConnected) {
-          addedSales.forEach(async (item) => {
-            const { data } = await axios.get(
-              `${api}api=makepharmacysale&cidx=${storeId}&qty=${item.qty}&productid=${item?.productId}&salesref=${item.salesReference}&paymenttype=${extraData.paymentType}&transactioninfo=${extraData.transactionInfo}&salesrepid=${extraData.salesRepId}`
-            );
+          addedSales.forEach(async ({ id, ...rest }) => {
+            await addOfflineSales({
+              ...rest,
+              storeId: storeId!,
+              transactionInfo: extraData.transactionInfo!,
+              salesRepId: extraData.salesRepId,
+            });
 
             return data;
           });
         } else if (addedSales && !isConnected) {
-          await db.insert(schema.storeSales).values(productsToAdd);
+          await db.insert(schema.storeSalesOffline).values(productsToAdd);
         } else {
           throw new Error('Something went wrong');
         }
@@ -369,9 +406,16 @@ export const useSupply = () => {
         .set({ sellingPrice: +newPrice, qty: sql`${schema.product.qty} + ${qty}` })
         .where(eq(schema.product.productId, productId));
       if (addedProduct.length && isConnected) {
-        const { data } = await axios.get(
-          `${api}api=addsupply&cidx=${storeId}&productid=${productId}&qty=${qty}&unitcost=${unitCost}&newprice=${newPrice}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}`
-        );
+        const data = await supplyProducts({
+          productId,
+          qty,
+          dealerShare,
+          netProShare,
+          newPrice,
+          sellingPrice,
+          unitCost,
+          id: storeId!,
+        });
 
         return data;
       } else if (addedProduct.length && !isConnected) {
@@ -442,7 +486,7 @@ export const useDisposal = () => {
         .where(eq(schema.product.productId, productIsInDb.productId));
 
       if (isConnected) {
-        const { data } = await axios.get(`${api}api=adddisposal&qty=${qty}&productid=${productId}`);
+        const data = await sendDisposedProducts({ qty: +qty, productId });
 
         return data;
       } else if (!isConnected) {
@@ -498,9 +542,7 @@ export const useAddAccount = () => {
 
         if (addedExpense.length && isConnected) {
           try {
-            await axios.get(
-              `${api}api=addexpenseact&accountname=${addedExpense[0].accountName}&cidx=${storeId}`
-            );
+            await addAccountName({ storeId: storeId!, account: name });
           } catch (error) {
             console.log(error);
             await db.insert(schema.expenseAccountOffline).values({
@@ -559,9 +601,18 @@ export const useAddExp = () => {
         })
         .returning();
       if (addedExpense.length && isConnected) {
-        await axios.get(
-          `${api}api=addexpenses&accountname=${name}&cidx=${storeId}&description=${description}&amount=${amount}`
-        );
+        try {
+          await addExpenses({ amount, description, name, storeId: storeId! });
+        } catch (error) {
+          console.log(error);
+
+          await db.insert(schema.expensesOffline).values({
+            accountname: name,
+            amount,
+            descript: description,
+            datex: format(Date.now(), 'dd-MM-yyyy HH:mm:ss'),
+          });
+        }
       } else if (addedExpense.length && !isConnected) {
         await db.insert(schema.expensesOffline).values({
           accountname: name,

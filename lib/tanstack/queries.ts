@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   api,
   expensesAccount,
+  getCat,
   getDisposal,
   getExpenditure,
   getProducts,
@@ -34,15 +35,17 @@ export const useFetchAll = () => {
     try {
       console.log('running');
 
-      const [products, online, store, expenses, disposal, account, supply] = await Promise.all([
-        getProducts(id!),
-        getSalesP(id!),
-        getSale(id!),
-        getExpenditure(id!),
-        getDisposal(id!),
-        expensesAccount(id!),
-        getSupply(id!),
-      ]);
+      const [products, online, store, expenses, disposal, account, supply, cats] =
+        await Promise.all([
+          getProducts(id!),
+          getSalesP(id!),
+          getSale(id!),
+          getExpenditure(id!),
+          getDisposal(id!),
+          expensesAccount(id!),
+          getSupply(id!),
+          getCat(),
+        ]);
 
       await Promise.all([
         db.insert(schema.product).values(products),
@@ -53,6 +56,7 @@ export const useFetchAll = () => {
         db.insert(schema.onlineSale).values(online),
         db.insert(schema.supplyProduct).values(supply),
         db.insert(schema.cart).values({}),
+        db.insert(schema.category).values(cats),
       ]);
       setHasFetched(true);
       setError(null);
@@ -84,7 +88,9 @@ export const useFetchAll = () => {
 export const useProducts = () => {
   const { db } = useDrizzle();
   const getProducts = async () => {
-    const products = await db.query.product.findMany();
+    const products = await db.query.product.findMany({
+      orderBy: (product, { desc }) => [desc(product.id)],
+    });
     return products;
   };
   return useQuery({
@@ -101,6 +107,7 @@ export const useSalesP = () => {
         with: {
           product: true,
         },
+        orderBy: (onlineSale, { desc }) => [desc(onlineSale.id)],
       });
       return data;
     },
@@ -115,6 +122,7 @@ export const useSalesS = () => {
         with: {
           product: true,
         },
+        orderBy: (storeSales, { desc }) => [desc(storeSales.id)],
       });
       return data;
     },
@@ -123,7 +131,9 @@ export const useSalesS = () => {
 export const useExpenditure = () => {
   const { db } = useDrizzle();
   const getExpenditure = async () => {
-    const data = await db.query.expenses.findMany();
+    const data = await db.query.expenses.findMany({
+      orderBy: (expenses, { desc }) => [desc(expenses.id)],
+    });
     return data;
   };
 
@@ -133,14 +143,9 @@ export const useExpenditure = () => {
   });
 };
 export const useCat = () => {
+  const { db } = useDrizzle();
   const getCat = async () => {
-    const response = await axios.get(`${api}api=productcategory`);
-    let data = [];
-    if (Object.prototype.toString.call(response.data) === '[object Object]') {
-      data.push(response.data);
-    } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
-      data = [...response.data];
-    }
+    const data = await db.query.category.findMany();
 
     return data;
   };
@@ -164,7 +169,9 @@ export const useInfo = () => {
 export const useSupply = () => {
   const { db } = useDrizzle();
   const getData = async () => {
-    const data = await db.query.supplyProduct.findMany();
+    const data = await db.query.supplyProduct.findMany({
+      orderBy: (supplyProduct, { desc }) => [desc(supplyProduct.id)],
+    });
     return data;
   };
 
@@ -176,7 +183,9 @@ export const useSupply = () => {
 export const useExpAcc = () => {
   const { db } = useDrizzle();
   const getExpAcc = async () => {
-    const data = await db.query.expenseAccount.findMany();
+    const data = await db.query.expenseAccount.findMany({
+      orderBy: (expenseAccount, { desc }) => [desc(expenseAccount.id)],
+    });
     return data;
   };
   return useQuery<{ accountName: string }[]>({

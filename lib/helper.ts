@@ -1,8 +1,11 @@
 /* eslint-disable prettier/prettier */
 import axios from 'axios';
 import { format } from 'date-fns';
+import { z } from 'zod';
 
-import { SalesS } from '~/type';
+import { newProductSchema } from './validators';
+
+import { SalesS, SupplyInsert } from '~/type';
 
 export const api = process.env.EXPO_PUBLIC_API;
 
@@ -74,6 +77,7 @@ export const getProducts = async (id: string) => {
     sellingPrice: +product.sellingprice,
     shareDealer: +product.sharedealer,
     shareNetpro: +product.sharenetpro,
+    description: product.des,
   }));
   return formattedProducts;
 };
@@ -240,3 +244,130 @@ export const rearrangeDateString = (date: string) => {
 //   const id = createId()
 //   const isInDb = products.
 // };
+
+export const getCat = async () => {
+  const response = await axios.get(`${api}api=productcategory`);
+  let data = [];
+  if (Object.prototype.toString.call(response.data) === '[object Object]') {
+    data.push(response.data);
+  } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
+    data = [...response.data];
+  }
+
+  return data;
+};
+
+export const supplyProducts = async ({
+  dealerShare,
+  netProShare,
+  newPrice,
+  productId,
+  qty,
+  sellingPrice,
+  unitCost,
+  id,
+}: SupplyInsert & { id: string }) => {
+  const { data } = await axios.get(
+    `${api}api=addsupply&cidx=${id}&productid=${productId}&qty=${qty}&unitcost=${unitCost}&newprice=${newPrice}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}`
+  );
+  return data;
+};
+
+export const sendDisposedProducts = async ({
+  qty,
+  productId,
+}: {
+  qty: number;
+  productId: string;
+}) => {
+  const { data } = await axios.get(`${api}api=adddisposal&qty=${qty}&productid=${productId}`);
+  return data;
+};
+
+export const addProduct = async ({
+  category,
+  des,
+  marketprice,
+  online,
+  product,
+  qty,
+  sellingprice,
+  sharedealer,
+  sharenetpro,
+  state,
+  subcategory,
+  customerproductid,
+  id,
+}: z.infer<typeof newProductSchema> & { id: string | undefined }) => {
+  const { data } = await axios.get(
+    `${api}api=addproduct&customerproductid=${customerproductid}&online=${online}&productname=${product}&cidx=${id}&qty=${qty}&statename=${state}&description=${des}&productcategory=${category}&productsubcategory=${subcategory}&marketprice=${marketprice}&getsellingprice=${sellingprice}&getdealershare=${sharedealer}&getnetproshare=${sharenetpro}`
+  );
+
+  return data;
+};
+
+export const addAccountName = async ({
+  storeId,
+  account,
+}: {
+  storeId: string;
+  account: string;
+}) => {
+  const { data } = await axios.get(
+    `${api}api=addexpenseact&accountname=${account}&cidx=${storeId}`
+  );
+  return data;
+};
+
+export const addExpenses = async ({
+  name,
+  storeId,
+  description,
+  amount,
+}: {
+  name: string;
+  storeId: string;
+  description?: string;
+  amount: string;
+}) => {
+  const { data } = await axios.get(
+    `${api}api=addexpenses&accountname=${name}&cidx=${storeId}&description=${description}&amount=${amount}`
+  );
+
+  return data;
+};
+
+export const addOfflineSales = async ({
+  storeId,
+  qty,
+  productId,
+  salesReference,
+  paymentType,
+  transactionInfo,
+  salesRepId,
+}: {
+  storeId: string;
+  qty: number;
+  productId: string;
+  salesReference: string;
+  paymentType: any;
+  transactionInfo: string;
+  salesRepId: number;
+}) => {
+  const { data } = await axios.get(
+    `${api}api=makepharmacysale&cidx=${storeId}&qty=${qty}&productid=${productId}&salesref=${salesReference}&paymenttype=${paymentType}&transactioninfo=${transactionInfo}&salesrepid=${salesRepId}`
+  );
+  return data;
+};
+
+export const addOnlineSales = async ({
+  storeId,
+  qty,
+  productId,
+}: {
+  storeId: string;
+  qty: number;
+  productId: string;
+}) => {
+  await axios.get(`${api}api=make247sale&cidx=${storeId}&qty=${qty}&productid=${productId}`);
+};
