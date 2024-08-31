@@ -1,5 +1,7 @@
 /* eslint-disable prettier/prettier */
 
+import * as Print from 'expo-print';
+import { useState } from 'react';
 import { FlatList } from 'react-native';
 
 import { AnimatedCard } from '../ui/AnimatedCard';
@@ -11,6 +13,7 @@ import { CustomSubHeading } from '../ui/typography';
 import { SalesS } from '~/db/schema';
 import { useGet } from '~/hooks/useGet';
 import { calculateTotalsByPaymentType } from '~/lib/helper';
+import { useInfo } from '~/lib/tanstack/queries';
 
 type Props = {
   data: SalesS[];
@@ -38,17 +41,87 @@ export const SalesFlatList = ({ data, scroll = true }: Props): JSX.Element => {
 
 const SalesCard = ({ item, index }: { item: SalesS; index: number }) => {
   const { singleProduct, worker } = useGet(item?.productId, item.userId!);
-  const price = +item?.qty * +item?.unitPrice;
+  const [printing, setPrinting] = useState(false);
+  const { data } = useInfo();
 
+  const price = +item?.qty * +item?.unitPrice;
+  const html = `
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+  </head>
+  <body style="text-align: center;">
+    <h1 style="font-size: 50px; font-family: Helvetica Neue; font-weight: normal;">
+      ${data?.businessname}
+    </h1>
+  <div style='width: 80%; margin: 0 auto;'>
+    <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+        Date
+      </h1>
+      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+        ${item?.dateX}
+      </h1>
+    </div>
+    <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+        Product
+      </h1>
+      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+        ${singleProduct?.product}
+      </h1>
+    </div>
+    
+   <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+        Quantity
+      </h1>
+      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+        ${item?.qty}
+      </h1>
+    </div>
+     <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+        Price
+      </h1>
+      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+        ₦${item?.unitPrice}
+      </h1>
+    </div>
+     <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+        Payment Type
+      </h1>
+      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+        ${item?.paymentType}
+      </h1>
+    </div>
+  </div>
+  </body>
+</html>
+`;
+  const print = async () => {
+    setPrinting(true);
+    try {
+      await Print.printAsync({
+        html,
+      });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setPrinting(false);
+    }
+  };
   return (
     <AnimatedCard index={index}>
       <FlexText text="Product" text2={singleProduct?.product} />
+      <FlexText text="Quantity" text2={item?.qty.toString()} />
       <FlexText text="Date" text2={item?.dateX} />
       <FlexText text="Mode" text2={item?.paymentType} />
       {item?.transferInfo && <FlexText text="Transfer Info" text2={item?.transferInfo!} />}
       <FlexText text="Price" text2={`₦${price.toString()}`} />
       <FlexText text="Personnel" text2={worker?.name || 'Admin'} />
-      <MyButton title="Print" onPress={() => {}} />
+      <MyButton title="Print" onPress={print} loading={printing} disabled={printing} />
     </AnimatedCard>
   );
 };

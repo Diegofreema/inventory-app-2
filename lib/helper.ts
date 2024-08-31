@@ -5,8 +5,8 @@ import { z } from 'zod';
 
 import { newProductSchema } from './validators';
 
-import { SupplyInsert } from '~/type';
 import { SalesS } from '~/db/schema';
+import { SupplyInsert } from '~/type';
 
 export const api = process.env.EXPO_PUBLIC_API;
 
