@@ -6,6 +6,7 @@ import { AnimatedCard } from './ui/AnimatedCard';
 import { FlexText } from './ui/FlexText';
 import { Empty } from './ui/empty';
 
+import { useGet } from '~/hooks/useGet';
 import { NotType } from '~/type';
 
 type Props = {
@@ -29,11 +30,12 @@ export const Notifications = ({ data, isLoading, onRefetch }: Props): JSX.Elemen
 };
 
 const NotificationCard = ({ index, item }: { item: NotType; index: number }) => {
+  const { singleProduct } = useGet(item.productid);
   return (
     <AnimatedCard index={index}>
-      <FlexText text="Product" text2={item?.productid} />
+      <FlexText text="Product" text2={singleProduct?.product} />
       <FlexText text="Dealer share" text2={item?.dealershare} />
-      <FlexText text="Netpro share" text2={item?.netproshare} />
+
       <FlexText text="Date" text2={item?.datex} />
       <FlexText text="Unit price" text2={item?.unitprice} />
       <FlexText text="Quantity" text2={item?.qty} />
