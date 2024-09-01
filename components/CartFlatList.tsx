@@ -94,9 +94,9 @@ export const CartFlatList = ({ data }: Props): JSX.Element => {
 
           <XStack gap={10}>
             <MyButton
-              bg="red"
+              backgroundColor="red"
               title="Clear cart"
-              mt={30}
+              marginTop={30}
               height={50}
               onPress={onClearCart}
               disabled={disable}
@@ -104,7 +104,7 @@ export const CartFlatList = ({ data }: Props): JSX.Element => {
             />
             <MyButton
               title="Checkout"
-              mt={30}
+              marginTop={30}
               height={50}
               onPress={handleSubmit(onSubmit)}
               loading={isLoading}
@@ -162,7 +162,7 @@ const CartCard = ({ item, index }: { item: CartItemWithProductField; index: numb
       <FlexText text="Product" text2={trimText(item?.product.product, 25)} />
       <FlexText text="Price" text2={`₦${item?.product.sellingPrice!}`} />
       <FlexText text="Quantity" text2={item?.qty.toString()} />
-      <XStack mt={5} gap={10}>
+      <XStack marginTop={5} gap={10}>
         <MyButton title="Remove" flex={1} onPress={onReduce} />
         <MyButton title="Add" flex={1} onPress={onAdd} />
       </XStack>

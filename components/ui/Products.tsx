@@ -85,7 +85,11 @@ const ProductCard = ({
   };
   return (
     <CustomPressable onPress={onPress}>
-      <Card bg="white" borderWidth={1} height={show ? 'auto' : 200} borderColor={colors.lightGray}>
+      <Card
+        backgroundColor="white"
+        borderWidth={1}
+        height={show ? 'auto' : 200}
+        borderColor={colors.lightGray}>
         <CardHeader gap={10}>
           <XStack gap={14} alignItems="center">
             <CustomSubHeading text={item?.product} fontSize={17} />

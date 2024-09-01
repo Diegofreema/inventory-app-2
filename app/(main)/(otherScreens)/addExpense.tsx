@@ -94,7 +94,7 @@ export default function AddExpense() {
 
           <MyButton
             title="Add expense"
-            mt={20}
+            marginTop={20}
             disabled={isPending}
             loading={isPending}
             onPress={handleSubmit(onSubmit)}

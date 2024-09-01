@@ -47,7 +47,7 @@ export const LoginForm = (): JSX.Element => {
     setLoading(true);
     try {
       const { data } = await axios.get(
-        `${api}api=adminlogin&email=${values.email}&pasword=${values.password}`
+        `https://247api.netpro.software/api.aspx?api=adminlogin&email=${values.email}&pasword=${values.password}`
       );
       if (data?.result === 'incorrect password') {
         Toast.show({
@@ -203,7 +203,7 @@ export const LoginForm = (): JSX.Element => {
         {!loading && (
           <MyButton
             title="Login"
-            mt={20}
+            marginTop={20}
             disabled={loading}
             loading={loading}
             onPress={handleSubmit(onSubmit)}

@@ -157,7 +157,9 @@ export const useCat = () => {
 export const useInfo = () => {
   const id = useStore((state) => state.id);
   const getInfo = async () => {
-    const { data } = await axios.get(`${api}api=pharmacyinfor&cidx=${id}`);
+    const { data } = await axios.get(
+      `https://247api.netpro.software/api.aspx?api=pharmacyinfor&cidx=${id}`
+    );
 
     return data;
   };
@@ -197,7 +199,9 @@ export const useExpAcc = () => {
 export const useNotify = () => {
   const id = useStore((state) => state.id);
   const getNot = async () => {
-    const response = await axios.get(`${api}api=get247notification&cidx=${id}`);
+    const response = await axios.get(
+      `https://247api.netpro.software/api.aspx?api=get247notification&cidx=${id}`
+    );
     let data = [];
     if (Object.prototype.toString.call(response.data) === '[object Object]') {
       data.push(response.data);

@@ -104,8 +104,8 @@ const StaffCard = ({ index, item }: { item: StaffSelect; index: number }) => {
         <>
           <FlexText text="Password" text2={item?.password} />
           <XStack gap={8}>
-            <MyButton title="Remove staff" mt={10} onPress={onSetDelete} />
-            <MyButton title="Edit staff" mt={10} flex={1} onPress={onEdit} />
+            <MyButton title="Remove staff" marginTop={10} onPress={onSetDelete} />
+            <MyButton title="Edit staff" marginTop={10} flex={1} onPress={onEdit} />
           </XStack>
         </>
       )}

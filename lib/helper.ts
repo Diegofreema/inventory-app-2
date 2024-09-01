@@ -11,7 +11,7 @@ import { SupplyInsert } from '~/type';
 export const api = process.env.EXPO_PUBLIC_API;
 
 export const calculateTotalSales = (sales: number[] | undefined): number =>
-  sales?.reduce((total, p) => total + p || 0, 0) ?? 0;
+  sales?.reduce((total, padding) => total + padding || 0, 0) ?? 0;
 
 export const colors = [
   '#F08080', // Light Coral
@@ -57,7 +57,9 @@ export const colors = [
 ];
 
 export const getProducts = async (id: string) => {
-  const response = await axios.get(`${api}api=getproducts&cidx=${id}`);
+  const response = await axios.get(
+    `https://247api.netpro.software/api.aspx?api=getproducts&cidx=${id}`
+  );
   let data = [];
   if (Object.prototype.toString.call(response.data) === '[object Object]') {
     data.push(response.data);
@@ -93,7 +95,9 @@ export const formattedDate = (date: string) => {
 };
 
 export const getSalesP = async (id: string) => {
-  const response = await axios.get(`${api}api=get247sales&cidx=${id}`);
+  const response = await axios.get(
+    `https://247api.netpro.software/api.aspx?api=get247sales&cidx=${id}`
+  );
   let data = [];
   if (Object.prototype.toString.call(response.data) === '[object Object]') {
     data.push(response.data);
@@ -113,7 +117,9 @@ export const getSalesP = async (id: string) => {
 };
 
 export const getExpenditure = async (id: any) => {
-  const response = await axios.get(`${api}api=getexpenses&cidx=${id}`);
+  const response = await axios.get(
+    `https://247api.netpro.software/api.aspx?api=getexpenses&cidx=${id}`
+  );
   let data = [];
   if (Object.prototype.toString.call(response.data) === '[object Object]') {
     data.push(response.data);
@@ -132,7 +138,9 @@ export const getExpenditure = async (id: any) => {
 };
 
 export const getSupply = async (id: any) => {
-  const response = await axios.get(`${api}api=getproductsupply&cidx=${id}`);
+  const response = await axios.get(
+    `https://247api.netpro.software/api.aspx?api=getproductsupply&cidx=${id}`
+  );
   let data = [];
   if (Object.prototype.toString.call(response.data) === '[object Object]') {
     data.push(response.data);
@@ -150,7 +158,9 @@ export const getSupply = async (id: any) => {
 };
 
 export const getSale = async (id: any) => {
-  const response = await axios.get(`${api}api=getpharmacysales&cidx=${id}`);
+  const response = await axios.get(
+    `https://247api.netpro.software/api.aspx?api=getpharmacysales&cidx=${id}`
+  );
   let data = [];
   if (Object.prototype.toString.call(response.data) === '[object Object]') {
     data.push(response.data);
@@ -201,7 +211,9 @@ export const calculateTotalsByPaymentType = (data: SalesS[]) => {
 };
 
 export const getDisposal = async (id: any) => {
-  const response = await axios.get(`${api}api=getproductdisposal&cidx=${id}`);
+  const response = await axios.get(
+    `https://247api.netpro.software/api.aspx?api=getproductdisposal&cidx=${id}`
+  );
   let data = [];
   if (Object.prototype.toString.call(response.data) === '[object Object]') {
     data.push(response.data);
@@ -219,7 +231,9 @@ export const getDisposal = async (id: any) => {
 };
 
 export const expensesAccount = async (id: any) => {
-  const response = await axios.get(`${api}api=getexpensact&cidx=${id}`);
+  const response = await axios.get(
+    `https://247api.netpro.software/api.aspx?api=getexpensact&cidx=${id}`
+  );
   let data: { accountname: string }[] = [];
   if (Object.prototype.toString.call(response.data) === '[object Object]') {
     data.push(response.data);
@@ -247,7 +261,7 @@ export const rearrangeDateString = (date: string) => {
 // };
 
 export const getCat = async () => {
-  const response = await axios.get(`${api}api=productcategory`);
+  const response = await axios.get(`https://247api.netpro.software/api.aspx?api=productcategory`);
   let data = [];
   if (Object.prototype.toString.call(response.data) === '[object Object]') {
     data.push(response.data);
@@ -269,7 +283,7 @@ export const supplyProducts = async ({
   id,
 }: SupplyInsert & { id: string }) => {
   const { data } = await axios.get(
-    `${api}api=addsupply&cidx=${id}&productid=${productId}&qty=${qty}&unitcost=${unitCost}&newprice=${newPrice}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}`
+    `https://247api.netpro.software/api.aspx?api=addsupply&cidx=${id}&productid=${productId}&qty=${qty}&unitcost=${unitCost}&newprice=${newPrice}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}`
   );
   return data;
 };
@@ -281,7 +295,9 @@ export const sendDisposedProducts = async ({
   qty: number;
   productId: string;
 }) => {
-  const { data } = await axios.get(`${api}api=adddisposal&qty=${qty}&productid=${productId}`);
+  const { data } = await axios.get(
+    `https://247api.netpro.software/api.aspx?api=adddisposal&qty=${qty}&productid=${productId}`
+  );
   return data;
 };
 
@@ -301,7 +317,7 @@ export const addProduct = async ({
   id,
 }: z.infer<typeof newProductSchema> & { id: string | undefined }) => {
   const { data } = await axios.get(
-    `${api}api=addproduct&customerproductid=${customerproductid}&online=${online}&productname=${product}&cidx=${id}&qty=${qty}&statename=${state}&description=${des}&productcategory=${category}&productsubcategory=${subcategory}&marketprice=${marketprice}&getsellingprice=${sellingprice}&getdealershare=${sharedealer}&getnetproshare=${sharenetpro}`
+    `https://247api.netpro.software/api.aspx?api=addproduct&customerproductid=${customerproductid}&online=${online}&productname=${product}&cidx=${id}&qty=${qty}&statename=${state}&description=${des}&productcategory=${category}&productsubcategory=${subcategory}&marketprice=${marketprice}&getsellingprice=${sellingprice}&getdealershare=${sharedealer}&getnetproshare=${sharenetpro}`
   );
 
   return data;
@@ -315,7 +331,7 @@ export const addAccountName = async ({
   account: string;
 }) => {
   const { data } = await axios.get(
-    `${api}api=addexpenseact&accountname=${account}&cidx=${storeId}`
+    `https://247api.netpro.software/api.aspx?api=addexpenseact&accountname=${account}&cidx=${storeId}`
   );
   return data;
 };
@@ -332,7 +348,7 @@ export const addExpenses = async ({
   amount: string;
 }) => {
   const { data } = await axios.get(
-    `${api}api=addexpenses&accountname=${name}&cidx=${storeId}&description=${description}&amount=${amount}`
+    `https://247api.netpro.software/api.aspx?api=addexpenses&accountname=${name}&cidx=${storeId}&description=${description}&amount=${amount}`
   );
 
   return data;
@@ -356,7 +372,7 @@ export const addOfflineSales = async ({
   salesRepId: number;
 }) => {
   const { data } = await axios.get(
-    `${api}api=makepharmacysale&cidx=${storeId}&qty=${qty}&productid=${productId}&salesref=${salesReference}&paymenttype=${paymentType}&transactioninfo=${transactionInfo}&salesrepid=${salesRepId}`
+    `https://247api.netpro.software/api.aspx?api=makepharmacysale&cidx=${storeId}&qty=${qty}&productid=${productId}&salesref=${salesReference}&paymenttype=${paymentType}&transactioninfo=${transactionInfo}&salesrepid=${salesRepId}`
   );
   return data;
 };
@@ -370,5 +386,7 @@ export const addOnlineSales = async ({
   qty: number;
   productId: string;
 }) => {
-  await axios.get(`${api}api=make247sale&cidx=${storeId}&qty=${qty}&productid=${productId}`);
+  await axios.get(
+    `https://247api.netpro.software/api.aspx?api=make247sale&cidx=${storeId}&qty=${qty}&productid=${productId}`
+  );
 };

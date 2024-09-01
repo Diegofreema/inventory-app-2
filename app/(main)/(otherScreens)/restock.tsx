@@ -72,8 +72,8 @@ const Restock = (): JSX.Element => {
   };
 
   return (
-    <Container px={isLoading ? 0 : '$4'}>
-      <View px={isLoading ? '$4' : 0}>
+    <Container paddingHorizontal={isLoading ? 0 : '$4'}>
+      <View paddingHorizontal={isLoading ? '$4' : 0}>
         <NavHeader title="Product Supply" />
       </View>
       {isLoading ? (
@@ -116,7 +116,7 @@ const Restock = (): JSX.Element => {
               disabled={isPending}
               loading={isPending}
               height={60}
-              mt={20}
+              marginTop={20}
               onPress={handleSubmit(onSubmit)}
             />
           </Stack>

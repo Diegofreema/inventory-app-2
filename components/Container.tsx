@@ -2,15 +2,19 @@ import { YStack } from 'tamagui';
 
 export const Container = ({
   children,
-  pt,
-  px = '$4',
+  paddingTop,
+  paddingHorizontal = '$4',
 }: {
   children: React.ReactNode;
-  pt?: any;
-  px?: any;
+  paddingTop?: any;
+  paddingHorizontal?: any;
 }) => {
   return (
-    <YStack flex={1} px={px} pt={pt} bg="white">
+    <YStack
+      flex={1}
+      paddingHorizontal={paddingHorizontal}
+      paddingTop={paddingTop}
+      backgroundColor="white">
       {children}
     </YStack>
   );

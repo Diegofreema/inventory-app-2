@@ -8,7 +8,7 @@ import { colors } from '../../constants';
 
 export const Loading = (): JSX.Element => {
   return (
-    <View flex={1} bg="white" justifyContent="center" alignItems="center">
+    <View flex={1} backgroundColor="white" justifyContent="center" alignItems="center">
       <Spinner size="large" color={colors.green} />
     </View>
   );
@@ -16,7 +16,7 @@ export const Loading = (): JSX.Element => {
 
 export const ProductLoader = () => {
   return (
-    <Stack gap={10} mt={20}>
+    <Stack gap={10} marginTop={20}>
       <ShimmerPlaceHolder
         LinearGradient={LinearGradient}
         style={{ height: 200, borderRadius: 10, width: '100%' }}
@@ -38,7 +38,7 @@ export const ProductLoader = () => {
 };
 export const Loader = () => {
   return (
-    <Stack gap={10} mt={20}>
+    <Stack gap={10} marginTop={20}>
       <ShimmerPlaceHolder
         LinearGradient={LinearGradient}
         style={{ height: 400, borderRadius: 10, width: '100%' }}
@@ -112,7 +112,7 @@ export const ExpenseLoader = () => {
 };
 export const FormLoader = () => {
   return (
-    <Stack gap={10} px="$4" bg="white">
+    <Stack gap={10} paddingHorizontal="$4" backgroundColor="white">
       <Stack gap={3}>
         <ShimmerPlaceHolder
           LinearGradient={LinearGradient}

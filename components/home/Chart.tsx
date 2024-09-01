@@ -6,8 +6,8 @@ import { Stack, XStack } from 'tamagui';
 
 import { CustomHeading } from '../ui/typography';
 
-import { ChartType } from '~/type';
 import { colors } from '~/lib/helper';
+import { ChartType } from '~/type';
 
 const screenWidth = Dimensions.get('window').width * 0.85;
 type Props = {
@@ -37,8 +37,8 @@ export const Chart = ({ label, data: dt }: Props): JSX.Element => {
     legendFontSize: 12,
   }));
   return (
-    <Stack my={20} borderWidth={1} borderColor="#ccc" borderRadius={10}>
-      <XStack px={20}>
+    <Stack marginVertical={20} borderWidth={1} borderColor="#ccc" borderRadius={10}>
+      <XStack paddingHorizontal={20}>
         <CustomHeading text={label} fontSize={15} />
       </XStack>
       <PieChart

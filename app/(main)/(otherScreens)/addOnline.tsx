@@ -98,7 +98,7 @@ export default function AddOnlineScreen() {
         disabled={isPending}
         loading={isPending}
         height={60}
-        mt={20}
+        marginTop={20}
         onPress={handleSubmit(onSubmit)}
       />
     </Container>

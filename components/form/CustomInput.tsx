@@ -49,7 +49,7 @@ export const CustomInput = ({
           height={60}
           alignItems="center"
           borderRadius={10}
-          pr={10}>
+          paddingRight={10}>
           <Input
             {...props}
             flex={1}

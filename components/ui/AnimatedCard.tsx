@@ -18,7 +18,7 @@ export const AnimatedCard = ({ children, index }: Props): JSX.Element => {
   const SlideDirection = getSlideDirection(index);
   return (
     <AnimatedComponent
-      bg="white"
+      backgroundColor="white"
       borderWidth={1}
       borderColor={colors.lightGray}
       borderRadius={10}

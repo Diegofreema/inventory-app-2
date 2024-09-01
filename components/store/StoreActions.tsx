@@ -52,14 +52,14 @@ export const StoreActions = ({
     resetDates && resetDates();
   };
   return (
-    <Stack mt={10} gap={10}>
+    <Stack marginTop={10} gap={10}>
       {!hide && (
         <XStack
           alignItems="center"
           borderWidth={1}
           borderColor={colors.lightGray}
           borderRadius={10}
-          px={5}>
+          paddingHorizontal={5}>
           <CustomBarIcon color="black" size={20} icon={Search} />
           <Input
             placeholder={`Search ${placeholder}`}
@@ -122,7 +122,7 @@ export const StoreActions = ({
 
         {!hide && (
           <Button
-            bg={colors.green}
+            backgroundColor={colors.green}
             alignSelf="flex-end"
             height={50}
             flex={1}

@@ -23,12 +23,15 @@ export const DashBoardCards = ({ products, salesP, salesS }: DashboardType): JSX
   const isSmallScreen = width < 411;
   const numColumns = isSmallScreen ? 1 : 2;
   const totalProducts = useMemo(() => products?.length, [products]);
-  const lowProducts = useMemo(() => products?.filter((p) => Number(p.qty) <= 10), [products]);
+  const lowProducts = useMemo(
+    () => products?.filter((padding) => Number(padding.qty) <= 10),
+    [products]
+  );
   const totalSalesFromStore = useMemo(() => {
-    return calculateTotalSales(salesS?.map((p) => p?.unitPrice));
+    return calculateTotalSales(salesS?.map((padding) => padding?.unitPrice));
   }, [salesS]);
   const totalSalesFrom247Pharm = useMemo(() => {
-    return calculateTotalSales(salesP?.map((p) => p?.unitPrice));
+    return calculateTotalSales(salesP?.map((padding) => padding?.unitPrice));
   }, [salesP]);
 
   const data = [
@@ -78,12 +81,11 @@ const DashBoardCard = ({ amount, title, index }: PreviewType & { index: number }
   return (
     <Card
       flex={1}
-      bg={colors.white}
+      backgroundColor={colors.white}
       borderRadius={10}
       borderWidth={1}
       borderColor={colors.lightGray}
-      width={isSmallScreen ? '100%' : '45%'}
-      backgroundColor={colors.white}>
+      width={isSmallScreen ? '100%' : '45%'}>
       <CardHeader>
         <XStack alignItems="center" justifyContent="space-between" gap={5}>
           <Stack>
@@ -95,7 +97,7 @@ const DashBoardCard = ({ amount, title, index }: PreviewType & { index: number }
             />
             <CustomSubHeading text={amount!} fontSize={18} color={colors.black} />
           </Stack>
-          <Circle bg={color.color1} p={5}>
+          <Circle backgroundColor={color.color1} padding={5}>
             <CustomBarIcon icon={Icon} size={20} color={color.color2} />
           </Circle>
         </XStack>

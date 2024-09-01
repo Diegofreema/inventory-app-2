@@ -23,13 +23,13 @@ export default function Login() {
       <StatusBar style="dark" backgroundColor="white" translucent animated />
       <SafeAreaProvider style={{ flex: 1 }}>
         <SafeAreaView style={{ flex: 1 }}>
-          <Container pt="$6">
+          <Container paddingTop="$6">
             <CustomScroll>
               <Stack>
                 <CustomHeading text="Welcome Back" />
                 <CustomSubHeading text="Enter your Login details on to continue" />
 
-                <Stack mt={50}>
+                <Stack marginTop={50}>
                   <LoginForm />
                 </Stack>
               </Stack>

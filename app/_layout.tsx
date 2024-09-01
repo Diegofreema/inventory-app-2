@@ -10,9 +10,7 @@ import React, { useEffect } from 'react';
 import { Text } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast, { BaseToast, ErrorToast, ToastConfigParams } from 'react-native-toast-message';
-import { Spinner, TamaguiProvider, View } from 'tamagui';
-
-import config from '../tamagui.config';
+import { Spinner, View } from 'tamagui';
 
 import { colors } from '~/constants';
 import migrations from '~/drizzle/migrations';
@@ -53,15 +51,18 @@ const toastConfig = {
   ),
 
   green: ({ text1, text2 }: ToastConfigParams<any>) => (
-    <View bg={colors.green} borderRadius={10} padding={10} width="95%" mx="auto">
+    <View
+      backgroundColor={colors.green}
+      borderRadius={10}
+      padding={10}
+      width="95%"
+      marginHorizontal="auto">
       <Text style={{ fontFamily: 'Inter', color: 'white', fontSize: 13 }}>{text1}</Text>
       <Text style={{ fontFamily: 'InterBold', color: 'white', fontSize: 15 }}>{text2}</Text>
     </View>
   ),
 };
 export default function RootLayout() {
-  const { success, error } = useMigrations(db, migrations);
-  useDrizzleStudio(expoDb);
   const [loaded] = useFonts({
     Inter: require('@tamagui/font-inter/otf/Inter-Medium.otf'),
     InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
@@ -72,6 +73,8 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
+  const { success, error } = useMigrations(db, migrations);
+  useDrizzleStudio(expoDb);
   if (error) {
     console.log(error);
 
@@ -84,7 +87,7 @@ export default function RootLayout() {
   if (!success) {
     return (
       <View flex={1} justifyContent="space-between" alignItems="center">
-        <Spinner bg={colors.green} />
+        <Spinner backgroundColor={colors.green} />
       </View>
     );
   }
@@ -92,15 +95,13 @@ export default function RootLayout() {
 
   return (
     <SQLiteProvider databaseName={dbName}>
-      <TamaguiProvider config={config}>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <QueryClientProvider client={queryClient}>
-            <StatusBar style="dark" backgroundColor="white" />
-            <Stack screenOptions={{ headerShown: false }} />
-          </QueryClientProvider>
-          <Toast config={toastConfig} position="top" type="green" visibilityTime={4000} />
-        </GestureHandlerRootView>
-      </TamaguiProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <QueryClientProvider client={queryClient}>
+          <StatusBar style="dark" backgroundColor="white" />
+          <Stack screenOptions={{ headerShown: false }} />
+        </QueryClientProvider>
+        <Toast config={toastConfig} position="top" type="green" visibilityTime={4000} />
+      </GestureHandlerRootView>
     </SQLiteProvider>
   );
 }

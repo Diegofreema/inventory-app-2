@@ -22,7 +22,7 @@ export default function LoadingDataScreen() {
   if (error === 'No internet connection, Internet connection needed to sync data')
     return <Error onRetry={handleRefetch} text={error} />;
   return (
-    <Container px="$4">
+    <Container paddingHorizontal="$4">
       <SquareLoader />
       <ProductLoader />
     </Container>

@@ -154,7 +154,9 @@ export const useTrading = ({
       const salesDate = d?.dateX.split(' ')[0].replace('/', '-').replace('/', '-');
       return isWithinInterval(salesDate, { start, end });
     });
-    const numbers = filteredData?.map((p) => Number(p?.unitCost) * Number(p?.qty));
+    const numbers = filteredData?.map(
+      (padding) => Number(padding?.unitCost) * Number(padding?.qty)
+    );
     return totalAmount(numbers);
   }, [productSupply, emptyDates]);
 

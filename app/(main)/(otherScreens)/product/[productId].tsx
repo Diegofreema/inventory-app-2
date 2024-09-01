@@ -9,9 +9,8 @@ import { useGet } from '~/hooks/useGet';
 
 const ProductDetails = (): JSX.Element => {
   const { productId } = useLocalSearchParams<{ productId: string }>();
-  console.log('🚀 ~ ProductDetails ~ productId:', productId);
+
   const { singleProduct } = useGet(productId);
-  console.log('🚀 ~ ProductDetails ~ singleProduct:', singleProduct);
 
   if (!productId) return <Redirect href="/" />;
 

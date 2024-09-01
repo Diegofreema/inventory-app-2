@@ -12,7 +12,7 @@ export const Sales = () => {
   const [active, setActive] = useState(0);
   const ActiveComponent = COMPONENTS[active] || OnlinePharmacy;
   return (
-    <Container px={0}>
+    <Container paddingHorizontal={0}>
       <ScrollHeader screens={data} active={active} setActive={setActive} />
       <ActiveComponent />
     </Container>

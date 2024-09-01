@@ -66,7 +66,7 @@ const Dispose = (): JSX.Element => {
             disabled={isPending}
             loading={isPending}
             height={60}
-            mt={20}
+            marginTop={20}
             onPress={handleSubmit(onSubmit)}
           />
         </Stack>

@@ -13,7 +13,7 @@ export const CartButton = ({ qty, onPress }: { qty: number; onPress: () => void 
   return (
     <CustomPressable onPress={onPress} style={styles.cart}>
       <View
-        bg={colors.black}
+        backgroundColor={colors.black}
         width={25}
         height={25}
         borderRadius={50}

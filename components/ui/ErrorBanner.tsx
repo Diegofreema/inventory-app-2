@@ -13,7 +13,11 @@ export const ErrorBanner = ({
   text?: string;
 }): JSX.Element => {
   return (
-    <AnimatedView entering={SlideInUp.duration(500)} exiting={SlideOutUp} bg={colors.green} p={5}>
+    <AnimatedView
+      entering={SlideInUp.duration(500)}
+      exiting={SlideOutUp}
+      backgroundColor={colors.green}
+      padding={5}>
       <Text textAlign="center" color="white">
         {text}
       </Text>

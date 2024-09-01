@@ -22,7 +22,7 @@ type Props = {
 };
 export const TradingCards = ({ data }: Props) => {
   const expenses = data?.expenses?.map((exp) => ({
-    accountname: exp.accountname,
+    accountname: exp.accountName,
     amount: exp.amount,
   }));
 
@@ -45,7 +45,7 @@ export const TradingCards = ({ data }: Props) => {
     <Stack gap={15}>
       <AnimatedCard index={1}>
         <CustomSubHeading text="Debit" fontSize={20} />
-        <Separator bg="#ccc" />
+        <Separator backgroundColor="#ccc" />
         <FlexText text="Opening Stock" text2={`₦${data.openingStock?.toString()}`} />
         <FlexText text="Purchased Products" text2={`₦${data.supply?.toString()}`} />
         <FlexText text="Disposed Products" text2={`₦${data.disposal?.toString()}`} />
@@ -56,7 +56,7 @@ export const TradingCards = ({ data }: Props) => {
       </AnimatedCard>
       <AnimatedCard index={2}>
         <CustomSubHeading text="Credit" fontSize={20} />
-        <Separator bg="#ccc" />
+        <Separator backgroundColor="#ccc" />
         <FlexText text="Online Sales" text2={`₦${data.onlineSales?.toString()}`} />
         <FlexText text="Offline Sales" text2={`₦${data.offlineSales?.toString()}`} />
         <FlexText text="Closing stock" text2={`₦${data.closingStock?.toString()}`} />

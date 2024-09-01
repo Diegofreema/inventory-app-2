@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "inventory-app",
-    "slug": "inventory-app",
+    "name": "247Inventory",
+    "slug": "247-inventory-app",
     "version": "1.0.0",
     "scheme": "inventory-app",
     "web": {
@@ -52,7 +52,9 @@
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.diegodark.inventoryapp",
@@ -67,14 +69,17 @@
       },
       "package": "com.diegodark.inventoryapp",
       "softwareKeyboardLayoutMode": "pan",
-      "permissions": ["android.permission.CAMERA", "android.permission.RECORD_AUDIO"]
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "extra": {
       "router": {
         "origin": false
       },
       "eas": {
-        "projectId": "cca6fb43-4934-4da9-82a4-6b70f2507767"
+        "projectId": "50963c44-4e36-4bfc-9451-45d9f07498b2"
       }
     }
   }

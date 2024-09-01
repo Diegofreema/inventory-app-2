@@ -11,7 +11,7 @@ export const AnimatedContainer = ({ children }: Props): JSX.Element => {
   return (
     <AnimatedView
       flex={1}
-      bg="white"
+      backgroundColor="white"
       entering={SlideInLeft.duration(500).springify().damping(20)}
       exiting={SlideOutLeft}>
       {children}

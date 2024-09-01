@@ -11,7 +11,7 @@ type Props = {
 
 export const Error = ({ onRetry, text = 'Something went wrong' }: Props): JSX.Element => {
   return (
-    <View flex={1} gap={10} bg="white" justifyContent="center" alignItems="center">
+    <View flex={1} gap={10} backgroundColor="white" justifyContent="center" alignItems="center">
       <H2 color="black" textAlign="center" fontSize={20}>
         {text}
       </H2>

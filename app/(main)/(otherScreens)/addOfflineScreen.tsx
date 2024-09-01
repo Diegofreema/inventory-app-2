@@ -138,11 +138,11 @@ export default function AddOfflineScreen() {
           disabled={isPending}
           loading={isPending}
           height={60}
-          mt={20}
+          marginTop={20}
           onPress={handleSubmit(onSubmit)}
         />
 
-        <View mt={20}>
+        <View marginTop={20}>
           {data?.length ? (
             <SalesRefFlatList data={data} />
           ) : (
@@ -200,8 +200,8 @@ const SalesRefFlatList = ({ data }: { data: SalesRefSelect[] }) => {
       renderItem={({ item, index }) => (
         <CustomPressable onPress={() => onPress(item.salesReference)}>
           <View
-            bg={item.isActive ? colors.green : '$backgroundTransparent'}
-            p={5}
+            backgroundColor={item.isActive ? colors.green : '$backgroundTransparent'}
+            padding={5}
             borderRadius={5}
             borderWidth={1}
             borderColor={item?.isActive ? colors.green : colors.black}
@@ -221,7 +221,7 @@ const SalesRefFlatList = ({ data }: { data: SalesRefSelect[] }) => {
               borderWidth={1}
               borderColor={colors.black}
               borderRadius={5}
-              p={5}
+              padding={5}
               alignItems="center">
               <Text fontSize={18}>New Customer</Text>
             </View>

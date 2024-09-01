@@ -154,9 +154,9 @@ export const ProductForm = (): JSX.Element => {
   };
 
   return !showCamera ? (
-    <View gap={10} px="$4">
+    <View gap={10} paddingHorizontal="$4">
       <NavHeader title="Add A New Product" />
-      <Stack gap={10} pb={30}>
+      <Stack gap={10} paddingBottom={30}>
         <CustomController
           name="product"
           placeholder="Product Name"
@@ -230,9 +230,9 @@ export const ProductForm = (): JSX.Element => {
         />
         <MyButton
           title="Scan barcode"
-          mt={20}
+          marginTop={20}
           onPress={onOpenCamera}
-          bg={colors.black}
+          backgroundColor={colors.black}
           height={55}
           borderRadius={5}
           pressStyle={{
@@ -242,7 +242,7 @@ export const ProductForm = (): JSX.Element => {
 
         <MyButton
           title="Submit"
-          mt={20}
+          marginTop={20}
           disabled={isPending}
           loading={isPending}
           onPress={handleSubmit(onSubmit)}

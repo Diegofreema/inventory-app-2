@@ -24,7 +24,7 @@ export const ExpenseCard = ({ index, item }: Props): JSX.Element => {
   return (
     <AnimatedCard
       entering={SlideDirection}
-      bg="white"
+      backgroundColor="white"
       borderWidth={1}
       borderColor={colors.lightGray}>
       <CardHeader gap={5}>

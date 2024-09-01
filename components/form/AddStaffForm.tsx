@@ -148,7 +148,7 @@ export const AddStaffForm = (): JSX.Element => {
       />
       <MyButton
         title={`${buttonText}`}
-        mt={20}
+        marginTop={20}
         disabled={isSubmitting}
         loading={isSubmitting}
         onPress={handleSubmit(onSubmit)}

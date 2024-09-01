@@ -62,7 +62,7 @@ export const CustomController = ({
         )}
       />
       {errors[name] && (
-        <Text color="red" fontFamily="$body" fontSize={12} mt={5} ml={5}>
+        <Text color="red" fontFamily="$body" fontSize={12} marginTop={5} marginLeft={5}>
           {errors?.[name]?.message}
         </Text>
       )}

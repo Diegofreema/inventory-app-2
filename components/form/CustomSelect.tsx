@@ -19,9 +19,10 @@ export const CustomSelect = ({ placeholder, data, onValueChange, value, ...props
         width="100%"
         iconAfter={<ChevronDown color="black" size={25} />}
         height={60}
-        bg="$colorTransparent">
+        backgroundColor="$colorTransparent">
         <Select.Value placeholder={placeholder} color="black" />
       </Select.Trigger>
+      {/* @ts-ignore */}
       <Adapt when="sm" platform="touch">
         <Sheet
           native={!!props.native}
@@ -73,11 +74,15 @@ export const CustomSelect = ({ placeholder, data, onValueChange, value, ...props
           // to do animations:
           animation="quick"
           animateOnly={['transform', 'opacity']}
-          enterStyle={{ o: 0, y: -10 }}
-          exitStyle={{ o: 0, y: 10 }}
+          enterStyle={{ x: 0, y: -10 }}
+          exitStyle={{ x: 0, y: 10 }}
           minWidth={200}>
           <Select.Group backgroundColor="white">
-            <Select.Label color="black" bg="white" borderBottomColor="black" borderBottomWidth={2}>
+            <Select.Label
+              color="black"
+              backgroundColor="white"
+              borderBottomColor="black"
+              borderBottomWidth={2}>
               {placeholder}
             </Select.Label>
             {/* for longer lists memoizing these is useful */}

@@ -10,7 +10,7 @@ type Props = ButtonProps & {
   titleStyle?: StyleProp<TextStyle>;
   title: string;
   loading?: boolean;
-  bg?: string;
+  backgroundColor?: string;
   color?: string;
 };
 
@@ -20,15 +20,15 @@ export const MyButton = ({
   titleStyle,
   title,
   loading,
-  bg = colors.green,
+  backgroundColor = colors.green,
   color = '#fff',
   ...props
 }: Props): JSX.Element => {
-  const bgColor = props.disabled ? '#ccc' : bg;
+  const bgColor = props.disabled ? '#ccc' : backgroundColor;
   console.log(loading);
 
   return (
-    <Button {...props} bg={bgColor} color={color} fontSize={20} fontWeight="bold">
+    <Button {...props} backgroundColor={bgColor} color={color} fontSize={20} fontWeight="bold">
       {loading ? <Spinner size="large" color="white" /> : title}
     </Button>
   );

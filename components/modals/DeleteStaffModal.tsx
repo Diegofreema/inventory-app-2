@@ -20,18 +20,18 @@ export const DeleteStaffModal = ({ onClose, visible, onDelete }: Props): JSX.Ele
       style={{}}>
       <View
         flex={1}
-        bg="white"
-        p={20}
+        backgroundColor="white"
+        padding={20}
         borderRadius="$3"
         alignItems="center"
         justifyContent="center">
-        <Text color="red" fontSize={30} fontWeight="bold" textAlign="center" mb={15}>
+        <Text color="red" fontSize={30} fontWeight="bold" textAlign="center" marginBottom={15}>
           Are you sure you want to remove this staff?
         </Text>
 
         <XStack gap={10}>
           <MyButton title="Cancel" onPress={onClose} flex={1} />
-          <MyButton title="Delete" onPress={onDelete} bg="red" flex={1} />
+          <MyButton title="Delete" onPress={onDelete} backgroundColor="red" flex={1} />
         </XStack>
       </View>
     </Modal>

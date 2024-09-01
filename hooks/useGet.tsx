@@ -18,12 +18,12 @@ export const useGet = (id?: string, staffId?: number) => {
   const { db } = useDrizzle();
   useEffect(() => {
     const fetchData = async () => {
-      const [p, online, store] = await Promise.all([
+      const [padding, online, store] = await Promise.all([
         db.query.product.findMany(),
         db.query.onlineSale.findMany(),
         db.query.storeSales.findMany(),
       ]);
-      setProducts(p);
+      setProducts(padding);
       setOnlineSales(online);
       setStoreSales(store);
     };
@@ -38,8 +38,8 @@ export const useGet = (id?: string, staffId?: number) => {
     };
     const fetchSingleProduct = async () => {
       if (!id) return;
-      const p = await db.query.product.findFirst({ where: eq(product.productId, id) });
-      setSingleProduct(p);
+      const padding = await db.query.product.findFirst({ where: eq(product.productId, id) });
+      setSingleProduct(padding);
     };
     fetchData();
     if (id) fetchSingleProduct();

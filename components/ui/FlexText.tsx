@@ -20,7 +20,7 @@ export const FlexText = ({ text, text2, icon: Icon, action, onPress }: Props): J
     onPress && onPress();
   };
   return (
-    <XStack justifyContent="space-between" alignItems="center" mt="auto">
+    <XStack justifyContent="space-between" alignItems="center" marginTop="auto">
       <CustomSubHeading text={text} fontSize={15} />
       {text2 && <CustomSubHeading text={text2} fontSize={17} />}
       {action && (

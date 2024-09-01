@@ -21,7 +21,7 @@ export const ExpenditureCard = ({ item, index }: Props): JSX.Element => {
   return (
     <AnimatedCard index={index}>
       <FlexText text="Account Name" text2={item} />
-      <Separator my={5} />
+      <Separator marginVertical={5} />
       <FlexText text="Add Expenses" action icon={PlusCircle} onPress={handlePress} />
     </AnimatedCard>
   );

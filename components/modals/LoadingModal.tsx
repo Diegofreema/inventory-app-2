@@ -11,7 +11,7 @@ type Props = {
 export const LoadingModal = ({ visible }: Props): JSX.Element => {
   return (
     <Modal isVisible={visible} style={{ flex: 1 }}>
-      <View flex={1} p={20} borderRadius="$3" alignItems="center" justifyContent="center">
+      <View flex={1} padding={20} borderRadius="$3" alignItems="center" justifyContent="center">
         <Spinner color={colors.green} size="large" />
       </View>
     </Modal>
