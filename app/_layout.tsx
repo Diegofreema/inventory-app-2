@@ -17,11 +17,11 @@ import config from '../tamagui.config';
 import { colors } from '~/constants';
 import migrations from '~/drizzle/migrations';
 
+SplashScreen.preventAutoHideAsync();
 const dbName = 'db.db';
 
 const expoDb = openDatabaseSync(dbName, { enableChangeListener: true });
 const db = drizzle(expoDb);
-SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
