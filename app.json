@@ -25,6 +25,16 @@
           "recordAudioAndroid": true
         }
       ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "organization": "darkside-fj",
+          "project": "247inventory",
+          // If you are using a self-hosted instance, update the value of the url property
+          // to point towards your self-hosted instance. For example, https://self-hosted.example.com/.
+          "url": "https://sentry.io/"
+        }
+      ],
       "expo-secure-store",
       [
         "expo-build-properties",
@@ -52,9 +62,7 @@
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.diegodark.inventoryapp",
@@ -69,18 +77,13 @@
       },
       "package": "com.diegodark.inventoryapp",
       "softwareKeyboardLayoutMode": "pan",
-      "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
-      ]
+      "permissions": ["android.permission.CAMERA", "android.permission.RECORD_AUDIO"]
     },
     "extra": {
       "router": {
         "origin": false
       },
-      "eas": {
-        "projectId": "50963c44-4e36-4bfc-9451-45d9f07498b2"
-      }
+      "eas": {}
     }
   }
 }

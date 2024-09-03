@@ -1,22 +1,38 @@
+import * as Sentry from '@sentry/react-native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { drizzle } from 'drizzle-orm/expo-sqlite';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
+import { isRunningInExpoGo } from 'expo';
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin';
 import { useFonts } from 'expo-font';
-import { Stack, SplashScreen } from 'expo-router';
+import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
 import { openDatabaseSync, SQLiteProvider } from 'expo-sqlite/next';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 import { Text } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast, { BaseToast, ErrorToast, ToastConfigParams } from 'react-native-toast-message';
-import { Spinner, View } from 'tamagui';
+import { Spinner, TamaguiProvider, View } from 'tamagui';
 
 import { colors } from '~/constants';
 import migrations from '~/drizzle/migrations';
+import config from '~/tamagui.config';
 
-SplashScreen.preventAutoHideAsync();
+const routingInstrumentation = new Sentry.ReactNavigationInstrumentation();
+Sentry.init({
+  dsn: 'https://3309f876b2a32501367ff526d4b77ca7@o4506898363318273.ingest.us.sentry.io/4507879223066624',
+  debug: true, // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
+  integrations: [
+    new Sentry.ReactNativeTracing({
+      // Pass instrumentation to be used as `routingInstrumentation`
+      routingInstrumentation,
+      enableNativeFramesTracking: !isRunningInExpoGo(),
+      // ...
+    }),
+  ],
+});
 const dbName = 'db.db';
+SplashScreen.preventAutoHideAsync();
 
 const expoDb = openDatabaseSync(dbName, { enableChangeListener: true });
 const db = drizzle(expoDb);
@@ -63,12 +79,18 @@ const toastConfig = {
   ),
 };
 export default function RootLayout() {
-  const [loaded] = useFonts({
+  const ref = useNavigationContainerRef();
+  const [loaded, err] = useFonts({
     Inter: require('@tamagui/font-inter/otf/Inter-Medium.otf'),
     InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
   });
-
   useEffect(() => {
+    if (ref) {
+      routingInstrumentation.registerNavigationContainer(ref);
+    }
+  }, [ref]);
+  useEffect(() => {
+    console.log(err);
     if (loaded) {
       SplashScreen.hideAsync();
     }
@@ -95,13 +117,15 @@ export default function RootLayout() {
 
   return (
     <SQLiteProvider databaseName={dbName}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <QueryClientProvider client={queryClient}>
-          <StatusBar style="dark" backgroundColor="white" />
-          <Stack screenOptions={{ headerShown: false }} />
-        </QueryClientProvider>
-        <Toast config={toastConfig} position="top" type="green" visibilityTime={4000} />
-      </GestureHandlerRootView>
+      <TamaguiProvider config={config}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <QueryClientProvider client={queryClient}>
+            <StatusBar style="dark" backgroundColor="white" />
+            <Stack screenOptions={{ headerShown: false }} />
+          </QueryClientProvider>
+          <Toast config={toastConfig} position="top" type="green" visibilityTime={4000} />
+        </GestureHandlerRootView>
+      </TamaguiProvider>
     </SQLiteProvider>
   );
 }
