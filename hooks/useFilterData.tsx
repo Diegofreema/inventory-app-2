@@ -3,15 +3,18 @@
 import { format, isWithinInterval } from 'date-fns';
 import { useMemo } from 'react';
 
-import { DisposedSelect, ExpenseSelect, SalesS, supplyProductSelect } from '~/db/schema';
+import DisposedProducts from '~/db/model/DisposedProducts';
+import Expenses from '~/db/model/Expenses';
+import StoreSales from '~/db/model/StoreSale';
+import SupplyProduct from '~/db/model/SupplyProduct';
 
 type Props = {
   startDate: string;
   endDate: string;
-  productSupply: supplyProductSelect[];
-  storeSales: SalesS[];
-  expense: ExpenseSelect[];
-  disposal: DisposedSelect[];
+  productSupply: SupplyProduct[];
+  storeSales: StoreSales[];
+  expense: Expenses[];
+  disposal: DisposedProducts[];
 };
 
 export const useFilterData = ({

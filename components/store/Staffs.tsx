@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { withObservables } from '@nozbe/watermelondb/react';
+import { useRouter } from 'expo-router';
+import { useCallback, useMemo, useState } from 'react';
 import { FlatList } from 'react-native';
 import { XStack } from 'tamagui';
 
@@ -12,39 +12,13 @@ import { FlexText } from '../ui/FlexText';
 import { MyButton } from '../ui/MyButton';
 import { Empty } from '../ui/empty';
 
-import { StaffSelect } from '~/db/schema';
-import { useDrizzle } from '~/hooks/useDrizzle';
+import { staffs } from '~/db';
+import Staff from '~/db/model/Staff';
 import { useStore } from '~/lib/zustand/useStore';
 
-export const Staffs = (): JSX.Element => {
-  const { db, schema } = useDrizzle();
-  const { data } = useLiveQuery(db.select().from(schema.staff));
-  const [staffs, setStaffs] = useState<StaffSelect[]>(data);
+const AllStaffs = ({ staffs }: { staffs: Staff[] }): JSX.Element => {
   const [value, setValue] = useState('');
 
-  useEffect(() => {}, []);
-  useFocusEffect(
-    useCallback(() => {
-      let isMounted = true;
-      // Do something when the screen is focused
-      console.log('Focused');
-      const fetchStaffs = async () => {
-        try {
-          const myStaffs = await db.select().from(schema.staff);
-          setStaffs(myStaffs);
-        } catch (error) {
-          console.log(error);
-          setStaffs(data);
-        }
-      };
-      if (isMounted) {
-        fetchStaffs();
-      }
-      return () => {
-        isMounted = false;
-      };
-    }, [])
-  );
   const filteredData = useMemo(() => {
     if (!value.trim()) return staffs;
 
@@ -71,7 +45,12 @@ export const Staffs = (): JSX.Element => {
   );
 };
 
-const StaffsFlatList = ({ data }: { data: StaffSelect[] }) => {
+const enhance = withObservables([], () => ({
+  staffs: staffs.query().observe(),
+}));
+export const Staffs = enhance(AllStaffs);
+
+const StaffsFlatList = ({ data }: { data: Staff[] }) => {
   return (
     <FlatList
       data={data}
@@ -84,7 +63,7 @@ const StaffsFlatList = ({ data }: { data: StaffSelect[] }) => {
   );
 };
 
-const StaffCard = ({ index, item }: { item: StaffSelect; index: number }) => {
+const StaffCard = ({ index, item }: { item: Staff; index: number }) => {
   const router = useRouter();
   const isAdmin = useStore((state) => state.isAdmin);
   console.log(isAdmin);

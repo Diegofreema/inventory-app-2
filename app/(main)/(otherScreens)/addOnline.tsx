@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { eq } from 'drizzle-orm';
+
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import Toast from 'react-native-toast-message';
@@ -12,22 +12,23 @@ import { Container } from '~/components/Container';
 import { CustomController } from '~/components/form/CustomController';
 import { MyButton } from '~/components/ui/MyButton';
 import { NavHeader } from '~/components/ui/NavHeader';
-import { useDrizzle } from '~/hooks/useDrizzle';
+import { products } from '~/db';
+
 import { useGet } from '~/hooks/useGet';
 import { useAdd247 } from '~/lib/tanstack/mutations';
 import { pharmacySales } from '~/lib/validators';
 
 export default function AddOnlineScreen() {
   const { mutateAsync, isPending, error } = useAdd247();
-  const { products } = useGet();
-  const { db, schema } = useDrizzle();
+  const { storedProduct } = useGet();
+
   const memoizedProductName = useMemo(() => {
-    if (!products) return [];
-    return products?.map((item) => ({
+    if (!storedProduct) return [];
+    return storedProduct?.map((item) => ({
       value: item?.productId,
       label: item?.product,
     }));
-  }, [products]);
+  }, [storedProduct]);
   const {
     control,
     formState: { errors },
@@ -44,13 +45,7 @@ export default function AddOnlineScreen() {
 
   const onSubmit = async (value: z.infer<typeof pharmacySales>) => {
     try {
-      const productInDb = await db.query.product.findFirst({
-        where: eq(schema.product.productId, value.productName),
-        columns: {
-          sellingPrice: true,
-          qty: true,
-        },
-      });
+      const productInDb = await products.find(value.productName);
       if (!productInDb) return;
       if (productInDb.qty < +value.qty) {
         return Toast.show({

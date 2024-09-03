@@ -5,10 +5,10 @@ import { FlatList } from 'react-native';
 import { ExpenseCard } from './ExpenseCard';
 import { Empty } from '../ui/empty';
 
-import { ExpenseSelect } from '~/db/schema';
+import Expenses from '~/db/model/Expenses';
 
 type Props = {
-  data: ExpenseSelect[];
+  data: Expenses[];
   fetching: boolean;
   refetch: () => void;
 };

@@ -1,12 +1,11 @@
 /* eslint-disable prettier/prettier */
 
-import { eq } from 'drizzle-orm';
 import { useEffect, useState } from 'react';
 
 import { AnimatedCard } from '../ui/AnimatedCard';
 import { FlexText } from '../ui/FlexText';
 
-import { useDrizzle } from '~/hooks/useDrizzle';
+import { staffs } from '~/db';
 import { trimText } from '~/lib/helper';
 import { CombinedStore } from '~/type';
 
@@ -18,16 +17,11 @@ type Props = {
 export const SalesCard = ({ index, item }: Props): JSX.Element => {
   const price = item?.dealerShare ? item?.dealerShare : item?.unitPrice;
   const [staff, setStaff] = useState('');
-  const { db, schema } = useDrizzle();
+
   useEffect(() => {
     if (!item.userId) return;
     const getStaff = async () => {
-      const staff = await db.query.staff.findFirst({
-        where: eq(schema.staff.id, Number(item?.userId)),
-        columns: {
-          name: true,
-        },
-      });
+      const staff = await staffs.find(item.userId?.toString()!);
       setStaff(staff?.name!);
     };
 

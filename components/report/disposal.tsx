@@ -4,11 +4,11 @@ import { FlatList } from 'react-native';
 import { AnimatedCard } from '~/components/ui/AnimatedCard';
 import { FlexText } from '~/components/ui/FlexText';
 import { Empty } from '~/components/ui/empty';
-import { DisposedSelect } from '~/db/schema';
+import DisposedProducts from '~/db/model/DisposedProducts';
 import { useGet } from '~/hooks/useGet';
 
 type Props = {
-  data: DisposedSelect[];
+  data: DisposedProducts[];
   scroll?: boolean;
 };
 export const Disposal = ({ data, scroll = true }: Props) => {
@@ -25,7 +25,7 @@ export const Disposal = ({ data, scroll = true }: Props) => {
   );
 };
 
-const DisposalCard = ({ index, item }: { item: DisposedSelect; index: number }) => {
+const DisposalCard = ({ index, item }: { item: DisposedProducts; index: number }) => {
   const { singleProduct } = useGet(item?.productId);
   const cost = Number(item?.unitCost) * Number(item?.qty);
   return (

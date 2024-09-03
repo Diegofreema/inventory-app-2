@@ -1,22 +1,24 @@
 /* eslint-disable prettier/prettier */
 
-import { eq } from 'drizzle-orm';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import Toast from 'react-native-toast-message';
 
 import { DeleteStaffModal } from '~/components/modals/DeleteStaffModal';
-import { useDrizzle } from '~/hooks/useDrizzle';
+import database, { staffs } from '~/db';
 
 export default function DeleteStaff() {
   const [visible, setVisible] = useState(true);
-  const { db, schema } = useDrizzle();
+
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const onDelete = async () => {
     if (!id) return;
     try {
-      await db.delete(schema.staff).where(eq(schema.staff.id, +id));
+      await database.write(async () => {
+        const staff = await staffs.find(id);
+        staff.destroyPermanently();
+      });
 
       Toast.show({
         text1: 'Success',

@@ -10,13 +10,13 @@ import { MyButton } from '../ui/MyButton';
 import { Empty } from '../ui/empty';
 import { CustomSubHeading } from '../ui/typography';
 
-import { SalesS } from '~/db/schema';
+import StoreSales from '~/db/model/StoreSale';
 import { useGet } from '~/hooks/useGet';
 import { calculateTotalsByPaymentType } from '~/lib/helper';
 import { useInfo } from '~/lib/tanstack/queries';
 
 type Props = {
-  data: SalesS[];
+  data: StoreSales[];
   scroll?: boolean;
 };
 
@@ -39,7 +39,7 @@ export const SalesFlatList = ({ data, scroll = true }: Props): JSX.Element => {
   );
 };
 
-const SalesCard = ({ item, index }: { item: SalesS; index: number }) => {
+const SalesCard = ({ item, index }: { item: StoreSales; index: number }) => {
   const { singleProduct, worker } = useGet(item?.productId, item.userId!);
   const [printing, setPrinting] = useState(false);
   const { data } = useInfo();

@@ -1,11 +1,18 @@
 /* eslint-disable prettier/prettier */
+import { Q } from '@nozbe/watermelondb';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import { eq } from 'drizzle-orm';
 import { useCallback, useEffect, useState } from 'react';
 
 import {
-  api,
+  createAccount,
+  createCats,
+  createDisposals,
+  createExpenses,
+  createOnlineSales,
+  createProducts,
+  createStoreSales,
+  createSupply,
   expensesAccount,
   getCat,
   getDisposal,
@@ -18,15 +25,25 @@ import {
 import { useHasFetched } from '../zustand/useIsFirstTime';
 import { useStore } from '../zustand/useStore';
 
-import { CartItemWithProductField } from '~/components/CartFlatList';
-import { useDrizzle } from '~/hooks/useDrizzle';
+import {
+  cartItems,
+  categories,
+  disposedProducts,
+  expenseAccounts,
+  expenses,
+  onlineSales,
+  products,
+  saleReferences,
+  storeSales,
+  supplyProduct,
+} from '~/db';
 import { useNetwork } from '~/hooks/useNetwork';
 import { CatType, InfoType, NotType } from '~/type';
 
 export const useFetchAll = () => {
   const id = useStore((state) => state.id);
   const { hasFetched, setHasFetched } = useHasFetched();
-  const { db, schema } = useDrizzle();
+
   const [fetching, setFetching] = useState(true);
   const isConnected = useNetwork();
   const [error, setError] = useState<string | null>(null);
@@ -47,17 +64,14 @@ export const useFetchAll = () => {
           getCat(),
         ]);
 
-      await Promise.all([
-        db.insert(schema.product).values(products),
-        db.insert(schema.storeSales).values(store),
-        db.insert(schema.expenses).values(expenses),
-        db.insert(schema.disposedProducts).values(disposal),
-        db.insert(schema.expenseAccount).values(account),
-        db.insert(schema.onlineSale).values(online),
-        db.insert(schema.supplyProduct).values(supply),
-        db.insert(schema.cart).values({}),
-        db.insert(schema.category).values(cats),
-      ]);
+      await createProducts(products);
+      await createStoreSales(store);
+      await createExpenses(expenses);
+      await createDisposals(disposal);
+      await createAccount(account);
+      await createOnlineSales(online);
+      await createSupply(supply);
+      await createCats(cats);
       setHasFetched(true);
       setError(null);
     } catch (error) {
@@ -86,72 +100,60 @@ export const useFetchAll = () => {
 };
 
 export const useProducts = () => {
-  const { db } = useDrizzle();
   const getProducts = async () => {
-    const products = await db.query.product.findMany({
-      orderBy: (product, { desc }) => [desc(product.id)],
-    });
-    return products;
+    const product = await products.query(Q.sortBy('id', Q.desc)).fetch();
+    return product;
   };
   return useQuery({
     queryKey: ['product'],
     queryFn: getProducts,
+    structuralSharing: false,
   });
 };
 export const useSalesP = () => {
-  const { db } = useDrizzle();
   return useQuery({
     queryKey: ['salesPharmacy'],
     queryFn: async () => {
-      const data = await db.query.onlineSale.findMany({
-        with: {
-          product: true,
-        },
-        orderBy: (onlineSale, { desc }) => [desc(onlineSale.id)],
-      });
+      const data = await onlineSales.query(Q.sortBy('id', Q.desc)).fetch();
       return data;
     },
+    structuralSharing: false,
   });
 };
 export const useSalesS = () => {
-  const { db } = useDrizzle();
   return useQuery({
     queryKey: ['salesStore'],
     queryFn: async () => {
-      const data = await db.query.storeSales.findMany({
-        with: {
-          product: true,
-        },
-        orderBy: (storeSales, { desc }) => [desc(storeSales.id)],
-      });
+      const data = await storeSales.query(Q.sortBy('id', Q.desc)).fetch();
+      console.log('🚀 ~ queryFn: ~ data:', data);
+
       return data;
     },
+    structuralSharing: false,
   });
 };
 export const useExpenditure = () => {
-  const { db } = useDrizzle();
   const getExpenditure = async () => {
-    const data = await db.query.expenses.findMany({
-      orderBy: (expenses, { desc }) => [desc(expenses.id)],
-    });
+    const data = await expenses.query(Q.sortBy('id', Q.desc)).fetch();
     return data;
   };
 
   return useQuery({
     queryKey: ['expenditure'],
     queryFn: () => getExpenditure(),
+    structuralSharing: false,
   });
 };
 export const useCat = () => {
-  const { db } = useDrizzle();
   const getCat = async () => {
-    const data = await db.query.category.findMany();
+    const data = await categories.query().fetch();
 
     return data;
   };
   return useQuery<CatType[]>({
     queryKey: ['cat'],
     queryFn: getCat,
+    structuralSharing: false,
   });
 };
 export const useInfo = () => {
@@ -169,30 +171,26 @@ export const useInfo = () => {
   });
 };
 export const useSupply = () => {
-  const { db } = useDrizzle();
   const getData = async () => {
-    const data = await db.query.supplyProduct.findMany({
-      orderBy: (supplyProduct, { desc }) => [desc(supplyProduct.id)],
-    });
+    const data = await supplyProduct.query(Q.sortBy('id', Q.desc)).fetch();
     return data;
   };
 
   return useQuery({
     queryKey: ['supply'],
     queryFn: () => getData(),
+    structuralSharing: false,
   });
 };
 export const useExpAcc = () => {
-  const { db } = useDrizzle();
   const getExpAcc = async () => {
-    const data = await db.query.expenseAccount.findMany({
-      orderBy: (expenseAccount, { desc }) => [desc(expenseAccount.id)],
-    });
+    const data = await expenseAccounts.query(Q.sortBy('id', Q.desc)).fetch();
     return data;
   };
   return useQuery<{ accountName: string }[]>({
     queryKey: ['exp_name'],
     queryFn: getExpAcc,
+    structuralSharing: false,
   });
 };
 
@@ -218,58 +216,49 @@ export const useNotify = () => {
   });
 };
 export const useDisposal = () => {
-  const { db } = useDrizzle();
-
   const getDisposal = async () => {
-    const data = await db.query.disposedProducts.findMany();
+    const data = await disposedProducts.query(Q.sortBy('id', Q.desc)).fetch();
     return data;
   };
   return useQuery({
     queryKey: ['disposal'],
     queryFn: () => getDisposal(),
+    structuralSharing: false,
   });
 };
 
 export const useCart = () => {
-  const { db } = useDrizzle();
   const getCart = async () => {
-    const data = await db.query.cart.findFirst({
-      with: {
-        cartItem: true,
-      },
-    });
+    const data = await cartItems.query().fetch();
     return data;
   };
   return useQuery({
-    queryKey: ['cart'],
+    queryKey: ['cart_items'],
     queryFn: getCart,
+    structuralSharing: false,
   });
 };
 export const useSalesRef = () => {
-  const { db } = useDrizzle();
   const getCart = async () => {
-    const data = await db.query.salesReference.findMany();
+    const data = await saleReferences.query().fetch();
     return data;
   };
   return useQuery({
     queryKey: ['sales_ref'],
     queryFn: getCart,
+    structuralSharing: false,
   });
 };
 
 export const useCartItemsWithRef = (safeRef: string) => {
-  const { db, schema } = useDrizzle();
-  const getCartItem = async (): Promise<CartItemWithProductField[]> => {
-    const data = await db.query.cartItem.findMany({
-      where: eq(schema.cartItem.salesReference, safeRef),
-      with: {
-        product: true,
-      },
-    });
-    return data as CartItemWithProductField[];
+  const getCartItem = async () => {
+    const salesRefItem = await cartItems.query(Q.where('salesReference', Q.eq(safeRef))).fetch();
+
+    return salesRefItem;
   };
-  return useQuery<CartItemWithProductField[]>({
-    queryKey: ['cart_item'],
+  return useQuery({
+    queryKey: ['cart_item_ref'],
     queryFn: getCartItem,
+    structuralSharing: false,
   });
 };

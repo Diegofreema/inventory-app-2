@@ -3,20 +3,22 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
-import { useDrizzle } from './useDrizzle';
-
-import { DisposedSelect, ExpenseSelect, SalesP, SalesS, supplyProductSelect } from '~/db/schema';
+import { disposedProducts, expenses, onlineSales, storeSales, supplyProduct } from '~/db';
+import DisposedProducts from '~/db/model/DisposedProducts';
+import Expenses from '~/db/model/Expenses';
+import OnlineSale from '~/db/model/OnlineSale';
+import StoreSales from '~/db/model/StoreSale';
+import SupplyProduct from '~/db/model/SupplyProduct';
 import { useStore } from '~/lib/zustand/useStore';
 
 export const useReports = () => {
   const id = useStore((state) => state.id);
-  const [storeSales, setStoreSales] = useState<SalesS[]>([]);
-  const [onlineSales, setOnlineSales] = useState<SalesP[]>([]);
-  const [productSupply, setProductSupply] = useState<supplyProductSelect[]>([]);
-  const [expense, setExpense] = useState<ExpenseSelect[]>([]);
-  const [disposal, setDisposal] = useState<DisposedSelect[]>([]);
+  const [storeSale, setStoreSales] = useState<StoreSales[]>([]);
+  const [onlineSale, setOnlineSales] = useState<OnlineSale[]>([]);
+  const [productSupply, setProductSupply] = useState<SupplyProduct[]>([]);
+  const [expense, setExpense] = useState<Expenses[]>([]);
+  const [disposal, setDisposal] = useState<DisposedProducts[]>([]);
   const queryClient = useQueryClient();
-  const { db } = useDrizzle();
 
   useEffect(() => {
     const getData = async () => {
@@ -26,43 +28,35 @@ export const useReports = () => {
           queryClient.fetchQuery({
             queryKey: ['salesStore'],
             queryFn: async () => {
-              const data = await db.query.storeSales.findMany({
-                with: {
-                  product: true,
-                },
-              });
+              const data = await storeSales.query().fetch();
               return data;
             },
           }),
           queryClient.fetchQuery({
             queryKey: ['supply'],
             queryFn: async () => {
-              const data = await db.query.supplyProduct.findMany();
+              const data = await supplyProduct.query().fetch();
               return data;
             },
           }),
           queryClient.fetchQuery({
             queryKey: ['expenditure'],
             queryFn: async () => {
-              const data = await db.query.expenses.findMany();
+              const data = await expenses.query().fetch();
               return data;
             },
           }),
           queryClient.fetchQuery({
             queryKey: ['disposal'],
             queryFn: async () => {
-              const data = await db.query.disposedProducts.findMany();
+              const data = await disposedProducts.query().fetch();
               return data;
             },
           }),
           queryClient.fetchQuery({
             queryKey: ['salesPharmacy'],
             queryFn: async () => {
-              const data = await db.query.onlineSale.findMany({
-                with: {
-                  product: true,
-                },
-              });
+              const data = await onlineSales.query().fetch();
               return data;
             },
           }),
@@ -82,5 +76,5 @@ export const useReports = () => {
     getData();
   }, [id, queryClient]);
 
-  return { expense, productSupply, storeSales, disposal, onlineSales };
+  return { expense, productSupply, storeSale, disposal, onlineSale };
 };

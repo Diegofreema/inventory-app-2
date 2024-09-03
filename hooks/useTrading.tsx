@@ -3,17 +3,21 @@
 import { format, isBefore, isWithinInterval, max } from 'date-fns';
 import { useMemo } from 'react';
 
-import { DisposedSelect, ExpenseSelect, SalesP, SalesS, supplyProductSelect } from '~/db/schema';
+import DisposedProducts from '~/db/model/DisposedProducts';
+import Expenses from '~/db/model/Expenses';
+import OnlineSale from '~/db/model/OnlineSale';
+import StoreSales from '~/db/model/StoreSale';
+import SupplyProduct from '~/db/model/SupplyProduct';
 import { rearrangeDateString, totalAmount } from '~/lib/helper';
 
 type Props = {
   startDate: string;
   endDate: string;
-  onlineSales: SalesP[];
-  storeSales: SalesS[];
-  disposal: DisposedSelect[];
-  expense: ExpenseSelect[];
-  productSupply: supplyProductSelect[];
+  onlineSales: OnlineSale[];
+  storeSales: StoreSales[];
+  disposal: DisposedProducts[];
+  expense: Expenses[];
+  productSupply: SupplyProduct[];
 };
 
 export const useTrading = ({
@@ -67,7 +71,7 @@ export const useTrading = ({
 
     const allStore = store?.map((sale) => {
       const maxDate = max(store.map((d) => rearrangeDateString(d.dateX.split(' ')[0])));
-      if (sale.paid) {
+      if (sale.isPaid) {
         const recentPrice = store.find(
           (s) => rearrangeDateString(s.dateX.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
         );
@@ -126,7 +130,7 @@ export const useTrading = ({
       return isWithinInterval(salesDate, { start, end });
     });
     const numbers = filteredData?.map((sale) => {
-      if (sale?.paid) return Number(sale?.unitPrice) * Number(sale?.qty);
+      if (sale?.isPaid) return Number(sale?.unitPrice) * Number(sale?.qty);
       return 0;
     });
     return totalAmount(numbers);
@@ -210,7 +214,7 @@ export const useTrading = ({
 
     const allStore = store?.map((sale) => {
       const maxDate = max(store.map((d) => rearrangeDateString(d.dateX.split(' ')[0])));
-      if (sale.paid) {
+      if (sale.isPaid) {
         const recentPrice = store.find(
           (s) => rearrangeDateString(s.dateX.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
         );

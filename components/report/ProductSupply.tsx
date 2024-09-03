@@ -7,11 +7,11 @@ import { FlexText } from '../ui/FlexText';
 import { Empty } from '../ui/empty';
 import { CustomSubHeading } from '../ui/typography';
 
-import { supplyProductSelect } from '~/db/schema';
+import SupplyProduct from '~/db/model/SupplyProduct';
 import { useGet } from '~/hooks/useGet';
 
 type Props = {
-  data: supplyProductSelect[];
+  data: SupplyProduct[];
   scroll?: boolean;
 };
 
@@ -29,7 +29,7 @@ export const ProductSupply = ({ data, scroll = true }: Props): JSX.Element => {
   );
 };
 
-const SupplyCard = ({ item, index }: { item: supplyProductSelect; index: number }) => {
+const SupplyCard = ({ item, index }: { item: SupplyProduct; index: number }) => {
   const { singleProduct } = useGet(item?.productId);
   const totalPrice = Number(item.unitCost) * Number(item?.qty);
   return (

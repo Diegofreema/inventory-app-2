@@ -2,7 +2,6 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import axios from 'axios';
-import { eq } from 'drizzle-orm';
 import * as SecureStore from 'expo-secure-store';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -17,10 +16,11 @@ import { CustomPressable } from '../ui/CustomPressable';
 import { MyButton } from '../ui/MyButton';
 
 import { colors } from '~/constants';
-import { useDrizzle } from '~/hooks/useDrizzle';
 import { api } from '~/lib/helper';
 import { loginSchema } from '~/lib/validators';
 import { useStore } from '~/lib/zustand/useStore';
+import { staffs } from '~/db';
+import { Q } from '@nozbe/watermelondb';
 
 export const LoginForm = (): JSX.Element => {
   const [secure, setSecure] = useState(true);
@@ -28,7 +28,6 @@ export const LoginForm = (): JSX.Element => {
   const [loading, setLoading] = useState(false);
   const getId = useStore((state) => state.getId);
   const onSetAdmin = useStore((state) => state.setIsAdmin);
-  const { db, schema } = useDrizzle();
 
   const {
     control,
@@ -102,10 +101,8 @@ export const LoginForm = (): JSX.Element => {
   const onStaffLogin = async (values: z.infer<typeof loginSchema>) => {
     setLoading(true);
     try {
-      const staffExists = await db.query.staff.findFirst({
-        where: eq(schema.staff.email, values.email),
-      });
-      if (!staffExists) {
+      const staffExists = await staffs.query(Q.where('email', values.email), Q.take(1)).fetch();
+      if (!staffExists.length) {
         Toast.show({
           position: 'top',
           text1: 'Error',
@@ -113,7 +110,7 @@ export const LoginForm = (): JSX.Element => {
         });
         return;
       }
-      const passwordMatch = staffExists.password === values.password;
+      const passwordMatch = staffExists[0].password === values.password;
       if (!passwordMatch) {
         Toast.show({
           position: 'top',
@@ -127,8 +124,8 @@ export const LoginForm = (): JSX.Element => {
         text1: 'Success',
         text2: 'Welcome back',
       });
-      SecureStore.setItem('staffId', staffExists.id.toString());
-      getId(staffExists.pharmacyId!);
+      SecureStore.setItem('staffId', staffExists[0].id.toString());
+      getId(staffExists[0].pharmacyId!);
       onSetAdmin(false);
       reset();
     } catch (error) {

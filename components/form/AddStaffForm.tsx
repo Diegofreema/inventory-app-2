@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { eq } from 'drizzle-orm';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -13,10 +12,9 @@ import { CustomController } from './CustomController';
 import { MyButton } from '../ui/MyButton';
 
 import { colors } from '~/constants';
-import { staff } from '~/db/schema';
-import { useDrizzle } from '~/hooks/useDrizzle';
 import { addStaffSchema } from '~/lib/validators';
 import { useStore } from '~/lib/zustand/useStore';
+import database, { staffs } from '~/db';
 
 export const AddStaffForm = (): JSX.Element => {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -24,7 +22,7 @@ export const AddStaffForm = (): JSX.Element => {
   const [edit, setEdit] = useState(false);
   const [secure, setSecure] = useState(true);
   const [secure2, setSecure2] = useState(true);
-  const { db } = useDrizzle();
+
   const handleSecure = useCallback(() => setSecure((prev) => !prev), []);
   const handleSecure2 = useCallback(() => setSecure2((prev) => !prev), []);
   const router = useRouter();
@@ -47,12 +45,12 @@ export const AddStaffForm = (): JSX.Element => {
   useEffect(() => {
     const fetchStaff = async () => {
       try {
-        const myStaff = await db.select().from(staff).where(eq(staff.id, +id));
+        const myStaff = await staffs.find(id);
 
-        setValue('name', myStaff[0].name);
-        setValue('email', myStaff[0].email);
-        setValue('password', myStaff[0].password);
-        setValue('confirmPassword', myStaff[0].password);
+        setValue('name', myStaff.name);
+        setValue('email', myStaff.email);
+        setValue('password', myStaff.password);
+        setValue('confirmPassword', myStaff.password);
         setEdit(true);
       } catch (error) {
         console.log(error);
@@ -64,7 +62,14 @@ export const AddStaffForm = (): JSX.Element => {
   }, [id]);
   const onCreate = async (value: z.infer<typeof addStaffSchema>) => {
     try {
-      await db.insert(staff).values({ ...value, pharmacyId });
+      await database.write(async () => {
+        await staffs.create((staff) => {
+          staff.name = value.name;
+          staff.email = value.email;
+          staff.password = value.password;
+          staff.pharmacyId = pharmacyId!;
+        });
+      });
       Toast.show({
         text1: 'Success',
         text2: 'Staff added successfully',
@@ -83,7 +88,14 @@ export const AddStaffForm = (): JSX.Element => {
 
   const onUpdate = async (value: z.infer<typeof addStaffSchema>) => {
     try {
-      await db.update(staff).set(value).where(eq(staff.id, +id));
+      await database.write(async () => {
+        const staff = await staffs.find(id);
+        await staff.update((staff) => {
+          staff.name = value.name;
+          staff.email = value.email;
+          staff.password = value.password;
+        });
+      });
       Toast.show({
         text1: 'Success',
         text2: 'Staff updated successfully',

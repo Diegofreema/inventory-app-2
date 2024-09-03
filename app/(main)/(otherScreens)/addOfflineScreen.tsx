@@ -1,8 +1,9 @@
 /* eslint-disable prettier/prettier */
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Q } from '@nozbe/watermelondb';
+import { createId } from '@paralleldrive/cuid2';
 import { useQueryClient } from '@tanstack/react-query';
-import { eq, ne } from 'drizzle-orm';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { useCallback, useMemo } from 'react';
@@ -21,8 +22,8 @@ import { MyButton } from '~/components/ui/MyButton';
 import { NavHeader } from '~/components/ui/NavHeader';
 import { CustomSubHeading } from '~/components/ui/typography';
 import { colors } from '~/constants';
-import { SalesRefSelect } from '~/db/schema';
-import { useDrizzle } from '~/hooks/useDrizzle';
+import database, { products, saleReferences } from '~/db';
+import SaleReference from '~/db/model/SalesReference';
 import { useGet } from '~/hooks/useGet';
 // import { paymentType } from '~/data';
 import { useAddSales } from '~/lib/tanstack/mutations';
@@ -32,10 +33,10 @@ import { addToCart } from '~/lib/validators';
 export default function AddOfflineScreen() {
   const { error, mutateAsync, isPending } = useAddSales();
   const { data: cartData } = useCart();
-  const { db, schema } = useDrizzle();
+
   const { data } = useSalesRef();
   const router = useRouter();
-  const { products } = useGet();
+  const { storedProduct } = useGet();
   const {
     control,
     formState: { errors },
@@ -51,25 +52,20 @@ export default function AddOfflineScreen() {
     resolver: zodResolver(addToCart),
   });
   const formattedProducts =
-    products?.map((item) => ({
+    storedProduct?.map((item) => ({
       value: item?.productId,
       label: item?.product,
     })) || [];
   const { productId } = watch();
   const memoizedPrice = useMemo(() => {
     if (!productId) return null;
-    return products?.find((item) => item?.productId === productId)?.sellingPrice;
-  }, [products, productId]);
+    return storedProduct?.find((item) => item?.productId === productId)?.sellingPrice;
+  }, [storedProduct, productId]);
 
-  const cartLength = cartData?.cartItem.length || 0;
+  const cartLength = cartData?.length || 0;
   const onSubmit = async (value: z.infer<typeof addToCart>) => {
-    if (!cartData?.id || !memoizedPrice) return;
-    const product = await db.query.product.findFirst({
-      where: eq(schema.product.productId, value.productId),
-      columns: {
-        qty: true,
-      },
-    });
+    if (!memoizedPrice) return;
+    const product = await products?.find(value.productId);
 
     if (product && product?.qty < +value.qty) {
       return Toast.show({
@@ -80,7 +76,7 @@ export default function AddOfflineScreen() {
     await mutateAsync({
       productId: value.productId,
       qty: +value.qty,
-      cartId: cartData?.id,
+      cartId: 0,
       cost: memoizedPrice,
     });
     if (!error) {
@@ -159,38 +155,45 @@ export default function AddOfflineScreen() {
   );
 }
 
-const SalesRefFlatList = ({ data }: { data: SalesRefSelect[] }) => {
-  const { db, schema } = useDrizzle();
+const SalesRefFlatList = ({ data }: { data: SaleReference[] }) => {
   const queryClient = useQueryClient();
   const onPress = async (salesRef: string) => {
     SecureStore.setItem('salesRef', salesRef);
-    await db
-      .update(schema.salesReference)
-      .set({ isActive: false })
-      .where(ne(schema.salesReference.salesReference, salesRef));
-    await db
-      .update(schema.salesReference)
-      .set({ isActive: true })
-      .where(eq(schema.salesReference.salesReference, salesRef));
+    await database.write(async () => {
+      const item = await saleReferences.find(salesRef);
+      item.update((ref) => {
+        ref.isActive = true;
+      });
+
+      const items = await saleReferences
+        .query(Q.where('salesReference', Q.notEq(salesRef)))
+        .fetch();
+
+      items.forEach(async (i) => {
+        i.update((ref) => {
+          ref.isActive = false;
+        });
+      });
+    });
 
     queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
   };
   const onNewCustomer = async () => {
-    const activeCustomer = await db.query.salesReference.findFirst({
-      where: eq(schema.salesReference.isActive, true),
+    await database.write(async () => {
+      const activeCustomer = await saleReferences.query(Q.where('isActive', Q.eq(true))).fetch();
+      if (activeCustomer.length) {
+        await activeCustomer[0].update((ref) => {
+          ref.isActive = false;
+        });
+      }
+
+      const newCustomerRef = await saleReferences.create((ref) => {
+        ref.saleReference = createId() + Math.random().toString(36).slice(2);
+        ref.isActive = true;
+      });
+      SecureStore.setItem('salesRef', newCustomerRef.saleReference);
     });
 
-    if (activeCustomer) {
-      await db
-        .update(schema.salesReference)
-        .set({ isActive: false })
-        .where(eq(schema.salesReference.salesReference, activeCustomer.salesReference));
-    }
-    const newCustomerRef = await db
-      .insert(schema.salesReference)
-      .values({})
-      .returning({ salesReference: schema.salesReference.salesReference });
-    SecureStore.setItem('salesRef', newCustomerRef[0].salesReference);
     queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
   };
   return (
@@ -198,7 +201,7 @@ const SalesRefFlatList = ({ data }: { data: SalesRefSelect[] }) => {
       data={data}
       horizontal
       renderItem={({ item, index }) => (
-        <CustomPressable onPress={() => onPress(item.salesReference)}>
+        <CustomPressable onPress={() => onPress(item.saleReference)}>
           <View
             backgroundColor={item.isActive ? colors.green : '$backgroundTransparent'}
             padding={5}

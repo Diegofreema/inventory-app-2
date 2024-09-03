@@ -6,7 +6,7 @@ import { FlexText } from '../ui/FlexText';
 
 import { AnimatedCard } from '~/components/ui/AnimatedCard';
 import { CustomSubHeading } from '~/components/ui/typography';
-import { ExpenseSelect } from '~/db/schema';
+import Expenses from '~/db/model/Expenses';
 import { totalAmount } from '~/lib/helper';
 import { GroupedExpense } from '~/type';
 type Props = {
@@ -15,7 +15,7 @@ type Props = {
     disposal: number;
     onlineSales: number;
     offlineSales: number;
-    expenses: ExpenseSelect[];
+    expenses: Expenses[];
     openingStock: number;
     closingStock: number;
   };

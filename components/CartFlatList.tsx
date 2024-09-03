@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Q } from '@nozbe/watermelondb';
 import { useQueryClient } from '@tanstack/react-query';
-import { eq } from 'drizzle-orm';
 import * as SecureStore from 'expo-secure-store';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
@@ -16,22 +16,21 @@ import { FlexText } from './ui/FlexText';
 import { MyButton } from './ui/MyButton';
 import { Empty } from './ui/empty';
 
-import { CartItemSelect, ProductSelect } from '~/db/schema';
-import { useDrizzle } from '~/hooks/useDrizzle';
+import database, { cartItems, products, saleReferences } from '~/db';
+import CartItem from '~/db/model/CartItems';
 import { trimText } from '~/lib/helper';
 import { useCart } from '~/lib/tanstack/mutations';
 import { extraDataSchema } from '~/lib/validators';
 import { ExtraSalesType } from '~/type';
 
-export type CartItemWithProductField = CartItemSelect & { product: ProductSelect };
 type Props = {
-  data: CartItemWithProductField[];
+  data: CartItem[];
 };
 
 export const CartFlatList = ({ data }: Props): JSX.Element => {
   const { mutateAsync, isError } = useCart();
   const queryClient = useQueryClient();
-  const { db, schema } = useDrizzle();
+
   const {
     formState: { errors, isSubmitting },
     reset,
@@ -67,12 +66,21 @@ export const CartFlatList = ({ data }: Props): JSX.Element => {
 
   const isLoading = useMemo(() => isSubmitting, [isSubmitting]);
   const onClearCart = async () => {
-    await db
-      .delete(schema.cartItem)
-      .where(eq(schema.cartItem.salesReference, data[0]?.salesReference));
-    await db
-      .delete(schema.salesReference)
-      .where(eq(schema.salesReference.salesReference, data[0]?.salesReference));
+    await database.write(async () => {
+      const items = await cartItems
+        .query(Q.where('salesReference', Q.eq(data[0].salesReference)))
+        .fetch();
+      const refs = await saleReferences
+        .query(Q.where('salesReference', Q.eq(data[0].salesReference)))
+        .fetch();
+      refs.forEach(async (ref) => {
+        await ref.destroyPermanently();
+      });
+      items.forEach(async (i) => {
+        await i.destroyPermanently();
+      });
+    });
+
     queryClient.invalidateQueries({ queryKey: ['cart_item'] });
     queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
     queryClient.invalidateQueries({ queryKey: ['cart'] });
@@ -119,41 +127,43 @@ export const CartFlatList = ({ data }: Props): JSX.Element => {
   );
 };
 
-const CartCard = ({ item, index }: { item: CartItemWithProductField; index: number }) => {
-  const { db, schema } = useDrizzle();
+const CartCard = ({ item, index }: { item: CartItem; index: number }) => {
   const queryClient = useQueryClient();
-  console.log(item.productId, 'sahjbdhsaj');
 
   const onAdd = async () => {
     if (!item?.productId) return Toast.show({ text1: 'Error', text2: 'Could not add item' });
-    const productQty = await db.query.product.findFirst({
-      where: eq(schema.product.productId, item?.productId),
-      columns: {
-        qty: true,
-      },
-    });
+    const productQty = await products.find(item.productId);
     if (productQty && productQty?.qty <= item.qty) {
       return Toast.show({
         text1: 'Cannot update item',
         text2: `Only ${productQty.qty} Item  is left in stock`,
       });
     }
+    await database.write(async () => {
+      const itemToUpdate = await cartItems.find(item.id);
+      itemToUpdate.update((i) => {
+        i.qty = item.qty + 1;
+      });
+    });
 
-    await db
-      .update(schema.cartItem)
-      .set({ qty: item?.qty! + 1 })
-      .where(eq(schema.cartItem.id, item?.id));
     queryClient.invalidateQueries({ queryKey: ['cart_item'] });
   };
   const onReduce = async () => {
     if (item?.qty! > 1) {
-      await db
-        .update(schema.cartItem)
-        .set({ qty: item?.qty! - 1 })
-        .where(eq(schema.cartItem.id, item?.id));
+      await database.write(async () => {
+        const itemToUpdate = await cartItems.find(item.id);
+        itemToUpdate.update((i) => {
+          i.qty = item.qty - 1;
+        });
+      });
+
       queryClient.invalidateQueries({ queryKey: ['cart_item'] });
     } else {
-      await db.delete(schema.cartItem).where(eq(schema.cartItem.id, item?.id));
+      await database.write(async () => {
+        const itemToDelete = await cartItems.find(item.id);
+        itemToDelete.destroyPermanently();
+      });
+
       queryClient.invalidateQueries({ queryKey: ['cart_item'] });
     }
   };

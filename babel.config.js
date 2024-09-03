@@ -16,7 +16,7 @@ module.exports = function (api) {
       relativeSourceLocation: true,
     },
   ]);
-  plugins.push(['inline-import', { extensions: ['.sql'] }]);
+  plugins.push(['@babel/plugin-proposal-decorators', { legacy: true }]);
   return {
     presets: ['babel-preset-expo'],
 

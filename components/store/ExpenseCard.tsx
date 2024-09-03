@@ -6,10 +6,10 @@ import { Card, CardHeader } from 'tamagui';
 import { FlexText } from '../ui/FlexText';
 
 import { colors } from '~/constants';
-import { ExpenseSelect } from '~/db/schema';
+import Expenses from '~/db/model/Expenses';
 
 type Props = {
-  item: ExpenseSelect;
+  item: Expenses;
   index: number;
 };
 

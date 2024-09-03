@@ -1,4 +1,4 @@
-import { ProductSelect } from './db/schema';
+import Product from './db/model/Product';
 
 /* eslint-disable prettier/prettier */
 export type PreviewType = {
@@ -66,7 +66,7 @@ export type CombinedStore = {
   userId?: number;
   dealerShare?: number;
   netProShare?: number;
-  product?: ProductSelect;
+  product?: Product;
 };
 export type SalesS = {
   productid: string;
@@ -149,4 +149,54 @@ export type Expense = { accountname: string; amount: number | string };
 
 export type GroupedExpense = {
   [key: string]: { name: string; amount: number };
+};
+
+export type ProductFromDb = {
+  category: any;
+  subcategory: any;
+  productId: any;
+  product: any;
+  customerProductId: any;
+  marketPrice: number;
+  online: boolean;
+  qty: number;
+  sellingPrice: number;
+  shareDealer: number;
+  shareNetpro: number;
+  description: any;
+};
+
+export type OnlineSaleFromDb = {
+  productId: string;
+  qty: number;
+  unitPrice: number;
+  dateX: any;
+  dealerShare: number;
+  netProShare: number;
+};
+
+export type StoreSalesFromDb = {
+  productId: string;
+  qty: number;
+  dateX: string;
+  unitPrice: number;
+  paid: boolean;
+  paymentType: string;
+  salesReference: string;
+  transferInfo: string;
+  cid: string;
+};
+
+export type ExpensesFromDb = {
+  accountName: string;
+  dateX: string;
+  description: string;
+  amount: number;
+};
+
+export type DisposalFromDb = {
+  productId: string;
+  dateX: string;
+  qty: number;
+  unitCost: number;
 };

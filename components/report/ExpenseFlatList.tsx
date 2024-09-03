@@ -7,10 +7,10 @@ import { FlexText } from '../ui/FlexText';
 import { Empty } from '../ui/empty';
 import { CustomSubHeading } from '../ui/typography';
 
-import { ExpenseSelect } from '~/db/schema';
+import Expenses from '~/db/model/Expenses';
 
 type Props = {
-  data: ExpenseSelect[];
+  data: Expenses[];
   scroll?: boolean;
 };
 
@@ -28,7 +28,7 @@ export const ExpenseFlatList = ({ data, scroll = true }: Props): JSX.Element => 
   );
 };
 
-const ExpenseCard = ({ item, index }: { item: ExpenseSelect; index: number }) => {
+const ExpenseCard = ({ item, index }: { item: Expenses; index: number }) => {
   return (
     <AnimatedCard index={index}>
       <FlexText text="Expense" text2={item?.accountName} />

@@ -1,44 +1,40 @@
 /* eslint-disable prettier/prettier */
 
-import { eq } from 'drizzle-orm';
 import { useCallback, useEffect, useState } from 'react';
 
-import { useDrizzle } from './useDrizzle';
+import { onlineSales, products, staffs, storeSales } from '~/db';
+import OnlineSale from '~/db/model/OnlineSale';
+import Product from '~/db/model/Product';
+import StoreSales from '~/db/model/StoreSale';
 
-import { ProductSelect, SalesP, SalesS, product, staff } from '~/db/schema';
-
-export const useGet = (id?: string, staffId?: number) => {
+export const useGet = (id?: string, staffId?: string) => {
   console.log('🚀 ~ useGet ~ id:', id);
-  const [products, setProducts] = useState<ProductSelect[] | undefined>([]);
-  const [singleProduct, setSingleProduct] = useState<ProductSelect | undefined>();
-  const [onlineSales, setOnlineSales] = useState<SalesP[]>([]);
-  const [storeSales, setStoreSales] = useState<SalesS[]>([]);
+  const [storedProduct, setStoredProducts] = useState<Product[] | undefined>([]);
+  const [singleProduct, setSingleProduct] = useState<Product | undefined>();
+  const [online, setOnline] = useState<OnlineSale[]>([]);
+  const [storeSale, setStoreSale] = useState<StoreSales[]>([]);
   const [worker, setWorker] = useState<{ name: string }>();
 
-  const { db } = useDrizzle();
   useEffect(() => {
     const fetchData = async () => {
-      const [padding, online, store] = await Promise.all([
-        db.query.product.findMany(),
-        db.query.onlineSale.findMany(),
-        db.query.storeSales.findMany(),
+      const [product, online, store] = await Promise.all([
+        products.query().fetch(),
+        onlineSales.query().fetch(),
+        storeSales.query().fetch(),
       ]);
-      setProducts(padding);
-      setOnlineSales(online);
-      setStoreSales(store);
+      setStoredProducts(product);
+      setOnline(online);
+      setStoreSale(store);
     };
     console.log(id, 'id');
     const fetchStaff = async () => {
       if (!staffId) return;
-      const s = await db.query.staff.findFirst({
-        where: eq(staff.id, staffId),
-        columns: { name: true },
-      });
+      const s = await staffs.find(staffId.toString());
       setWorker(s);
     };
     const fetchSingleProduct = async () => {
       if (!id) return;
-      const padding = await db.query.product.findFirst({ where: eq(product.productId, id) });
+      const padding = await products.find(id);
       setSingleProduct(padding);
     };
     fetchData();
@@ -46,18 +42,18 @@ export const useGet = (id?: string, staffId?: number) => {
     if (staffId) fetchStaff();
   }, [id, staffId]);
 
-  return { products, onlineSales, storeSales, singleProduct, worker };
+  return { storedProduct, online, storeSale, singleProduct, worker };
 };
 export const usePaginatedProducts = () => {
-  const [products, setProducts] = useState<ProductSelect[] | undefined>([]);
+  const [product, setProducts] = useState<Product[] | undefined>([]);
   const [fetching, setFetching] = useState(false);
-  const { db } = useDrizzle();
+
   const fetchData = useCallback(async () => {
     setFetching(true);
     try {
-      const products = await db.query.product.findMany();
+      const pr = await products.query().fetch();
 
-      setProducts(products);
+      setProducts(pr);
     } catch (error) {
       console.log(error);
     } finally {
@@ -68,5 +64,5 @@ export const usePaginatedProducts = () => {
     fetchData();
   }, [fetchData]);
 
-  return { products, fetchData, fetching };
+  return { product, fetchData, fetching };
 };

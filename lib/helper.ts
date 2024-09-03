@@ -5,8 +5,26 @@ import { z } from 'zod';
 
 import { newProductSchema } from './validators';
 
-import { SalesS } from '~/db/schema';
-import { SupplyInsert } from '~/type';
+import database, {
+  categories,
+  disposedProducts,
+  expenseAccounts,
+  expenses,
+  onlineSales,
+  products,
+  storeSales,
+  supplyProduct,
+} from '~/db';
+import StoreSales from '~/db/model/StoreSale';
+import {
+  DisposalFromDb,
+  ExpensesFromDb,
+  OnlineSaleFromDb,
+  ProductFromDb,
+  StoreSalesFromDb,
+  SupplyInsert,
+} from '~/type';
+import Product from '~/db/model/Product';
 
 export const api = process.env.EXPO_PUBLIC_API;
 
@@ -110,8 +128,8 @@ export const getSalesP = async (id: string) => {
     qty: +sale.qty,
     unitPrice: +sale.unitprice,
     dateX: sale.datex,
-    dealerShare: sale.dealershare,
-    netProShare: sale.netproshare,
+    dealerShare: +sale.dealershare,
+    netProShare: +sale.netproshare,
   }));
   return formattedData;
 };
@@ -131,7 +149,7 @@ export const getExpenditure = async (id: any) => {
     accountName: sale?.accountname,
     dateX: sale.datex,
     description: sale.descript,
-    amount: sale.amount,
+    amount: +sale.amount,
   }));
 
   return formattedExpenditure;
@@ -167,6 +185,7 @@ export const getSale = async (id: any) => {
   } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
     data = [...response.data];
   }
+  console.log(data, 'getSale');
 
   const formattedData = data?.map((sale) => ({
     productId: sale.productid as string,
@@ -176,8 +195,9 @@ export const getSale = async (id: any) => {
     paid: sale.paid === 'True',
     paymentType: sale.paymenttype as string,
     salesReference: sale.salesreference as string,
-    transferInfo: sale.transferinfo as string,
+    transferInfo: sale.transinfo as string,
     cid: sale.cid as string,
+    userId: sale.userid,
   }));
 
   return formattedData;
@@ -186,7 +206,7 @@ export const getSale = async (id: any) => {
 type PaymentType = 'Cash' | 'Card' | 'Transfer';
 type DataItem = { paymenttype: PaymentType; unitprice: string | number };
 
-export const calculateTotalsByPaymentType = (data: SalesS[]) => {
+export const calculateTotalsByPaymentType = (data: StoreSales[]) => {
   // @ts-ignore
   const dataItem: DataItem[] = data?.map((d) => ({
     paymenttype: d.paymentType,
@@ -389,4 +409,146 @@ export const addOnlineSales = async ({
   await axios.get(
     `https://247api.netpro.software/api.aspx?api=make247sale&cidx=${storeId}&qty=${qty}&productid=${productId}`
   );
+};
+
+// watermelon db interactions
+
+export const createProducts = async (newProduct: ProductFromDb[], isUploaded = true) => {
+  newProduct.forEach(async (p) => {
+    await database.write(async () => {
+      await database.batch(
+        products.prepareCreate((product) => {
+          product.product = p.product;
+          product.category = p.category;
+          product.subcategory = p.subcategory;
+          product.customerProductId = p.customerProductId;
+          product.marketPrice = p.marketPrice;
+          product.online = p.online;
+          product.qty = p.qty;
+          product.sellingPrice = +p.sellingPrice;
+          product.shareDealer = +p.shareDealer;
+          product.shareNetpro = +p.shareNetpro;
+          product.isUploaded = isUploaded;
+          product.description = p.description;
+          product.productId = p.productId;
+        })
+      );
+    });
+  });
+
+  return newProduct;
+};
+
+export const createOnlineSales = async (newSales: OnlineSaleFromDb[], isUploaded = true) => {
+  newSales.forEach(async (sale) => {
+    await database.write(async () => {
+      await database.batch(
+        onlineSales.prepareCreate((st) => {
+          st.productId = sale.productId;
+          st.dateX = sale.dateX;
+          st.qty = sale.qty;
+          st.unitPrice = sale.unitPrice;
+          st.dealerShare = sale.dealerShare;
+          st.netProShare = sale.netProShare;
+          st.isUploaded = isUploaded;
+        })
+      );
+    });
+  });
+};
+
+export const createStoreSales = async (newSales: StoreSalesFromDb[], isUploaded = true) => {
+  console.log(newSales.slice(0, 4), 'dbcnd');
+
+  newSales.forEach(async (sale) => {
+    await database.write(async () => {
+      await database.batch(
+        storeSales.prepareCreate((st) => {
+          st.productId = sale.productId;
+          st.dateX = sale.dateX;
+          st.qty = sale.qty;
+          st.unitPrice = sale.unitPrice;
+          st.isPaid = sale.paid;
+          st.paymentType = sale.paymentType;
+          st.salesReference = sale.salesReference;
+          st.transferInfo = sale.transferInfo;
+          st.cid = sale.cid;
+          st.isUploaded = isUploaded;
+        })
+      );
+    });
+  });
+};
+
+export const createExpenses = async (newExpense: ExpensesFromDb[], isUploaded = true) => {
+  newExpense.forEach(async (exp) => {
+    await database.write(async () => {
+      await database.batch(
+        expenses.prepareCreate((expense) => {
+          expense.accountName = exp.accountName;
+          expense.dateX = exp.dateX;
+          expense.description = exp.description;
+          expense.amount = exp.amount;
+          expense.isUploaded = isUploaded;
+        })
+      );
+    });
+  });
+};
+
+export const createDisposals = async (newDisposal: DisposalFromDb[], isUploaded = true) => {
+  newDisposal.forEach(async (dis) => {
+    await database.write(async () => {
+      await database.batch(
+        disposedProducts.prepareCreate((disposal) => {
+          disposal.dateX = dis.dateX;
+          disposal.productId = dis.productId;
+          disposal.qty = dis.qty;
+          disposal.unitCost = dis.unitCost;
+          disposal.isUploaded = isUploaded;
+        })
+      );
+    });
+  });
+};
+
+export const createAccount = async (accounts: { accountName: string }[], isUploaded = true) => {
+  accounts.forEach(async (acc) => {
+    await database.write(async () => {
+      await database.batch(
+        expenseAccounts.prepareCreate((account) => {
+          account.accountName = acc.accountName;
+          account.isUploaded = isUploaded;
+        })
+      );
+    });
+  });
+};
+export const createCats = async (cats: { category: string; subcategory: string }[]) => {
+  cats.forEach(async (cat) => {
+    await database.write(async () => {
+      await database.batch(
+        categories.prepareCreate((category) => {
+          category.category = cat.category;
+          category.subcategory = cat.subcategory;
+        })
+      );
+    });
+  });
+};
+
+export const createSupply = async (supplies: DisposalFromDb[], isUploaded = true) => {
+  supplies.forEach(async (sup) => {
+    await database.write(async () => {
+      await database.batch(
+        supplyProduct.prepareCreate((supply) => {
+          supply.productId = sup.productId;
+          supply.qty = sup.qty;
+          supply.dateX = sup.dateX;
+          supply.unitCost = sup.unitCost;
+          supply.isUploaded = isUploaded;
+        })
+      );
+    });
+  });
 };
