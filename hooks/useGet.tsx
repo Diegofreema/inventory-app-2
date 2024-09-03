@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 
+import { Q } from '@nozbe/watermelondb';
 import { useCallback, useEffect, useState } from 'react';
 
 import { onlineSales, products, staffs, storeSales } from '~/db';
@@ -30,12 +31,18 @@ export const useGet = (id?: string, staffId?: string) => {
     const fetchStaff = async () => {
       if (!staffId) return;
       const s = await staffs.find(staffId.toString());
+
       setWorker(s);
     };
     const fetchSingleProduct = async () => {
       if (!id) return;
-      const padding = await products.find(id);
-      setSingleProduct(padding);
+      try {
+        const padding = await products.query(Q.where('product_id', Q.eq(id)), Q.take(1)).fetch();
+
+        setSingleProduct(padding[0]);
+      } catch (error) {
+        console.log(error);
+      }
     };
     fetchData();
     if (id) fetchSingleProduct();
