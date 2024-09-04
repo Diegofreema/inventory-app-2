@@ -18,6 +18,7 @@ import { useSalesS } from '~/lib/tanstack/queries';
 export const Offline = (): JSX.Element => {
   const { data, isPending, isError, refetch, isRefetching } = useSalesS();
   const handleRefetch = useCallback(() => refetch(), []);
+
   console.log(data?.[0]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -48,7 +49,7 @@ export const Offline = (): JSX.Element => {
     return (
       filterByDate?.filter((d) =>
         // @ts-ignore
-        d?.product?.product?.toString().toLowerCase().includes(lowerCaseValue)
+        d?.name?.toString().toLowerCase().includes(lowerCaseValue)
       ) || []
     );
   }, [value, filterByDate]);

@@ -50,6 +50,7 @@ export default appSchema({
         { name: 'dealer_share', type: 'number' },
         { name: 'netpro_share', type: 'number' },
         { name: 'is_uploaded', type: 'boolean', isOptional: true },
+        { name: 'name', type: 'string' },
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
       ],
@@ -65,6 +66,7 @@ export default appSchema({
         { name: 'is_uploaded', type: 'boolean', isOptional: true },
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
+        { name: 'name', type: 'string' },
       ],
     }),
 
@@ -84,6 +86,7 @@ export default appSchema({
         { name: 'is_uploaded', type: 'boolean', isOptional: true },
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
+        { name: 'name', type: 'string' },
       ],
     }),
 
@@ -143,6 +146,7 @@ export default appSchema({
         { name: 'is_uploaded', type: 'boolean', isOptional: true },
         { name: 'created_at', type: 'number' },
         { name: 'updated_at', type: 'number' },
+        { name: 'name', type: 'string' },
       ],
     }),
 
@@ -160,6 +164,7 @@ export default appSchema({
       name: 'cart_items',
       columns: [
         { name: 'product_id', type: 'string' },
+        { name: 'name', type: 'string' },
         { name: 'qty', type: 'number' },
         { name: 'cart_id', type: 'number' },
         { name: 'unit_cost', type: 'number' },

@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Q } from '@nozbe/watermelondb';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -15,7 +16,6 @@ import { colors } from '~/constants';
 import database, { staffs } from '~/db';
 import { addStaffSchema } from '~/lib/validators';
 import { useStore } from '~/lib/zustand/useStore';
-import { Q } from '@nozbe/watermelondb';
 
 export const AddStaffForm = (): JSX.Element => {
   const { id } = useLocalSearchParams<{ id: string }>();

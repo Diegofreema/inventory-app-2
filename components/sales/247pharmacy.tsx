@@ -17,6 +17,7 @@ import { useSalesP } from '~/lib/tanstack/queries';
 
 export const OnlinePharmacy = (): JSX.Element => {
   const { data, isPending, isError, refetch, isRefetching } = useSalesP();
+  console.log(data?.[0].name);
 
   const handleRefetch = useCallback(() => refetch(), []);
   const [startDate, setStartDate] = useState('');
@@ -49,7 +50,6 @@ export const OnlinePharmacy = (): JSX.Element => {
 
     return data.filter((d) => {
       const salesDate = d.dateX.split(' ')[0].replace('/', '-').replace('/', '-');
-      console.log({ salesDate });
 
       return isWithinInterval(salesDate, { start, end });
     });
@@ -60,11 +60,7 @@ export const OnlinePharmacy = (): JSX.Element => {
       return filterByDate || [];
     }
     const lowerCaseValue = value.toLowerCase();
-    return (
-      filterByDate?.filter((d) =>
-        d.product?.product?.toString().toLowerCase().includes(lowerCaseValue)
-      ) || []
-    );
+    return filterByDate?.filter((d) => d.name?.toLowerCase().includes(lowerCaseValue)) || [];
   }, [value, filterByDate]);
   const resetDates = useCallback(() => {
     setEndDate('');

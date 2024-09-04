@@ -13,6 +13,7 @@ import { onlineSales, products, storeSales } from '~/db';
 import OnlineSale from '~/db/model/OnlineSale';
 import Product from '~/db/model/Product';
 import StoreSales from '~/db/model/StoreSale';
+import { useRename } from '~/hooks/useRename';
 import { useRender } from '~/hooks/useRender';
 // import { getSale } from '~/lib/helper';
 
@@ -30,7 +31,7 @@ export const Main = ({
     if (!products) return [];
     return products.slice(0, 5);
   }, [products]);
-
+  useRename();
   return (
     <Container>
       <XStack justifyContent="space-between" alignItems="center">

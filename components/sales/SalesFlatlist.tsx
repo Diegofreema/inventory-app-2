@@ -5,10 +5,10 @@ import { FlatList } from 'react-native';
 import { SalesCard } from './SalesCard';
 import { Empty } from '../ui/empty';
 
-import { CombinedStore } from '~/type';
+import OnlineSale from '~/db/model/OnlineSale';
 
 type Props = {
-  data: CombinedStore[];
+  data: OnlineSale[];
   isLoading: boolean;
   refetch: () => void;
 };

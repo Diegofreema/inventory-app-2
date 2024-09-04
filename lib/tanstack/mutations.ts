@@ -375,6 +375,7 @@ export const useSupply = () => {
           supply.dateX = format(Date.now(), 'dd/MM/yyyy HH:mm');
           supply.unitCost = Number(newPrice || unitCost);
           supply.isUploaded = true;
+          supply.name = checkIfProductExists.product;
         });
       });
 
@@ -450,6 +451,7 @@ export const useDisposal = () => {
             disposedProduct.dateX = format(Date.now(), 'dd/MM/yyyy HH:mm');
             disposedProduct.unitCost = productInStore.sellingPrice;
             disposedProduct.isUploaded = true;
+            disposedProduct.name = productInStore.product;
           });
         });
 

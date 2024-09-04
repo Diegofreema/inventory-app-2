@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-import { withObservables } from '@nozbe/watermelondb/react';
 
 import { Href, Link, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';

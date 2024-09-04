@@ -65,13 +65,13 @@ export const useFetchAll = () => {
         ]);
 
       await createProducts(products);
-      await createStoreSales(store);
       await createExpenses(expenses);
-      await createDisposals(disposal);
       await createAccount(account);
+      await createCats(cats);
+      await createStoreSales(store);
+      await createDisposals(disposal);
       await createOnlineSales(online);
       await createSupply(supply);
-      await createCats(cats);
       setHasFetched(true);
       setError(null);
     } catch (error) {

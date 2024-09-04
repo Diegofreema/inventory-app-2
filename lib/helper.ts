@@ -24,6 +24,7 @@ import {
   StoreSalesFromDb,
   SupplyInsert,
 } from '~/type';
+import { Q } from '@nozbe/watermelondb';
 
 export const api = process.env.EXPO_PUBLIC_API;
 
@@ -476,8 +477,6 @@ export const createOnlineSales = async (newSales: OnlineSaleFromDb[], isUploaded
 };
 
 export const createStoreSales = async (newSales: StoreSalesFromDb[], isUploaded = true) => {
-  console.log(newSales.slice(0, 4), 'dbcnd');
-
   newSales.forEach(async (sale) => {
     await database.write(async () => {
       await database.batch(
@@ -568,5 +567,66 @@ export const createSupply = async (supplies: DisposalFromDb[], isUploaded = true
         })
       );
     });
+  });
+};
+
+export const nameUnnamedSales = async () => {
+  const unnamedSales = await onlineSales.query(Q.where('name', Q.eq(''))).fetch();
+  const pts = await products.query().fetch();
+  unnamedSales.forEach(async (sale) => {
+    const product = pts.find((p) => p.productId === sale.productId);
+    if (product) {
+      await database.write(async () => {
+        await sale.update((s) => {
+          s.name = product.product;
+        });
+      });
+    }
+  });
+};
+
+export const nameUnnamedSalesOffline = async () => {
+  const unnamedSales = await storeSales.query(Q.where('name', Q.eq(''))).fetch();
+
+  const pts = await products.query().fetch();
+  unnamedSales.forEach(async (sale) => {
+    const product = pts.find((p) => p.productId === sale.productId);
+    if (product) {
+      await database.write(async () => {
+        await sale.update((s) => {
+          s.name = product.product;
+        });
+      });
+    }
+  });
+};
+export const nameUnnamedDisposed = async () => {
+  const unnamedSales = await disposedProducts.query(Q.where('name', Q.eq(''))).fetch();
+
+  const pts = await products.query().fetch();
+  unnamedSales.forEach(async (sale) => {
+    const product = pts.find((p) => p.productId === sale.productId);
+    if (product) {
+      await database.write(async () => {
+        await sale.update((s) => {
+          s.name = product.product;
+        });
+      });
+    }
+  });
+};
+export const nameUnnamedSupply = async () => {
+  const unnamedSales = await supplyProduct.query(Q.where('name', Q.eq(''))).fetch();
+
+  const pts = await products.query().fetch();
+  unnamedSales.forEach(async (sale) => {
+    const product = pts.find((p) => p.productId === sale.productId);
+    if (product) {
+      await database.write(async () => {
+        await sale.update((s) => {
+          s.name = product.product;
+        });
+      });
+    }
   });
 };

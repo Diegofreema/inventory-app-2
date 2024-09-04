@@ -67,6 +67,7 @@ export type CombinedStore = {
   dealerShare?: number;
   netProShare?: number;
   product?: Product;
+  name: string;
 };
 export type SalesS = {
   productid: string;

@@ -1,12 +1,11 @@
 import { Model } from '@nozbe/watermelondb';
 import { date, field, readonly, relation, text } from '@nozbe/watermelondb/decorators';
 
-import Product from './Product';
 import Staff from './Staff';
 export default class StoreSales extends Model {
   static table = 'store_sales';
 
-  @relation('products', 'product_id') products!: Product;
+  @text('name') name!: string;
   @relation('staffs', 'id') staff!: Staff;
   @text('product_id') productId!: string;
   @field('qty') qty!: number;
