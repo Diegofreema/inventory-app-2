@@ -1,5 +1,5 @@
 import { Model } from '@nozbe/watermelondb';
-import { field, text } from '@nozbe/watermelondb/decorators';
+import { date, field, readonly, text } from '@nozbe/watermelondb/decorators';
 export default class Product extends Model {
   static table = 'products';
 
@@ -16,4 +16,6 @@ export default class Product extends Model {
   @field('share_netpro') shareNetpro!: number;
   @field('is_uploaded') isUploaded!: boolean;
   @text('description') description!: string;
+  @readonly @date('created_at') createdAt!: number;
+  @readonly @date('updated_at') updatedAt!: number;
 }

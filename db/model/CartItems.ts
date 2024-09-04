@@ -1,5 +1,5 @@
 import { Model } from '@nozbe/watermelondb';
-import { field, relation, text } from '@nozbe/watermelondb/decorators';
+import { date, field, readonly, relation, text } from '@nozbe/watermelondb/decorators';
 
 import Product from './Product';
 export default class CartItem extends Model {
@@ -11,4 +11,6 @@ export default class CartItem extends Model {
   @field('qty') qty!: number;
   @field('unit_cost') unitCost!: number;
   @text('sales_reference') salesReference!: string;
+  @readonly @date('created_at') createdAt!: number;
+  @readonly @date('updated_at') updatedAt!: number;
 }

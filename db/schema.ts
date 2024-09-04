@@ -21,6 +21,8 @@ export default appSchema({
         { name: 'share_dealer', type: 'number' },
         { name: 'share_netpro', type: 'number' },
         { name: 'is_uploaded', type: 'boolean', isOptional: true },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
       ],
     }),
 
@@ -31,6 +33,8 @@ export default appSchema({
         { name: 'email', type: 'string' },
         { name: 'password', type: 'string' },
         { name: 'pharmacy_id', type: 'string' },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
       ],
     }),
     tableSchema({
@@ -46,6 +50,8 @@ export default appSchema({
         { name: 'dealer_share', type: 'number' },
         { name: 'netpro_share', type: 'number' },
         { name: 'is_uploaded', type: 'boolean', isOptional: true },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
       ],
     }),
 
@@ -57,6 +63,8 @@ export default appSchema({
         { name: 'date', type: 'string' },
         { name: 'unit_cost', type: 'number' },
         { name: 'is_uploaded', type: 'boolean', isOptional: true },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
       ],
     }),
 
@@ -74,6 +82,8 @@ export default appSchema({
         { name: 'user_id', type: 'string', isOptional: true },
         { name: 'cid', type: 'string', isOptional: true },
         { name: 'is_uploaded', type: 'boolean', isOptional: true },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
       ],
     }),
 
@@ -82,6 +92,8 @@ export default appSchema({
       columns: [
         { name: 'account_name', type: 'string' },
         { name: 'is_uploaded', type: 'boolean', isOptional: true },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
       ],
     }),
 
@@ -93,6 +105,8 @@ export default appSchema({
         { name: 'description', type: 'string', isOptional: true },
         { name: 'amount', type: 'number' },
         { name: 'is_uploaded', type: 'boolean', isOptional: true },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
       ],
     }),
 
@@ -101,6 +115,8 @@ export default appSchema({
       columns: [
         { name: 'category', type: 'string' },
         { name: 'subcategory', type: 'string' },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
       ],
     }),
 
@@ -112,6 +128,8 @@ export default appSchema({
         { name: 'share_seller', type: 'string' },
         { name: 'share_netpro', type: 'string' },
         { name: 'share_price', type: 'string' },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
       ],
     }),
 
@@ -123,6 +141,8 @@ export default appSchema({
         { name: 'unit_cost', type: 'number' },
         { name: 'date', type: 'string' },
         { name: 'is_uploaded', type: 'boolean', isOptional: true },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
       ],
     }),
 
@@ -131,6 +151,8 @@ export default appSchema({
       columns: [
         { name: 'sale_reference', type: 'string' },
         { name: 'is_active', type: 'boolean' },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
       ],
     }),
 
@@ -142,6 +164,8 @@ export default appSchema({
         { name: 'cart_id', type: 'number' },
         { name: 'unit_cost', type: 'number' },
         { name: 'sales_reference', type: 'string' },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
       ],
     }),
   ],

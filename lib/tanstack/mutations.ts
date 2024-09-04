@@ -2,7 +2,6 @@
 import { createId } from '@paralleldrive/cuid2';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
-
 import * as SecureStore from 'expo-secure-store';
 import Toast from 'react-native-toast-message';
 import { z } from 'zod';
@@ -13,6 +12,7 @@ import {
   addOfflineSales,
   addOnlineSales,
   addProduct,
+  createProduct,
   createProducts,
   sendDisposedProducts,
   supplyProducts,
@@ -20,11 +20,9 @@ import {
 import { newProductSchema } from '../validators';
 import { useStore } from '../zustand/useStore';
 
-import { CartItemWithProductField } from '~/components/CartFlatList';
-
+import database, { disposedProducts, products, supplyProduct } from '~/db';
 import { useNetwork } from '~/hooks/useNetwork';
 import { ExtraSalesType, SupplyInsert } from '~/type';
-import database, { products, supplyProduct } from '~/db';
 
 export const useAddNewProduct = () => {
   const storeId = useStore((state) => state.id);
@@ -47,80 +45,52 @@ export const useAddNewProduct = () => {
       customerproductid,
     }: z.infer<typeof newProductSchema>) => {
       const productId = createId() + Math.random().toString(36).slice(2);
-      const createdProduct = await createProducts([
-        {
+      const createdProduct = await createProduct({
+        category,
+        description: des,
+        marketPrice: +marketprice,
+        online,
+        product,
+        sellingPrice: +sellingprice,
+        qty: +qty,
+        shareDealer: Number(sharedealer),
+        shareNetpro: Number(sharenetpro),
+        subcategory,
+        customerProductId: customerproductid,
+        productId,
+      });
+
+      if (!createdProduct) throw Error('Failed to add product');
+      if (isConnected) {
+        const data = await addProduct({
           category,
-          description: des,
-          marketPrice: +marketprice,
+          des,
+          marketprice,
           online,
           product,
-          sellingPrice: +sellingprice,
-          qty: +qty,
-          shareDealer: Number(sharedealer),
-          shareNetpro: Number(sharenetpro),
+          qty,
+          sellingprice,
+          sharedealer,
+          sharenetpro,
+          state,
           subcategory,
-          customerProductId: customerproductid,
-          productId,
-        },
-      ]);
-
-      console.log(createdProduct);
-
-      // const addedProduct = await db
-      //   .insert(schema.product)
-      //   .values({
-      //     product,
-      //     qty: +qty,
-      //     category,
-      //     customerProductId: customerproductid,
-      //     marketPrice: +marketprice,
-      //     online: !!online,
-      //     sellingPrice: +sellingprice,
-      //     shareDealer: Number(sharedealer),
-      //     shareNetpro: Number(sharenetpro),
-      //     subcategory,
-      //     productId,
-      //   })
-      //   .returning();
-      // if (!addedProduct.length) throw Error('Failed to add product');
-      // if (isConnected) {
-      //   const data = await addProduct({
-      //     category,
-      //     des,
-      //     marketprice,
-      //     online,
-      //     product,
-      //     qty,
-      //     sellingprice,
-      //     sharedealer,
-      //     sharenetpro,
-      //     state,
-      //     subcategory,
-      //     customerproductid,
-      //     id: storeId!,
-      //   });
-
-      //   return data;
-      // } else if (!isConnected) {
-      //   const addedProduct = await db
-      //     .insert(schema.productOffline)
-      //     .values({
-      //       product,
-      //       qty: +qty,
-      //       category,
-      //       customerProductId: customerproductid,
-      //       marketPrice: +marketprice,
-      //       online: !!online,
-      //       sellingPrice: +sellingprice,
-      //       shareDealer: Number(sharedealer),
-      //       shareNetpro: Number(sharenetpro),
-      //       subcategory,
-      //       productId,
-      //     })
-      //     .returning();
-
-      //   return addedProduct;
-      // }
+          customerproductid,
+          id: storeId!,
+        });
+        console.log(data);
+        await database.write(async () => {
+          await createdProduct.update((product) => {
+            product.productId = data.result;
+          });
+        });
+        return data;
+      } else if (!isConnected) {
+        return await database.write(async () => {
+          await createdProduct.update((product) => {
+            product.isUploaded = false;
+          });
+        });
+      }
     },
     onError: (err) => {
       Toast.show({
@@ -411,6 +381,7 @@ export const useSupply = () => {
       });
 
       if (!updatedProduct) throw Error('Failed to update product');
+      console.log(isConnected, 'is connected');
 
       if (isConnected) {
         const data = await supplyProducts({
@@ -423,14 +394,12 @@ export const useSupply = () => {
           unitCost,
           id: storeId!,
         });
+        console.log(data, 'supplied data');
+
         return data;
       } else if (!isConnected) {
         return await database.write(async () => {
-          return await supplyProduct.create((supply) => {
-            supply.productId = checkIfProductExists.productId;
-            supply.qty = qty;
-            supply.dateX = format(Date.now(), 'dd/MM/yyyy HH:mm');
-            supply.unitCost = Number(newPrice || unitCost);
+          return await addedProduct.update((supply) => {
             supply.isUploaded = false;
           });
         });
@@ -462,47 +431,47 @@ export const useDisposal = () => {
   const queryClient = useQueryClient();
   const isConnected = useNetwork();
   return useMutation({
-    mutationFn: async ({ productId, qty }: { qty: string; productId: string }) => {
-      // const productIsInDb = await db.query.product.findFirst({
-      //   where: eq(schema.product.productId, productId),
-      // });
-      // if (!productIsInDb) throw new Error('Product not found');
-      // if (productIsInDb.qty < +qty) throw Error('Not enough stock to dispose');
-      // const disposedProduct = await db
-      //   .insert(schema.disposedProducts)
-      //   .values({
-      //     productId: productIsInDb.productId,
-      //     qty: +qty,
-      //     dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
-      //     unitCost: productIsInDb.sellingPrice,
-      //   })
-      //   .returning();
-      // if (!disposedProduct.length) throw Error('Failed to dispose product');
-      // await db
-      //   .update(schema.product)
-      //   .set({ qty: sql`${schema.product.qty} - ${qty}` })
-      //   .where(eq(schema.product.productId, productIsInDb.productId));
-      // if (isConnected) {
-      //   const data = await sendDisposedProducts({ qty: +qty, productId });
-      //   return data;
-      // } else if (!isConnected) {
-      //   const disposedProduct = await db
-      //     .insert(schema.disposedProductsOffline)
-      //     .values({
-      //       productId,
-      //       qty: +qty,
-      //       dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
-      //       unitCost: productIsInDb.sellingPrice,
-      //     })
-      //     .returning();
-      //   await db
-      //     .update(schema.product)
-      //     .set({ qty: sql`${schema.product.qty} - ${qty}` })
-      //     .where(eq(schema.product.id, +productId));
-      //   return disposedProduct;
-      // } else {
-      //   throw new Error('Something went wrong');
-      // }
+    mutationFn: async ({ productId, qty }: { qty: number; productId: string }) => {
+      try {
+        const productInStore = await products.find(productId);
+        if (!productInStore) throw Error('Product does not exist');
+        if (qty > productInStore.qty) throw Error('Not enough stock to dispose');
+
+        const disposedProduct = await database.write(async () => {
+          return await disposedProducts.create((disposedProduct) => {
+            disposedProduct.qty = qty;
+            disposedProduct.productId = productId;
+            disposedProduct.dateX = format(Date.now(), 'dd/MM/yyyy HH:mm');
+            disposedProduct.unitCost = productInStore.sellingPrice;
+            disposedProduct.isUploaded = true;
+          });
+        });
+
+        if (!disposedProduct) throw Error('Failed to dispose product');
+
+        const updatedProduct = await database.write(async () => {
+          return await productInStore.update((product) => {
+            product.qty = productInStore.qty - qty;
+          });
+        });
+
+        if (!updatedProduct) throw Error('Failed to dispose product');
+        if (isConnected) {
+          const data = await sendDisposedProducts({
+            productId: productInStore.productId,
+            qty,
+          });
+          return data;
+        } else if (!isConnected) {
+          await database.write(async () => {
+            await disposedProduct.update((product) => {
+              product.isUploaded = false;
+            });
+          });
+        }
+      } catch (error: any) {
+        throw Error(error.message);
+      }
     },
 
     onError: (error) => {

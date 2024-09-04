@@ -1,5 +1,5 @@
 import { Model } from '@nozbe/watermelondb';
-import { field, relation, text } from '@nozbe/watermelondb/decorators';
+import { date, field, readonly, relation, text } from '@nozbe/watermelondb/decorators';
 
 import Product from './Product';
 import Staff from './Staff';
@@ -19,4 +19,6 @@ export default class StoreSales extends Model {
   @text('user_id') userId!: string;
   @text('cid') cid!: string;
   @field('is_uploaded') isUploaded!: boolean;
+  @readonly @date('created_at') createdAt!: number;
+  @readonly @date('updated_at') updatedAt!: number;
 }

@@ -101,7 +101,7 @@ export const useFetchAll = () => {
 
 export const useProducts = () => {
   const getProducts = async () => {
-    const product = await products.query(Q.sortBy('id', Q.desc)).fetch();
+    const product = await products.query(Q.sortBy('created_at', Q.desc)).fetch();
     return product;
   };
   return useQuery({

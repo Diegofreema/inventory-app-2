@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import { Q } from '@nozbe/watermelondb';
 import { withObservables } from '@nozbe/watermelondb/react';
 import { useMemo } from 'react';
 import { ScrollView, XStack } from 'tamagui';
@@ -52,7 +53,7 @@ export const Main = ({
 };
 
 const enhance = withObservables([], () => ({
-  products: products.query(),
+  products: products.query(Q.sortBy('created_at', Q.desc)),
   onlineSales: onlineSales.query(),
   storeSales: storeSales.query(),
 }));

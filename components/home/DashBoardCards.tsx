@@ -12,9 +12,9 @@ import { colors } from '~/constants';
 import OnlineSale from '~/db/model/OnlineSale';
 import Product from '~/db/model/Product';
 import StoreSales from '~/db/model/StoreSale';
+import { useRender } from '~/hooks/useRender';
 import { calculateTotalSales } from '~/lib/helper';
 import { PreviewType } from '~/type';
-import { useRender } from '~/hooks/useRender';
 
 type DashboardType = {
   products: Product[] | undefined;

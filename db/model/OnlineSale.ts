@@ -1,5 +1,5 @@
 import { Model } from '@nozbe/watermelondb';
-import { field, relation, text } from '@nozbe/watermelondb/decorators';
+import { date, field, readonly, relation, text } from '@nozbe/watermelondb/decorators';
 
 import Product from './Product';
 export default class OnlineSale extends Model {
@@ -13,4 +13,6 @@ export default class OnlineSale extends Model {
   @field('dealer_share') dealerShare!: number;
   @field('netpro_share') netProShare!: number;
   @field('is_uploaded') isUploaded!: boolean;
+  @readonly @date('created_at') createdAt!: number;
+  @readonly @date('updated_at') updatedAt!: number;
 }

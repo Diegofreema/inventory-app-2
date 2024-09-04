@@ -33,7 +33,7 @@ const Dispose = (): JSX.Element => {
 
   const onSubmit = async (values: z.infer<typeof disposeSchema>) => {
     try {
-      await mutateAsync({ qty: values.qty, productId });
+      await mutateAsync({ qty: +values.qty, productId });
       reset();
       router.back();
     } catch (error) {

@@ -13,7 +13,7 @@ export const StoreProducts = (): JSX.Element => {
   const [value, setValue] = useState('');
 
   const { data: products, refetch: fetchData, isRefetching: fetching } = useProducts();
-  console.log('🚀 ~ StoreProducts ~ products:', products);
+
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
 
   const router = useRouter();

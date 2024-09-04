@@ -412,6 +412,25 @@ export const addOnlineSales = async ({
 
 // watermelon db interactions
 
+export const createProduct = async (p: ProductFromDb, isUploaded = true) => {
+  return await database.write(async () => {
+    return await products.create((product) => {
+      product.product = p.product;
+      product.category = p.category;
+      product.subcategory = p.subcategory;
+      product.customerProductId = p.customerProductId;
+      product.marketPrice = p.marketPrice;
+      product.online = p.online;
+      product.qty = p.qty;
+      product.sellingPrice = +p.sellingPrice;
+      product.shareDealer = +p.shareDealer;
+      product.shareNetpro = +p.shareNetpro;
+      product.isUploaded = isUploaded;
+      product.description = p.description;
+      product.productId = p.productId;
+    });
+  });
+};
 export const createProducts = async (newProduct: ProductFromDb[], isUploaded = true) => {
   newProduct.forEach(async (p) => {
     await database.write(async () => {
