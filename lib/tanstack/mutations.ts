@@ -24,7 +24,7 @@ import { CartItemWithProductField } from '~/components/CartFlatList';
 
 import { useNetwork } from '~/hooks/useNetwork';
 import { ExtraSalesType, SupplyInsert } from '~/type';
-import { products } from '~/db';
+import database, { products, supplyProduct } from '~/db';
 
 export const useAddNewProduct = () => {
   const storeId = useStore((state) => state.id);
@@ -389,47 +389,54 @@ export const useSupply = () => {
       sellingPrice,
       unitCost,
     }: SupplyInsert) => {
-      // const addedProduct = await db
-      //   .insert(schema.supplyProduct)
-      //   .values({
-      //     // @ts-ignore
-      //     productId,
-      //     dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
-      //     qty: +qty,
-      //     unitCost: Number(unitCost || newPrice),
-      //   })
-      //   .returning();
-      // await db
-      //   .update(schema.product)
-      //   .set({ sellingPrice: +newPrice, qty: sql`${schema.product.qty} + ${qty}` })
-      //   .where(eq(schema.product.productId, productId));
-      // if (addedProduct.length && isConnected) {
-      //   const data = await supplyProducts({
-      //     productId,
-      //     qty,
-      //     dealerShare,
-      //     netProShare,
-      //     newPrice,
-      //     sellingPrice,
-      //     unitCost,
-      //     id: storeId!,
-      //   });
-      //   return data;
-      // } else if (addedProduct.length && !isConnected) {
-      //   const addedProduct = await db
-      //     .insert(schema.supplyProductOffline)
-      //     .values({
-      //       // @ts-ignore
-      //       productId,
-      //       dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
-      //       qty: +qty,
-      //       unitCost: Number(unitCost || newPrice),
-      //     })
-      //     .returning();
-      //   return addedProduct;
-      // } else {
-      //   throw new Error('Something went wrong');
-      // }
+      const checkIfProductExists = await products.find(productId);
+      if (!checkIfProductExists) throw Error('Product does not exist');
+
+      const addedProduct = await database.write(async () => {
+        return await supplyProduct.create((supply) => {
+          supply.productId = checkIfProductExists.productId;
+          supply.qty = qty;
+          supply.dateX = format(Date.now(), 'dd/MM/yyyy HH:mm');
+          supply.unitCost = Number(newPrice || unitCost);
+          supply.isUploaded = true;
+        });
+      });
+
+      if (!addedProduct) throw Error('Failed to supply product');
+      const updatedProduct = await database.write(async () => {
+        return await checkIfProductExists.update((product) => {
+          product.sellingPrice = +newPrice;
+          product.qty = checkIfProductExists.qty + qty;
+        });
+      });
+
+      if (!updatedProduct) throw Error('Failed to update product');
+
+      if (isConnected) {
+        const data = await supplyProducts({
+          productId,
+          qty,
+          dealerShare,
+          netProShare,
+          newPrice,
+          sellingPrice,
+          unitCost,
+          id: storeId!,
+        });
+        return data;
+      } else if (!isConnected) {
+        return await database.write(async () => {
+          return await supplyProduct.create((supply) => {
+            supply.productId = checkIfProductExists.productId;
+            supply.qty = qty;
+            supply.dateX = format(Date.now(), 'dd/MM/yyyy HH:mm');
+            supply.unitCost = Number(newPrice || unitCost);
+            supply.isUploaded = false;
+          });
+        });
+      } else {
+        throw new Error('Something went wrong');
+      }
     },
 
     onError: (error: Error) => {

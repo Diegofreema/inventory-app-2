@@ -1,6 +1,5 @@
 /* eslint-disable prettier/prettier */
 
-import { Q } from '@nozbe/watermelondb';
 import { useCallback, useEffect, useState } from 'react';
 
 import { onlineSales, products, staffs, storeSales } from '~/db';
@@ -37,9 +36,10 @@ export const useGet = (id?: string, staffId?: string) => {
     const fetchSingleProduct = async () => {
       if (!id) return;
       try {
-        const padding = await products.query(Q.where('product_id', Q.eq(id)), Q.take(1)).fetch();
+        const padding = await products.find(id);
+        console.log('🚀 ~ fetchSingleProduct ~ padding:', padding);
 
-        setSingleProduct(padding[0]);
+        setSingleProduct(padding);
       } catch (error) {
         console.log(error);
       }

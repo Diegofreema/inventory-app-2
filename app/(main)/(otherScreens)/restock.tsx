@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
+import Toast from 'react-native-toast-message';
 import { Stack, View } from 'tamagui';
 import { z } from 'zod';
 
@@ -18,14 +19,13 @@ import { useInfo } from '~/lib/tanstack/queries';
 import { productSupplySchema } from '~/lib/validators';
 
 const Restock = (): JSX.Element => {
-  const { isPending, mutateAsync, error } = useSupply();
+  const { isPending, mutateAsync } = useSupply();
   const { name, price, productId } = useLocalSearchParams<{
     productId: string;
     name: string;
     price: string;
   }>();
   const router = useRouter();
-  console.log({ productId, name, price });
 
   const { data: info, isPending: isLoading, isError, refetch } = useInfo();
   const {
@@ -54,20 +54,16 @@ const Restock = (): JSX.Element => {
         sellingPrice: info?.shareprice!,
         newPrice: value.newPrice,
         productId,
-        qty: value.qty,
+        qty: +value.qty,
         unitCost: value.unitPrice,
       });
-    } catch (error) {
-      console.log(error);
-    }
-    if (error) {
-      console.log('🚀 ~ onSubmit ~ error:', error);
-    }
-    if (!error) {
-      console.log('done');
-
       reset();
       router.back();
+    } catch (error: any) {
+      Toast.show({
+        text1: 'Something went wrong',
+        text2: error.message,
+      });
     }
   };
 

@@ -132,7 +132,7 @@ export type SalesStore = {
 };
 export type SupplyInsert = {
   productId: string;
-  qty: string;
+  qty: number;
   newPrice: string;
   sellingPrice: string;
   dealerShare: string;

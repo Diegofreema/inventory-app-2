@@ -4,7 +4,7 @@ import { Redirect, useLocalSearchParams } from 'expo-router';
 
 import { Container } from '~/components/Container';
 import { NavHeader } from '~/components/ui/NavHeader';
-import { Products } from '~/components/ui/Products';
+import { SingleProduct } from '~/components/ui/SingleProduct';
 import { useGet } from '~/hooks/useGet';
 
 const ProductDetails = (): JSX.Element => {
@@ -17,7 +17,7 @@ const ProductDetails = (): JSX.Element => {
   return (
     <Container>
       <NavHeader title="Product Details" />
-      <Products data={[singleProduct!]} show />
+      <SingleProduct product={singleProduct!} />
     </Container>
   );
 };

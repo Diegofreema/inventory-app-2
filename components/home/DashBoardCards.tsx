@@ -14,6 +14,7 @@ import Product from '~/db/model/Product';
 import StoreSales from '~/db/model/StoreSale';
 import { calculateTotalSales } from '~/lib/helper';
 import { PreviewType } from '~/type';
+import { useRender } from '~/hooks/useRender';
 
 type DashboardType = {
   products: Product[] | undefined;
@@ -22,19 +23,20 @@ type DashboardType = {
 };
 export const DashBoardCards = ({ products, salesP, salesS }: DashboardType): JSX.Element => {
   const { width } = useWindowDimensions();
+  const mounted = useRender();
   const isSmallScreen = width < 411;
   const numColumns = isSmallScreen ? 1 : 2;
   const totalProducts = useMemo(() => products?.length, [products]);
   const lowProducts = useMemo(
     () => products?.filter((padding) => Number(padding.qty) <= 10),
-    [products]
+    [products, mounted]
   );
   const totalSalesFromStore = useMemo(() => {
     return calculateTotalSales(salesS?.map((padding) => padding?.unitPrice));
-  }, [salesS]);
+  }, [salesS, mounted]);
   const totalSalesFrom247Pharm = useMemo(() => {
     return calculateTotalSales(salesP?.map((padding) => padding?.unitPrice));
-  }, [salesP]);
+  }, [salesP, mounted]);
 
   const data = [
     {

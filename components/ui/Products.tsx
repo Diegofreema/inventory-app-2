@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import { withObservables } from '@nozbe/watermelondb/react';
 
 import { Href, Link, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
@@ -12,10 +13,10 @@ import { Empty } from './empty';
 import { CustomSubHeading } from './typography';
 import { colors } from '../../constants';
 
-import { ProductSelect } from '~/db/schema';
+import Product from '~/db/model/Product';
 
 type Props = {
-  data: ProductSelect[] | undefined;
+  data: Product[] | undefined;
   text?: string;
   href?: Href<string | object>;
   linkText?: string;
@@ -56,15 +57,7 @@ export const Products = ({
   );
 };
 
-const ProductCard = ({
-  item,
-  show,
-  nav,
-}: {
-  item: ProductSelect;
-  show?: boolean;
-  nav?: boolean;
-}) => {
+const ProductCard = ({ item, show, nav }: { item: Product; show?: boolean; nav?: boolean }) => {
   const [showMenu, setShowMenu] = useState(false);
   const isLow = +item?.qty <= 10;
   const router = useRouter();
@@ -73,15 +66,15 @@ const ProductCard = ({
 
   const details = useMemo(
     () => ({
-      productId: item?.productId,
+      productId: item?.id,
       name: item?.product,
       price: item?.sellingPrice!,
     }),
-    [item?.productId, item?.product, item?.sellingPrice]
+    [item?.id, item?.product, item?.sellingPrice]
   );
   const onPress = () => {
     if (!nav) return;
-    router.push(`/product/${item.productId}`);
+    router.push(`/product/${item.id}`);
   };
   return (
     <CustomPressable onPress={onPress}>

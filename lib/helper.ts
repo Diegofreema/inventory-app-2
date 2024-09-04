@@ -24,7 +24,6 @@ import {
   StoreSalesFromDb,
   SupplyInsert,
 } from '~/type';
-import Product from '~/db/model/Product';
 
 export const api = process.env.EXPO_PUBLIC_API;
 

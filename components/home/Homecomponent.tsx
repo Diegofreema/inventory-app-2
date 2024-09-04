@@ -12,6 +12,7 @@ import { onlineSales, products, storeSales } from '~/db';
 import OnlineSale from '~/db/model/OnlineSale';
 import Product from '~/db/model/Product';
 import StoreSales from '~/db/model/StoreSale';
+import { useRender } from '~/hooks/useRender';
 // import { getSale } from '~/lib/helper';
 
 export const Main = ({
@@ -23,6 +24,7 @@ export const Main = ({
   onlineSales: OnlineSale[];
   storeSales: StoreSales[];
 }) => {
+  useRender();
   const limitedProducts = useMemo(() => {
     if (!products) return [];
     return products.slice(0, 5);
@@ -50,8 +52,10 @@ export const Main = ({
 };
 
 const enhance = withObservables([], () => ({
-  products: products.query().observe(),
-  onlineSales: onlineSales.query().observe(),
-  storeSales: storeSales.query().observe(),
+  products: products.query(),
+  onlineSales: onlineSales.query(),
+  storeSales: storeSales.query(),
 }));
-export const HomeComponent = enhance(Main);
+
+const HomeComponent = enhance(Main);
+export default HomeComponent;
