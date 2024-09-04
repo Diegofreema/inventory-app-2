@@ -20,7 +20,7 @@ import {
 import { newProductSchema } from '../validators';
 import { useStore } from '../zustand/useStore';
 
-import database, { disposedProducts, products, supplyProduct } from '~/db';
+import database, { disposedProducts, expenseAccounts, products, supplyProduct } from '~/db';
 import { useNetwork } from '~/hooks/useNetwork';
 import { ExtraSalesType, SupplyInsert } from '~/type';
 
@@ -495,37 +495,42 @@ export const useAddAccount = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ name }: { name: string }) => {
-      // try {
-      //   const addedExpense = await db
-      //     .insert(schema.expenseAccount)
-      //     .values({
-      //       accountName: name,
-      //     })
-      //     .returning({ accountName: schema.expenseAccount.accountName });
-      //   if (addedExpense.length && isConnected) {
-      //     try {
-      //       await addAccountName({ storeId: storeId!, account: name });
-      //     } catch (error) {
-      //       console.log(error);
-      //       await db.insert(schema.expenseAccountOffline).values({
-      //         accountname: name,
-      //       });
-      //     }
-      //   } else if (addedExpense.length && !isConnected) {
-      //     await db.insert(schema.expenseAccountOffline).values({
-      //       accountname: name,
-      //     });
-      //   }
-      //   return addedExpense;
-      // } catch (error) {
-      //   console.log(error);
-      // }
+      try {
+        const newAccount = await database.write(async () => {
+          return await expenseAccounts.create((account) => {
+            account.accountName = name;
+            account.isUploaded = true;
+          });
+        });
+
+        if (!newAccount) throw Error('Failed to create expenditure account');
+        if (isConnected) {
+          try {
+            await addAccountName({ storeId: storeId!, account: name });
+          } catch (error) {
+            console.log(error);
+            await database.write(async () => {
+              await newAccount.update((account) => {
+                account.isUploaded = false;
+              });
+            });
+          }
+        } else if (!isConnected) {
+          await database.write(async () => {
+            await newAccount.update((account) => {
+              account.isUploaded = false;
+            });
+          });
+        }
+      } catch (error: any) {
+        throw Error(error.message);
+      }
     },
 
-    onError: () => {
+    onError: (error) => {
       Toast.show({
         text1: 'Something went wrong',
-        text2: 'Failed to create expenditure account',
+        text2: error.message,
       });
     },
     onSuccess: (data) => {

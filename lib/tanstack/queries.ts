@@ -184,7 +184,7 @@ export const useSupply = () => {
 };
 export const useExpAcc = () => {
   const getExpAcc = async () => {
-    const data = await expenseAccounts.query(Q.sortBy('id', Q.desc)).fetch();
+    const data = await expenseAccounts.query(Q.sortBy('created_at', Q.desc)).fetch();
     return data;
   };
   return useQuery<{ accountName: string }[]>({

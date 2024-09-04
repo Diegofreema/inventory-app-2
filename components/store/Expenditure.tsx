@@ -9,12 +9,14 @@ import { AnimatedContainer } from '../ui/AniminatedContainer';
 import { Error } from '../ui/Error';
 import { ExpenditureLoader } from '../ui/Loading';
 
+import { useRender } from '~/hooks/useRender';
 import { useExpAcc } from '~/lib/tanstack/queries';
 
 export const Expenditure = (): JSX.Element => {
   const [value, setValue] = useState('');
   const onSetValue = useCallback((val: string) => setValue(val), [value]);
   const { refetch, data, isError, isPending, isRefetching } = useExpAcc();
+  useRender();
 
   const { data: offlineData } = useExpAcc();
   console.log({ offlineData });
