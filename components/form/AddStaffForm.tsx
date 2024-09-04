@@ -12,9 +12,10 @@ import { CustomController } from './CustomController';
 import { MyButton } from '../ui/MyButton';
 
 import { colors } from '~/constants';
+import database, { staffs } from '~/db';
 import { addStaffSchema } from '~/lib/validators';
 import { useStore } from '~/lib/zustand/useStore';
-import database, { staffs } from '~/db';
+import { Q } from '@nozbe/watermelondb';
 
 export const AddStaffForm = (): JSX.Element => {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -62,6 +63,14 @@ export const AddStaffForm = (): JSX.Element => {
   }, [id]);
   const onCreate = async (value: z.infer<typeof addStaffSchema>) => {
     try {
+      const emailExists = await staffs.query(Q.where('email', value.email), Q.take(1)).fetch();
+      if (emailExists.length) {
+        Toast.show({
+          text1: 'Error',
+          text2: 'Email already exists',
+        });
+        return;
+      }
       await database.write(async () => {
         await staffs.create((staff) => {
           staff.name = value.name;

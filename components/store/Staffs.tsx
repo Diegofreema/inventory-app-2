@@ -14,10 +14,12 @@ import { Empty } from '../ui/empty';
 
 import { staffs } from '~/db';
 import Staff from '~/db/model/Staff';
+import { useRender } from '~/hooks/useRender';
 import { useStore } from '~/lib/zustand/useStore';
 
 const AllStaffs = ({ staffs }: { staffs: Staff[] }): JSX.Element => {
   const [value, setValue] = useState('');
+  useRender();
 
   const filteredData = useMemo(() => {
     if (!value.trim()) return staffs;
