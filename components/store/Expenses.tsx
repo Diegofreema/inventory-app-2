@@ -9,11 +9,13 @@ import { AnimatedContainer } from '../ui/AniminatedContainer';
 import { Error } from '../ui/Error';
 import { ExpenseLoader } from '../ui/Loading';
 
+import { useRender } from '~/hooks/useRender';
 import { useExpenditure } from '~/lib/tanstack/queries';
 
 export const Expenses = (): JSX.Element => {
   const { data, isPending, isError, refetch, isRefetching } = useExpenditure();
   const [value, setValue] = useState('');
+  useRender();
   const router = useRouter();
   const handlePress = useCallback(() => router.push('/addExpense'), [router]);
   const onSetValue = useCallback((val: string) => setValue(val), [value]);

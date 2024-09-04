@@ -15,6 +15,7 @@ import { FormLoader } from '~/components/ui/Loading';
 import { MyButton } from '~/components/ui/MyButton';
 import { NavHeader } from '~/components/ui/NavHeader';
 import { colors } from '~/constants';
+import { useRender } from '~/hooks/useRender';
 import { useAddExp } from '~/lib/tanstack/mutations';
 import { useExpAcc } from '~/lib/tanstack/queries';
 import { expenseSchema } from '~/lib/validators';
@@ -23,6 +24,7 @@ export default function AddExpense() {
   const { name } = useLocalSearchParams<{ name: string }>();
   const { mutateAsync, isPending, error } = useAddExp();
   const { data: exp, isPending: expPending, isError, refetch } = useExpAcc();
+  useRender();
   const {
     control,
     reset,
@@ -45,12 +47,15 @@ export default function AddExpense() {
     }));
   }, [exp]);
   const onSubmit = (values: z.infer<typeof expenseSchema>) => {
-    mutateAsync({
-      amount: values.amount,
-      description: values.description,
-      name: values.accountName?.charAt(0)?.toUpperCase() + values.accountName.slice(1),
-    });
-
+    try {
+      mutateAsync({
+        amount: +values.amount,
+        description: values.description,
+        name: values.accountName?.charAt(0)?.toUpperCase() + values.accountName.slice(1),
+      });
+    } catch (error) {
+      console.log(error);
+    }
     if (!error) {
       reset();
     }

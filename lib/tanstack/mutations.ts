@@ -20,7 +20,13 @@ import {
 import { newProductSchema } from '../validators';
 import { useStore } from '../zustand/useStore';
 
-import database, { disposedProducts, expenseAccounts, products, supplyProduct } from '~/db';
+import database, {
+  disposedProducts,
+  expenseAccounts,
+  expenses,
+  products,
+  supplyProduct,
+} from '~/db';
 import { useNetwork } from '~/hooks/useNetwork';
 import { ExtraSalesType, SupplyInsert } from '~/type';
 
@@ -553,41 +559,42 @@ export const useAddExp = () => {
       name,
     }: {
       description?: string;
-      amount: string;
+      amount: number;
       name: string;
     }) => {
-      // const addedExpense = await db
-      //   .insert(schema.expenses)
-      //   .values({
-      //     accountName: name,
-      //     amount: +amount,
-      //     description,
-      //     dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
-      //   })
-      //   .returning();
-      // if (addedExpense.length && isConnected) {
-      //   try {
-      //     await addExpenses({ amount, description, name, storeId: storeId! });
-      //   } catch (error) {
-      //     console.log(error);
-      //     await db.insert(schema.expensesOffline).values({
-      //       accountname: name,
-      //       amount,
-      //       descript: description,
-      //       datex: format(Date.now(), 'dd-MM-yyyy HH:mm:ss'),
-      //     });
-      //   }
-      // } else if (addedExpense.length && !isConnected) {
-      //   await db.insert(schema.expensesOffline).values({
-      //     accountname: name,
-      //     amount,
-      //     descript: description,
-      //     datex: format(Date.now(), 'dd-MM-yyyy HH:mm:ss'),
-      //   });
-      // } else {
-      //   throw new Error('Failed to add expense');
-      // }
-      // return addedExpense;
+      try {
+        const newExpense = await database.write(async () => {
+          return await expenses.create((expense) => {
+            expense.accountName = name;
+            expense.amount = amount;
+            expense.description = description || '';
+            expense.isUploaded = true;
+          });
+        });
+
+        if (!newExpense) throw Error('Failed to create expenses');
+        if (isConnected) {
+          try {
+            await addExpenses({ amount: amount.toString(), description, name, storeId: storeId! });
+          } catch (error) {
+            console.log(error);
+
+            await database.write(async () => {
+              await newExpense.update((expense) => {
+                expense.isUploaded = false;
+              });
+            });
+          }
+        } else if (!isConnected) {
+          await database.write(async () => {
+            await newExpense.update((expense) => {
+              expense.isUploaded = false;
+            });
+          });
+        }
+      } catch (error: any) {
+        throw Error(error.message);
+      }
     },
 
     onError: (error) => {
