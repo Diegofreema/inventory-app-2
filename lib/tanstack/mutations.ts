@@ -21,14 +21,21 @@ import { newProductSchema } from '../validators';
 import { useStore } from '../zustand/useStore';
 
 import database, {
+  cartItems,
   disposedProducts,
   expenseAccounts,
   expenses,
+  onlineSales,
   products,
+  saleReferences,
+  storeSales,
   supplyProduct,
 } from '~/db';
+import CartItem from '~/db/model/CartItems';
 import { useNetwork } from '~/hooks/useNetwork';
 import { ExtraSalesType, SupplyInsert } from '~/type';
+import { Q } from '@nozbe/watermelondb';
+import StoreSales from '~/db/model/StoreSale';
 
 export const useAddNewProduct = () => {
   const storeId = useStore((state) => state.id);
@@ -83,7 +90,7 @@ export const useAddNewProduct = () => {
           customerproductid,
           id: storeId!,
         });
-        console.log(data);
+
         await database.write(async () => {
           await createdProduct.update((product) => {
             product.productId = data.result;
@@ -124,73 +131,53 @@ export const useAdd247 = () => {
       qty,
       unitPrice,
     }: {
-      qty: string;
+      qty: number;
       productId: string;
       unitPrice: number;
     }) => {
-      // try {
-      //   const productInDb = await db.query.product.findFirst({
-      //     where: eq(schema.product.productId, productId),
-      //     columns: {
-      //       shareDealer: true,
-      //       shareNetpro: true,
-      //       productId: true,
-      //     },
-      //   });
-      //   if (!productInDb) return;
-      //   const addedData = await db
-      //     .insert(schema.onlineSale)
-      //     .values({
-      //       // @ts-ignore
-      //       productId: productInDb?.productId,
-      //       dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
-      //       qty: +qty,
-      //       dealerShare: productInDb?.shareDealer,
-      //       unitPrice: +unitPrice,
-      //       netProShare: productInDb?.shareNetpro,
-      //     })
-      //     .returning();
-      //   if (!addedData.length) throw new Error('Failed to add sales');
-      //   await db
-      //     .update(schema.product)
-      //     .set({ qty: sql`${schema.product.qty} - ${qty}` })
-      //     .where(eq(schema.product.productId, productId));
-      //   if (isConnected) {
-      //     try {
-      //       await addOnlineSales({
-      //         productId: productInDb?.productId,
-      //         qty: +qty,
-      //         storeId: storeId!,
-      //       });
-      //     } catch (error) {
-      //       console.log(error);
-      //       await db.insert(schema.onlineSaleOffline).values({
-      //         // @ts-ignore
-      //         unitPrice: +unitPrice,
-      //         productId: productInDb?.productId,
-      //         qty,
-      //         dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
-      //         dealerShare: productInDb?.shareDealer,
-      //         netProShare: productInDb?.shareNetpro,
-      //       });
-      //     }
-      //   } else if (addedData.length && !isConnected) {
-      //     await db.insert(schema.onlineSaleOffline).values({
-      //       // @ts-ignore
-      //       unitPrice: +unitPrice,
-      //       productId: productInDb?.productId,
-      //       qty,
-      //       dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
-      //       dealerShare: productInDb?.shareDealer,
-      //       netProShare: productInDb?.shareNetpro,
-      //     });
-      //   } else {
-      //     throw new Error('Something went wrong');
-      //   }
-      //   return addedData;
-      // } catch (error) {
-      //   console.log(error);
-      // }
+      try {
+        const productInDb = await products.find(productId);
+        if (!productInDb) return;
+        const addedSales = await database.write(async () => {
+          return await onlineSales.create((sale) => {
+            sale.productId = productId;
+            sale.qty = qty;
+            sale.unitPrice = +unitPrice;
+            sale.isUploaded = true;
+            sale.dateX = format(Date.now(), 'dd/MM/yyyy HH:mm');
+            sale.dealerShare = productInDb?.shareDealer;
+            sale.unitPrice = +unitPrice;
+            sale.netProShare = productInDb?.shareNetpro;
+            sale.name = productInDb?.product;
+          });
+        });
+
+        if (!addedSales) throw new Error('Failed to add sales');
+        await database.write(async () => {
+          await productInDb.update((product) => {
+            product.qty = product.qty - qty;
+          });
+        });
+
+        try {
+          if (isConnected) {
+            await addOnlineSales({
+              productId: productInDb?.productId,
+              qty: +qty,
+              storeId: storeId!,
+            });
+          }
+        } catch (error) {
+          console.log(error);
+          await database.write(async () => {
+            await addedSales.update((sale) => {
+              sale.isUploaded = false;
+            });
+          });
+        }
+      } catch (error) {
+        console.log(error);
+      }
     },
 
     onError: (error) => {
@@ -217,62 +204,120 @@ export const useCart = () => {
   const queryClient = useQueryClient();
   const isConnected = useNetwork();
   return useMutation({
-    mutationFn: async ({
-      data,
-      extraData,
-    }: {
-      data: CartItemWithProductField[];
-      extraData: ExtraSalesType;
-    }) => {
-      // const productsToAdd: SalesS[] = data.map((item) => ({
-      //   productId: item?.productId!,
-      //   dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
-      //   qty: item?.qty,
-      //   paymentType: extraData.paymentType,
-      //   userId: extraData.salesRepId,
-      //   paid: true,
-      //   salesReference: item?.salesReference,
-      //   transInfo: extraData.transactionInfo!,
-      //   unitPrice: item?.product.sellingPrice!,
-      //   cid: item?.product.customerProductId,
-      // }));
-      // const addedSales = await db.insert(schema.storeSales).values(productsToAdd).returning();
-      // queryClient.invalidateQueries({ queryKey: ['salesStore'] });
-      // if (addedSales.length) {
-      //   await db
-      //     .delete(schema.cartItem)
-      //     .where(eq(schema.cartItem.salesReference, addedSales[0].salesReference));
-      //   await db
-      //     .delete(schema.salesReference)
-      //     .where(eq(schema.salesReference.salesReference, addedSales[0].salesReference));
-      //   queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
-      //   queryClient.invalidateQueries({ queryKey: ['cart'] });
-      //   queryClient.invalidateQueries({ queryKey: ['cart_item'] });
-      //   addedSales.forEach(async (item) => {
-      //     await db
-      //       .update(schema.product)
-      //       .set({ qty: sql`${schema.product.qty} - ${item.qty}` })
-      //       .where(eq(schema.product.productId, item.productId));
-      //   });
-      //   queryClient.invalidateQueries({ queryKey: ['product'] });
-      //   if (addedSales.length && isConnected) {
-      //     addedSales.forEach(async ({ id, ...rest }) => {
-      //       await addOfflineSales({
-      //         ...rest,
-      //         storeId: storeId!,
-      //         transactionInfo: extraData.transactionInfo!,
-      //         salesRepId: extraData.salesRepId,
-      //       });
-      //       return data;
-      //     });
-      //   } else if (addedSales && !isConnected) {
-      //     await db.insert(schema.storeSalesOffline).values(productsToAdd);
-      //   } else {
-      //     throw new Error('Something went wrong');
-      //   }
-      // }
-    },
+    mutationFn: async ({ data, extraData }: { data: CartItem[]; extraData: ExtraSalesType }) => {
+      const productsToAdd = data.map((item) => ({
+        productId: item?.productId!,
+        dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
+        qty: item?.qty,
+        paymentType: extraData.paymentType,
+        userId: extraData.salesRepId,
+        paid: true,
+        salesReference: item?.salesReference,
+        transInfo: extraData.transactionInfo!,
+        unitPrice: item?.unitCost!,
+        cid: '',
+        name: item.name,
+        id: item.id,
+      }));
+      console.log(
+        '🚀 ~ useCart ~ productsToAdd:',
+        productsToAdd[0].name,
+        productsToAdd[0].id,
+        productsToAdd[0].productId
+      );
 
+      const arrayOfAddedSales: { id: string; qty: number; storeId: string }[] = [];
+      try {
+        await database.write(async () => {
+          productsToAdd.forEach(async (item) => {
+            const data = await storeSales.create((sale) => {
+              sale.productId = item.productId;
+              sale.qty = item.qty;
+              sale.paymentType = item.paymentType;
+              sale.userId = item.userId;
+              sale.isPaid = item.paid;
+              sale.salesReference = item.salesReference;
+              sale.transferInfo = item.transInfo;
+              sale.unitPrice = item.unitPrice;
+              sale.cid = item.cid;
+              sale.dateX = item.dateX;
+              sale.isUploaded = true;
+              sale.name = item.name;
+            });
+
+            arrayOfAddedSales.push({ id: item.name, qty: item.qty, storeId: data.id });
+          });
+        });
+        // console.log('🚀 ~ awaitdatabase.write ~ arrayOfAddedSales:', arrayOfAddedSales[0].id);
+        console.log('working....');
+
+        queryClient.invalidateQueries({ queryKey: ['salesStore'] });
+        queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
+        await database.write(async () => {
+          const itemsInCart = await cartItems
+            .query(Q.where('sales_reference', Q.eq(data[0].salesReference)))
+            .fetch();
+          itemsInCart.forEach(async (item) => {
+            await database.batch(item.prepareDestroyPermanently());
+          });
+        });
+        await database.write(async () => {
+          const ref = await saleReferences
+            .query(Q.where('sale_reference', Q.eq(data[0].salesReference)))
+            .fetch();
+          ref.forEach(async (item) => {
+            await database.batch(item.prepareDestroyPermanently());
+          });
+        });
+        queryClient.invalidateQueries({ queryKey: ['cart_item_ref'] });
+        queryClient.invalidateQueries({ queryKey: ['cart_item'] });
+        console.log('🚀 ~ useCart ~ arrayOfAddedSales:', arrayOfAddedSales.length);
+
+        await database.write(async () => {
+          const prods = await products.query().fetch();
+          arrayOfAddedSales.forEach(async (item) => {
+            prods.forEach(async (prod) => {
+              console.log('🚀 ~  ~ prod:', prod.product, item.id);
+              if (prod.product === item.id) {
+                console.log('🚀 ~  ~ arrayOfAddedSales:', 'true');
+
+                await database.write(async () => {
+                  await prod.update((product) => {
+                    product.qty = product.qty - item.qty;
+                  });
+                });
+              } else {
+                console.log('🚀 ~  ~ sjhdbs:', 'false');
+              }
+            });
+          });
+        });
+
+        if (isConnected) {
+          productsToAdd.forEach(async ({ ...rest }) => {
+            await addOfflineSales({
+              ...rest,
+              storeId: storeId!,
+              transactionInfo: extraData.transactionInfo!,
+              salesRepId: +extraData.salesRepId,
+            });
+            return data;
+          });
+        } else {
+          arrayOfAddedSales.forEach(async (item) => {
+            const storeSale = await storeSales.find(item.storeId);
+            await database.write(async () => {
+              await storeSale.update((sale) => {
+                sale.isUploaded = false;
+              });
+            });
+          });
+        }
+        queryClient.invalidateQueries({ queryKey: ['product'] });
+      } catch (error) {
+        console.log(error);
+      }
+    },
     onError: () => {
       Toast.show({
         text1: 'Something went wrong',
@@ -295,44 +340,47 @@ export const useAddSales = () => {
     mutationFn: async ({
       productId,
       qty,
-      cartId,
       cost,
+      name,
     }: {
       productId: string;
       qty: number;
-      cartId: number;
       cost: number;
+      name: string;
     }) => {
       // const { data } = await axios.get(
       //   `https://247api.netpro.software/api.aspx?api=makepharmacysale&cidx=${storeId}&qty=${qty}&productid=${productId}&salesref=${salesReference}&paymenttype=${paymentType}&transactioninfo=${transactionInfo}&salesrepid=${salesRepId}`
       // );
-      let salesref: string = '';
 
-      // const salesReference = await db.query.salesReference.findFirst({
-      //   where: eq(schema.salesReference.isActive, true),
-      //   columns: {
-      //     salesReference: true,
-      //   },
-      // });
+      let ref = '';
 
-      // if (salesReference?.salesReference) {
-      //   salesref = salesReference.salesReference;
-      // } else {
-      //   const newSalesreference = await db
-      //     .insert(schema.salesReference)
-      //     .values({})
-      //     .returning({ salesReference: schema.salesReference.salesReference });
-      //   salesref = newSalesreference[0].salesReference;
-      // }
-      // SecureStore.setItem('salesRef', salesref);
+      const activeSalesRef = await saleReferences
+        .query(Q.where('is_active', true), Q.take(1))
+        .fetch();
 
-      // await db.insert(schema.cartItem).values({
-      //   qty,
-      //   productId,
-      //   cartId,
-      //   unitCost: +cost,
-      //   salesReference: salesref,
-      // });
+      if (activeSalesRef.length) {
+        ref = activeSalesRef[0].saleReference;
+      } else {
+        const salesRef = await database.write(async () => {
+          return await saleReferences.create((ref) => {
+            ref.saleReference = format(Date(), 'dd/MM/yyyy HH:mm') + createId();
+            ref.isActive = true;
+          });
+        });
+
+        ref = salesRef.saleReference;
+      }
+
+      SecureStore.setItem('salesRef', ref);
+      await database.write(async () => {
+        await cartItems.create((item) => {
+          item.productId = productId;
+          item.qty = qty;
+          item.salesReference = ref;
+          item.unitCost = cost;
+          item.name = name;
+        });
+      });
     },
 
     onError: () => {
@@ -401,7 +449,6 @@ export const useSupply = () => {
           unitCost,
           id: storeId!,
         });
-        console.log(data, 'supplied data');
 
         return data;
       } else if (!isConnected) {

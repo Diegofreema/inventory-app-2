@@ -29,7 +29,7 @@ export const Main = ({
   useRender();
   const limitedProducts = useMemo(() => {
     if (!products) return [];
-    return products.slice(0, 5);
+    return products.slice(0, 6);
   }, [products]);
   useRename();
   return (

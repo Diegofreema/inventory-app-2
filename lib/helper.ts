@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import { Q } from '@nozbe/watermelondb';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { z } from 'zod';
@@ -24,7 +25,6 @@ import {
   StoreSalesFromDb,
   SupplyInsert,
 } from '~/type';
-import { Q } from '@nozbe/watermelondb';
 
 export const api = process.env.EXPO_PUBLIC_API;
 
@@ -406,9 +406,11 @@ export const addOnlineSales = async ({
   qty: number;
   productId: string;
 }) => {
-  await axios.get(
+  const { data } = await axios.get(
     `https://247api.netpro.software/api.aspx?api=make247sale&cidx=${storeId}&qty=${qty}&productid=${productId}`
   );
+
+  return data;
 };
 
 // watermelon db interactions

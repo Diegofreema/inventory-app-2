@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 
 import { zodResolver } from '@hookform/resolvers/zod';
-
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import Toast from 'react-native-toast-message';
@@ -13,19 +12,18 @@ import { CustomController } from '~/components/form/CustomController';
 import { MyButton } from '~/components/ui/MyButton';
 import { NavHeader } from '~/components/ui/NavHeader';
 import { products } from '~/db';
-
 import { useGet } from '~/hooks/useGet';
 import { useAdd247 } from '~/lib/tanstack/mutations';
 import { pharmacySales } from '~/lib/validators';
 
 export default function AddOnlineScreen() {
-  const { mutateAsync, isPending, error } = useAdd247();
+  const { mutateAsync, isPending } = useAdd247();
   const { storedProduct } = useGet();
 
   const memoizedProductName = useMemo(() => {
     if (!storedProduct) return [];
     return storedProduct?.map((item) => ({
-      value: item?.productId,
+      value: item?.id,
       label: item?.product,
     }));
   }, [storedProduct]);
@@ -35,6 +33,7 @@ export default function AddOnlineScreen() {
     reset,
     handleSubmit,
     setValue,
+    watch,
   } = useForm<z.infer<typeof pharmacySales>>({
     defaultValues: {
       qty: '',
@@ -42,25 +41,30 @@ export default function AddOnlineScreen() {
     },
     resolver: zodResolver(pharmacySales),
   });
+  const { productName } = watch();
+  console.log({ productName });
 
   const onSubmit = async (value: z.infer<typeof pharmacySales>) => {
+    console.log(value.productName);
+
     try {
       const productInDb = await products.find(value.productName);
+      console.log(productInDb?.product, 'dfj');
+
       if (!productInDb) return;
       if (productInDb.qty < +value.qty) {
         return Toast.show({
           text1: 'Product is out of stock',
-          text2: `Only ${productInDb.qty} left in stock`,
+          text2: `${productInDb.qty} product left in stock, restock first`,
         });
       }
+
       await mutateAsync({
         productId: value.productName,
-        qty: value.qty,
+        qty: +value.qty,
         unitPrice: productInDb?.sellingPrice!,
       });
-      if (!error) {
-        reset();
-      }
+      reset();
     } catch (error) {
       console.log(error);
     }

@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 
+import { withObservables } from '@nozbe/watermelondb/react';
 import { ShoppingCart } from '@tamagui/lucide-icons';
 import { StyleSheet } from 'react-native';
 import { View } from 'tamagui';
@@ -8,8 +9,9 @@ import { CustomPressable } from './ui/CustomPressable';
 import { CustomSubHeading } from './ui/typography';
 
 import { colors } from '~/constants';
+import { cartItems } from '~/db';
 
-export const CartButton = ({ qty, onPress }: { qty: number; onPress: () => void }) => {
+const CartButton = ({ qty, onPress }: { qty: number; onPress: () => void }) => {
   return (
     <CustomPressable onPress={onPress} style={styles.cart}>
       <View
@@ -28,6 +30,14 @@ export const CartButton = ({ qty, onPress }: { qty: number; onPress: () => void 
     </CustomPressable>
   );
 };
+
+const enhanced = withObservables([], () => ({
+  qty: cartItems.query().observeCount(),
+}));
+
+const EnhancedCartButton = enhanced(CartButton);
+
+export default EnhancedCartButton;
 
 const styles = StyleSheet.create({
   cart: {

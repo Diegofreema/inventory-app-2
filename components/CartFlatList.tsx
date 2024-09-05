@@ -45,7 +45,7 @@ export const CartFlatList = ({ data }: Props): JSX.Element => {
 
     resolver: zodResolver(extraDataSchema),
   });
-  const salesRepId = Number(SecureStore.getItem('staffId')) || 0;
+  const salesRepId = SecureStore.getItem('staffId') || '';
 
   const onSubmit = async (values: z.infer<typeof extraDataSchema>) => {
     const extraData: ExtraSalesType = {
@@ -58,32 +58,36 @@ export const CartFlatList = ({ data }: Props): JSX.Element => {
       reset();
     }
   };
-  const totalPrice = data.reduce(
-    (acc, cur) => acc + Number(cur?.product.sellingPrice) * Number(cur?.qty),
-    0
-  );
+  const totalPrice = data.reduce((acc, cur) => acc + Number(cur?.unitCost) * Number(cur?.qty), 0);
   const disable = !data?.length;
 
   const isLoading = useMemo(() => isSubmitting, [isSubmitting]);
   const onClearCart = async () => {
-    await database.write(async () => {
+    try {
       const items = await cartItems
-        .query(Q.where('salesReference', Q.eq(data[0].salesReference)))
+        .query(Q.where('sales_reference', Q.eq(data[0].salesReference)))
         .fetch();
       const refs = await saleReferences
-        .query(Q.where('salesReference', Q.eq(data[0].salesReference)))
+        .query(Q.where('sale_reference', Q.eq(data[0].salesReference)))
         .fetch();
-      refs.forEach(async (ref) => {
-        await ref.destroyPermanently();
+      await database.write(async () => {
+        refs.forEach(async (ref) => {
+          await ref.destroyPermanently();
+        });
       });
-      items.forEach(async (i) => {
-        await i.destroyPermanently();
-      });
-    });
 
-    queryClient.invalidateQueries({ queryKey: ['cart_item'] });
-    queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
-    queryClient.invalidateQueries({ queryKey: ['cart'] });
+      await database.write(async () => {
+        items.forEach(async (item) => {
+          await item.destroyPermanently();
+        });
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['cart_item_ref'] });
+      queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -136,7 +140,7 @@ const CartCard = ({ item, index }: { item: CartItem; index: number }) => {
     if (productQty && productQty?.qty <= item.qty) {
       return Toast.show({
         text1: 'Cannot update item',
-        text2: `Only ${productQty.qty} Item  is left in stock`,
+        text2: `Only ${productQty.qty} Item(s)  is left in stock`,
       });
     }
     await database.write(async () => {
@@ -146,7 +150,7 @@ const CartCard = ({ item, index }: { item: CartItem; index: number }) => {
       });
     });
 
-    queryClient.invalidateQueries({ queryKey: ['cart_item'] });
+    queryClient.invalidateQueries({ queryKey: ['cart_item_ref'] });
   };
   const onReduce = async () => {
     if (item?.qty! > 1) {
@@ -157,20 +161,20 @@ const CartCard = ({ item, index }: { item: CartItem; index: number }) => {
         });
       });
 
-      queryClient.invalidateQueries({ queryKey: ['cart_item'] });
+      queryClient.invalidateQueries({ queryKey: ['cart_item_ref'] });
     } else {
       await database.write(async () => {
         const itemToDelete = await cartItems.find(item.id);
         itemToDelete.destroyPermanently();
       });
 
-      queryClient.invalidateQueries({ queryKey: ['cart_item'] });
+      queryClient.invalidateQueries({ queryKey: ['cart_item_ref'] });
     }
   };
   return (
     <AnimatedCard index={index}>
-      <FlexText text="Product" text2={trimText(item?.product.product, 25)} />
-      <FlexText text="Price" text2={`₦${item?.product.sellingPrice!}`} />
+      <FlexText text="Product" text2={trimText(item?.name, 25)} />
+      <FlexText text="Price" text2={`₦${item?.unitCost!}`} />
       <FlexText text="Quantity" text2={item?.qty.toString()} />
       <XStack marginTop={5} gap={10}>
         <MyButton title="Remove" flex={1} onPress={onReduce} />

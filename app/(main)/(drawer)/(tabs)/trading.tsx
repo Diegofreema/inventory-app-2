@@ -14,7 +14,13 @@ const TradingAccount = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const bottomRef = useRef<BottomSheetMethods | null>(null);
-  const { onlineSales, storeSales, disposal, expense, productSupply } = useReports();
+  const {
+    onlineSale: onlineSales,
+    storeSale: storeSales,
+    disposal,
+    expense,
+    productSupply,
+  } = useReports();
   const {
     memoizedDisposal,
     memoizedExpense,

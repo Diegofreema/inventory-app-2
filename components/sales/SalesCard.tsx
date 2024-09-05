@@ -1,12 +1,11 @@
 /* eslint-disable prettier/prettier */
 
-import { Q } from '@nozbe/watermelondb';
 import { useEffect, useState } from 'react';
 
 import { AnimatedCard } from '../ui/AnimatedCard';
 import { FlexText } from '../ui/FlexText';
 
-import { products, staffs } from '~/db';
+import { staffs } from '~/db';
 import { trimText } from '~/lib/helper';
 import { CombinedStore } from '~/type';
 
@@ -18,14 +17,10 @@ type Props = {
 export const SalesCard = ({ index, item }: Props): JSX.Element => {
   const price = item?.dealerShare ? item?.dealerShare : item?.unitPrice;
   const [staff, setStaff] = useState('');
-  const [productName, setProductName] = useState('');
 
   useEffect(() => {
+    if (!item.userId) return;
     const getStaff = async () => {
-      const product = await products.query(Q.where('product_id', Q.eq(item.productId))).fetch();
-      setProductName(product[0].product);
-
-      if (!item.userId) return;
       const staff = await staffs.find(item.userId?.toString()!);
 
       setStaff(staff?.name!);
@@ -33,7 +28,6 @@ export const SalesCard = ({ index, item }: Props): JSX.Element => {
 
     getStaff();
   }, [item?.userId, item.productId]);
-  console.log(item.name);
 
   return (
     <AnimatedCard index={index}>

@@ -50,8 +50,6 @@ export const useFetchAll = () => {
 
   const fetchAll = useCallback(async () => {
     try {
-      console.log('running');
-
       const [products, online, store, expenses, disposal, account, supply, cats] =
         await Promise.all([
           getProducts(id!),
@@ -124,8 +122,7 @@ export const useSalesS = () => {
   return useQuery({
     queryKey: ['salesStore'],
     queryFn: async () => {
-      const data = await storeSales.query(Q.sortBy('id', Q.desc)).fetch();
-      console.log('🚀 ~ queryFn: ~ data:', data);
+      const data = await storeSales.query(Q.sortBy('created_at', Q.desc)).fetch();
 
       return data;
     },
@@ -252,7 +249,7 @@ export const useSalesRef = () => {
 
 export const useCartItemsWithRef = (safeRef: string) => {
   const getCartItem = async () => {
-    const salesRefItem = await cartItems.query(Q.where('salesReference', Q.eq(safeRef))).fetch();
+    const salesRefItem = await cartItems.query(Q.where('sales_reference', Q.eq(safeRef))).fetch();
 
     return salesRefItem;
   };

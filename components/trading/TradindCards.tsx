@@ -51,7 +51,7 @@ export const TradingCards = ({ data }: Props) => {
         <FlexText text="Disposed Products" text2={`₦${data.disposal?.toString()}`} />
         {groupedExpenses?.map((expense, i) => (
           // @ts-ignore
-          <FlexText key={i} text={expense?.accountname} text2={`₦${expense?.amount}`} />
+          <FlexText key={i} text={expense?.accountname} text2={`₦${expense?.amount?.toString()}`} />
         ))}
       </AnimatedCard>
       <AnimatedCard index={2}>

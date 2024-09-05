@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Q } from '@nozbe/watermelondb';
 import { createId } from '@paralleldrive/cuid2';
 import { useQueryClient } from '@tanstack/react-query';
+import { format } from 'date-fns';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { useCallback, useMemo } from 'react';
@@ -13,7 +14,7 @@ import Toast from 'react-native-toast-message';
 import { Stack, Text, View } from 'tamagui';
 import { z } from 'zod';
 
-import { CartButton } from '~/components/CartButton';
+import EnhancedCartButton from '~/components/CartButton';
 import { Container } from '~/components/Container';
 import { CustomController } from '~/components/form/CustomController';
 import { CustomPressable } from '~/components/ui/CustomPressable';
@@ -27,12 +28,11 @@ import SaleReference from '~/db/model/SalesReference';
 import { useGet } from '~/hooks/useGet';
 // import { paymentType } from '~/data';
 import { useAddSales } from '~/lib/tanstack/mutations';
-import { useCart, useSalesRef } from '~/lib/tanstack/queries';
+import { useSalesRef } from '~/lib/tanstack/queries';
 import { addToCart } from '~/lib/validators';
 
 export default function AddOfflineScreen() {
   const { error, mutateAsync, isPending } = useAddSales();
-  const { data: cartData } = useCart();
 
   const { data } = useSalesRef();
   const router = useRouter();
@@ -53,34 +53,40 @@ export default function AddOfflineScreen() {
   });
   const formattedProducts =
     storedProduct?.map((item) => ({
-      value: item?.productId,
+      value: item?.id,
       label: item?.product,
     })) || [];
   const { productId } = watch();
   const memoizedPrice = useMemo(() => {
     if (!productId) return null;
-    return storedProduct?.find((item) => item?.productId === productId)?.sellingPrice;
+    return storedProduct?.find((item) => item?.id === productId)?.sellingPrice;
   }, [storedProduct, productId]);
 
-  const cartLength = cartData?.length || 0;
   const onSubmit = async (value: z.infer<typeof addToCart>) => {
     if (!memoizedPrice) return;
-    const product = await products?.find(value.productId);
+    try {
+      const product = await products?.find(value.productId);
 
-    if (product && product?.qty < +value.qty) {
-      return Toast.show({
-        text1: 'Product out of stock',
-        text2: `Only ${product?.qty} items are available`,
+      if (product && product?.qty < +value.qty) {
+        return Toast.show({
+          text1: 'Product out of stock',
+          text2: `${product?.qty} items are available`,
+        });
+      }
+      await mutateAsync({
+        productId: value.productId,
+        qty: +value.qty,
+        name: product.product,
+        cost: memoizedPrice,
       });
-    }
-    await mutateAsync({
-      productId: value.productId,
-      qty: +value.qty,
-      cartId: 0,
-      cost: memoizedPrice,
-    });
-    if (!error) {
-      reset();
+      if (!error) {
+        reset();
+      }
+    } catch (error) {
+      Toast.show({
+        text1: 'Error',
+        text2: (error as Error).message,
+      });
     }
   };
   const onPress = useCallback(() => {
@@ -110,23 +116,6 @@ export default function AddOfflineScreen() {
             label="Enter quantity"
             type="number-pad"
           />
-
-          {/* <CustomController
-            name="paymentType"
-            control={control}
-            errors={errors}
-            placeholder="Select payment type"
-            label="Select payment type"
-            variant="select"
-            data={paymentType}
-          />
-          <CustomController
-            name="salesReference"
-            control={control}
-            errors={errors}
-            placeholder="Enter sale's reference number"
-            label="Enter sale's reference number"
-          /> */}
         </Stack>
 
         <MyButton
@@ -150,58 +139,66 @@ export default function AddOfflineScreen() {
           )}
         </View>
       </CustomScroll>
-      <CartButton qty={cartLength} onPress={onPress} />
+      <EnhancedCartButton onPress={onPress} />
     </Container>
   );
 }
 
 const SalesRefFlatList = ({ data }: { data: SaleReference[] }) => {
   const queryClient = useQueryClient();
+
   const onPress = async (salesRef: string) => {
-    SecureStore.setItem('salesRef', salesRef);
-    await database.write(async () => {
-      const item = await saleReferences.find(salesRef);
-      item.update((ref) => {
-        ref.isActive = true;
-      });
+    try {
+      await database.write(async () => {
+        const item = await saleReferences.find(salesRef);
+        item.update((ref) => {
+          ref.isActive = true;
+        });
+        SecureStore.setItem('salesRef', item.saleReference);
+        const items = await saleReferences.query(Q.where('id', Q.notEq(salesRef))).fetch();
 
-      const items = await saleReferences
-        .query(Q.where('salesReference', Q.notEq(salesRef)))
-        .fetch();
-
-      items.forEach(async (i) => {
-        i.update((ref) => {
-          ref.isActive = false;
+        items.forEach(async (i) => {
+          i.update((ref) => {
+            ref.isActive = false;
+          });
         });
       });
-    });
 
-    queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
+      queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
+    } catch (error) {
+      console.log((error as Error).message);
+    }
   };
   const onNewCustomer = async () => {
-    await database.write(async () => {
-      const activeCustomer = await saleReferences.query(Q.where('isActive', Q.eq(true))).fetch();
-      if (activeCustomer.length) {
-        await activeCustomer[0].update((ref) => {
-          ref.isActive = false;
+    try {
+      await database.write(async () => {
+        const activeCustomer = await saleReferences
+          .query(Q.where('is_active', Q.eq(true)), Q.take(1))
+          .fetch();
+        if (activeCustomer.length) {
+          await activeCustomer[0].update((ref) => {
+            ref.isActive = false;
+          });
+        }
+
+        const newCustomerRef = await saleReferences.create((ref) => {
+          ref.saleReference = format(Date.now(), 'dd/MM/yyyy HH:mm') + createId();
+          ref.isActive = true;
         });
-      }
-
-      const newCustomerRef = await saleReferences.create((ref) => {
-        ref.saleReference = createId() + Math.random().toString(36).slice(2);
-        ref.isActive = true;
+        SecureStore.setItem('salesRef', newCustomerRef.saleReference);
       });
-      SecureStore.setItem('salesRef', newCustomerRef.saleReference);
-    });
 
-    queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
+      queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
+    } catch (error) {
+      console.log((error as Error).message);
+    }
   };
   return (
     <FlatList
       data={data}
       horizontal
       renderItem={({ item, index }) => (
-        <CustomPressable onPress={() => onPress(item.saleReference)}>
+        <CustomPressable onPress={() => onPress(item.id)}>
           <View
             backgroundColor={item.isActive ? colors.green : '$backgroundTransparent'}
             padding={5}

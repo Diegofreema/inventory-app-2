@@ -19,7 +19,6 @@ export const Offline = (): JSX.Element => {
   const { data, isPending, isError, refetch, isRefetching } = useSalesS();
   const handleRefetch = useCallback(() => refetch(), []);
 
-  console.log(data?.[0]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const bottomRef = useRef<BottomSheetMethods | null>(null);
