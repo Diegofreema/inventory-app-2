@@ -37,7 +37,6 @@ export const useGet = (id?: string, staffId?: string) => {
       if (!id) return;
       try {
         const padding = await products.find(id);
-        console.log('🚀 ~ fetchSingleProduct ~ padding:', padding);
 
         setSingleProduct(padding);
       } catch (error) {

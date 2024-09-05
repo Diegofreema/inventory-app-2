@@ -31,6 +31,7 @@ export const useReports = () => {
               const data = await storeSales.query().fetch();
               return data;
             },
+            structuralSharing: false,
           }),
           queryClient.fetchQuery({
             queryKey: ['supply'],
@@ -38,6 +39,7 @@ export const useReports = () => {
               const data = await supplyProduct.query().fetch();
               return data;
             },
+            structuralSharing: false,
           }),
           queryClient.fetchQuery({
             queryKey: ['expenditure'],
@@ -45,6 +47,7 @@ export const useReports = () => {
               const data = await expenses.query().fetch();
               return data;
             },
+            structuralSharing: false,
           }),
           queryClient.fetchQuery({
             queryKey: ['disposal'],
@@ -52,6 +55,7 @@ export const useReports = () => {
               const data = await disposedProducts.query().fetch();
               return data;
             },
+            structuralSharing: false,
           }),
           queryClient.fetchQuery({
             queryKey: ['salesPharmacy'],
@@ -59,6 +63,7 @@ export const useReports = () => {
               const data = await onlineSales.query().fetch();
               return data;
             },
+            structuralSharing: false,
           }),
         ]);
 

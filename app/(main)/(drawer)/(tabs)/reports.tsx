@@ -16,7 +16,7 @@ import { useReports } from '~/hooks/useReports';
 import { formattedDate } from '~/lib/helper';
 
 export default function Record() {
-  const { expense, productSupply, storeSales, disposal } = useReports();
+  const { expense, productSupply, storeSale, disposal } = useReports();
 
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -25,7 +25,7 @@ export default function Record() {
     startDate,
     expense,
     productSupply,
-    storeSales,
+    storeSales: storeSale,
     disposal,
   });
   const bottomRef = useRef<BottomSheetMethods | null>(null);

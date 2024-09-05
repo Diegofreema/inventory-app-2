@@ -40,7 +40,7 @@ export const SalesFlatList = ({ data, scroll = true }: Props): JSX.Element => {
 };
 
 const SalesCard = ({ item, index }: { item: StoreSales; index: number }) => {
-  const { singleProduct, worker } = useGet(item?.productId, item.userId!);
+  const { worker } = useGet(item?.productId, item.userId!);
   const [printing, setPrinting] = useState(false);
   const { data } = useInfo();
 
@@ -68,7 +68,7 @@ const SalesCard = ({ item, index }: { item: StoreSales; index: number }) => {
         Product
       </h1>
       <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
-        ${singleProduct?.product}
+        ${item?.name}
       </h1>
     </div>
     
@@ -114,7 +114,7 @@ const SalesCard = ({ item, index }: { item: StoreSales; index: number }) => {
   };
   return (
     <AnimatedCard index={index}>
-      <FlexText text="Product" text2={singleProduct?.product} />
+      <FlexText text="Product" text2={item?.name} />
       <FlexText text="Quantity" text2={item?.qty.toString()} />
       <FlexText text="Date" text2={item?.dateX} />
       <FlexText text="Mode" text2={item?.paymentType} />
