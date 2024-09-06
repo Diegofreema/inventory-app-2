@@ -294,15 +294,28 @@ export const useCart = () => {
         });
 
         if (isConnected) {
-          productsToAdd.forEach(async ({ ...rest }) => {
-            await addOfflineSales({
-              ...rest,
-              storeId: storeId!,
-              transactionInfo: extraData.transactionInfo!,
-              salesRepId: +extraData.salesRepId,
+          try {
+            productsToAdd.forEach(async ({ ...rest }) => {
+              await addOfflineSales({
+                ...rest,
+                storeId: storeId!,
+                transactionInfo: extraData.transactionInfo!,
+                salesRepId: +extraData.salesRepId,
+              });
+              return data;
             });
-            return data;
-          });
+          } catch (error) {
+            console.log(error);
+
+            arrayOfAddedSales.forEach(async (item) => {
+              const storeSale = await storeSales.find(item.storeId);
+              await database.write(async () => {
+                await storeSale.update((sale) => {
+                  sale.isUploaded = false;
+                });
+              });
+            });
+          }
         } else {
           arrayOfAddedSales.forEach(async (item) => {
             const storeSale = await storeSales.find(item.storeId);

@@ -8,19 +8,26 @@ import { StoreActions } from './StoreActions';
 import { AnimatedContainer } from '../ui/AniminatedContainer';
 import { Error } from '../ui/Error';
 import { ExpenditureLoader } from '../ui/Loading';
+import { PaginationButton } from '../ui/PaginationButton';
 
 import { useRender } from '~/hooks/useRender';
 import { useExpAcc } from '~/lib/tanstack/queries';
 
 export const Expenditure = (): JSX.Element => {
   const [value, setValue] = useState('');
+  const [page, setPage] = useState(1);
   const onSetValue = useCallback((val: string) => setValue(val), [value]);
-  const { refetch, data, isError, isPending, isRefetching } = useExpAcc();
+  const { refetch, data, isError, isPending, isLoading: isRefetching } = useExpAcc(page);
   useRender();
+  const handlePagination = useCallback((direction: 'next' | 'prev') => {
+    setPage((prev) => prev + (direction === 'next' ? 1 : -1));
+  }, []);
 
-  const { data: offlineData } = useExpAcc();
-  console.log({ offlineData });
+  const isLastPage = useMemo(() => {
+    if (!data?.count) return false;
 
+    return data?.count <= page * 10;
+  }, [data?.count, page]);
   const router = useRouter();
   const handleNav = () => {
     router.push('/addExpenditure');
@@ -28,12 +35,12 @@ export const Expenditure = (): JSX.Element => {
   const onRefetch = useCallback(() => refetch, []);
   const filterAccount = useMemo(() => {
     if (!value.trim()) {
-      return data || [];
+      return data?.data || [];
     }
 
     const lowerCaseValue = value.toLowerCase();
-    return data?.filter((d) => d?.accountName?.toLowerCase().includes(lowerCaseValue)) || [];
-  }, [value, data]);
+    return data?.data?.filter((d) => d?.accountName?.toLowerCase().includes(lowerCaseValue)) || [];
+  }, [value, data?.data]);
   if (isError) {
     return <Error onRetry={refetch} />;
   }
@@ -50,7 +57,22 @@ export const Expenditure = (): JSX.Element => {
       {isPending ? (
         <ExpenditureLoader />
       ) : (
-        <ExpenditureList onRefetch={onRefetch} isFetching={isRefetching} data={filterAccount} />
+        <ExpenditureList
+          onRefetch={onRefetch}
+          isFetching={isRefetching}
+          data={filterAccount}
+          pagination={
+            data.data.length ? (
+              <PaginationButton
+                handlePagination={handlePagination}
+                page={page}
+                isLastPage={isLastPage}
+              />
+            ) : (
+              <></>
+            )
+          }
+        />
       )}
     </AnimatedContainer>
   );

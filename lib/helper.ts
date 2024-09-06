@@ -461,7 +461,11 @@ export const createProducts = async (newProduct: ProductFromDb[], isUploaded = t
 };
 
 export const createOnlineSales = async (newSales: OnlineSaleFromDb[], isUploaded = true) => {
+  await new Promise((resolve) => setTimeout(resolve, 2000));
   newSales.forEach(async (sale) => {
+    const productInDb = await products
+      .query(Q.where('product_id', Q.eq(sale.productId)), Q.take(1))
+      .fetch();
     await database.write(async () => {
       await database.batch(
         onlineSales.prepareCreate((st) => {
@@ -472,6 +476,7 @@ export const createOnlineSales = async (newSales: OnlineSaleFromDb[], isUploaded
           st.dealerShare = sale.dealerShare;
           st.netProShare = sale.netProShare;
           st.isUploaded = isUploaded;
+          st.name = productInDb[0]?.product;
         })
       );
     });
@@ -479,7 +484,11 @@ export const createOnlineSales = async (newSales: OnlineSaleFromDb[], isUploaded
 };
 
 export const createStoreSales = async (newSales: StoreSalesFromDb[], isUploaded = true) => {
+  await new Promise((resolve) => setTimeout(resolve, 2000));
   newSales.forEach(async (sale) => {
+    const productInDb = await products
+      .query(Q.where('product_id', Q.eq(sale.productId)), Q.take(1))
+      .fetch();
     await database.write(async () => {
       await database.batch(
         storeSales.prepareCreate((st) => {
@@ -493,6 +502,7 @@ export const createStoreSales = async (newSales: StoreSalesFromDb[], isUploaded 
           st.transferInfo = sale.transferInfo;
           st.cid = sale.cid;
           st.isUploaded = isUploaded;
+          st.name = productInDb[0]?.product;
         })
       );
     });
@@ -516,7 +526,11 @@ export const createExpenses = async (newExpense: ExpensesFromDb[], isUploaded = 
 };
 
 export const createDisposals = async (newDisposal: DisposalFromDb[], isUploaded = true) => {
+  await new Promise((resolve) => setTimeout(resolve, 2000));
   newDisposal.forEach(async (dis) => {
+    const productInDb = await products
+      .query(Q.where('product_id', Q.eq(dis.productId)), Q.take(1))
+      .fetch();
     await database.write(async () => {
       await database.batch(
         disposedProducts.prepareCreate((disposal) => {
@@ -525,6 +539,7 @@ export const createDisposals = async (newDisposal: DisposalFromDb[], isUploaded 
           disposal.qty = dis.qty;
           disposal.unitCost = dis.unitCost;
           disposal.isUploaded = isUploaded;
+          disposal.name = productInDb[0]?.product;
         })
       );
     });
@@ -557,7 +572,11 @@ export const createCats = async (cats: { category: string; subcategory: string }
 };
 
 export const createSupply = async (supplies: DisposalFromDb[], isUploaded = true) => {
+  await new Promise((resolve) => setTimeout(resolve, 2000));
   supplies.forEach(async (sup) => {
+    const productInDb = await products
+      .query(Q.where('product_id', Q.eq(sup.productId)), Q.take(1))
+      .fetch();
     await database.write(async () => {
       await database.batch(
         supplyProduct.prepareCreate((supply) => {
@@ -566,6 +585,7 @@ export const createSupply = async (supplies: DisposalFromDb[], isUploaded = true
           supply.dateX = sup.dateX;
           supply.unitCost = sup.unitCost;
           supply.isUploaded = isUploaded;
+          supply.name = productInDb[0]?.product;
         })
       );
     });

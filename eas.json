@@ -1,6 +1,7 @@
 {
   "cli": {
-    "version": ">= 10.0.2"
+    "version": ">= 12.0.0",
+    "appVersionSource": "remote"
   },
   "build": {
     "development": {
@@ -9,14 +10,13 @@
     },
     "preview": {
       "distribution": "internal",
-      "android": {
-        "buildType": "apk"
-      },
       "env": {
         "EXPO_PUBLIC_API": "https://247api.netpro.software/api.aspx?"
       }
     },
-    "production": {}
+    "production": {
+      "autoIncrement": true
+    }
   },
   "submit": {
     "production": {}

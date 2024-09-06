@@ -97,48 +97,68 @@ export const useFetchAll = () => {
   return { isConnected, fetching, error, fetchAll };
 };
 
-export const useProducts = () => {
+export const useProducts = (page?: number) => {
+  const offset = page ? (page - 1) * 10 : 0;
   const getProducts = async () => {
-    const product = await products.query(Q.sortBy('created_at', Q.desc)).fetch();
-    return product;
+    const product = await products
+      .query(Q.sortBy('created_at', Q.desc), Q.take(10), Q.skip(offset))
+      .fetch();
+    const count = await products.query().fetchCount();
+    return {
+      product,
+      count,
+    };
   };
   return useQuery({
-    queryKey: ['product'],
+    queryKey: ['product', page],
     queryFn: getProducts,
     structuralSharing: false,
+    placeholderData: (TData) => TData,
   });
 };
-export const useSalesP = () => {
+export const useSalesP = (page?: number) => {
+  const offset = page ? (page - 1) * 10 : 0;
   return useQuery({
-    queryKey: ['salesPharmacy'],
+    queryKey: ['salesPharmacy', page],
     queryFn: async () => {
-      const data = await onlineSales.query(Q.sortBy('id', Q.desc)).fetch();
-      return data;
+      const data = await onlineSales
+        .query(Q.sortBy('created_at', Q.desc), Q.take(10), Q.skip(offset))
+        .fetch();
+      const count = await onlineSales.query().fetchCount();
+      return { data, count };
     },
     structuralSharing: false,
+    placeholderData: (TData) => TData,
   });
 };
-export const useSalesS = () => {
+export const useSalesS = (page?: number) => {
+  const offset = page ? (page - 1) * 10 : 0;
   return useQuery({
-    queryKey: ['salesStore'],
+    queryKey: ['salesStore', page],
     queryFn: async () => {
-      const data = await storeSales.query(Q.sortBy('created_at', Q.desc)).fetch();
-
-      return data;
+      const data = await storeSales
+        .query(Q.sortBy('created_at', Q.desc), Q.take(10), Q.skip(offset))
+        .fetch();
+      const count = await storeSales.query().fetchCount();
+      return { data, count };
     },
     structuralSharing: false,
+    placeholderData: (TData) => TData,
   });
 };
-export const useExpenditure = () => {
+export const useExpenditure = (page?: number) => {
+  const offset = page ? (page - 1) * 10 : 0;
   const getExpenditure = async () => {
-    const data = await expenses.query(Q.sortBy('id', Q.desc)).fetch();
-    return data;
+    const data = await expenses.query(Q.sortBy('id', Q.desc), Q.take(10), Q.skip(offset)).fetch();
+    const count = await expenses.query().fetchCount();
+    return { data, count };
   };
 
   return useQuery({
     queryKey: ['expenditure'],
     queryFn: () => getExpenditure(),
     structuralSharing: false,
+    placeholderData: (TData) => TData,
   });
 };
 export const useCat = () => {
@@ -179,15 +199,20 @@ export const useSupply = () => {
     structuralSharing: false,
   });
 };
-export const useExpAcc = () => {
+export const useExpAcc = (page?: number) => {
+  const offset = page ? (page - 1) * 10 : 0;
   const getExpAcc = async () => {
-    const data = await expenseAccounts.query(Q.sortBy('created_at', Q.desc)).fetch();
-    return data;
+    const data = await expenseAccounts
+      .query(Q.sortBy('created_at', Q.desc), Q.take(10), Q.skip(offset))
+      .fetch();
+    const count = await expenseAccounts.query().fetchCount();
+    return { data, count };
   };
-  return useQuery<{ accountName: string }[]>({
-    queryKey: ['exp_name'],
+  return useQuery({
+    queryKey: ['exp_name', page],
     queryFn: getExpAcc,
     structuralSharing: false,
+    placeholderData: (TData) => TData,
   });
 };
 

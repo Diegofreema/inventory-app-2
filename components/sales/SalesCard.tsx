@@ -6,11 +6,12 @@ import { AnimatedCard } from '../ui/AnimatedCard';
 import { FlexText } from '../ui/FlexText';
 
 import { staffs } from '~/db';
+import OnlineSale from '~/db/model/OnlineSale';
+import StoreSales from '~/db/model/StoreSale';
 import { trimText } from '~/lib/helper';
-import { CombinedStore } from '~/type';
 
 type Props = {
-  item: CombinedStore;
+  item: OnlineSale & StoreSales;
   index: number;
 };
 
@@ -31,11 +32,11 @@ export const SalesCard = ({ index, item }: Props): JSX.Element => {
 
   return (
     <AnimatedCard index={index}>
-      <FlexText text="Product" text2={item.name} />
+      <FlexText text="Product" text2={trimText(item.name, 20)} />
       <FlexText text="Date" text2={item?.dateX} />
       <FlexText text="Quantity" text2={item?.qty.toString()} />
       <FlexText text="Price" text2={`₦${price}`} />
-      {item?.paid && <FlexText text="Paid" text2={item?.paid ? 'Yes' : 'No'} />}
+      {item?.isPaid && <FlexText text="Paid" text2={item?.isPaid ? 'Yes' : 'No'} />}
       {item?.paymentType && <FlexText text="Payment type" text2={item?.paymentType} />}
       {item?.salesReference && (
         <FlexText text="Sale's reference" text2={trimText(item?.salesReference!)} />

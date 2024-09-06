@@ -11,14 +11,25 @@ import { StoreActions } from '../store/StoreActions';
 import { AnimatedContainer } from '../ui/AniminatedContainer';
 import { Error } from '../ui/Error';
 import { ExpenseLoader } from '../ui/Loading';
+import { PaginationButton } from '../ui/PaginationButton';
 
+import { useRender } from '~/hooks/useRender';
 import { formattedDate } from '~/lib/helper';
 import { useSalesP } from '~/lib/tanstack/queries';
 
 export const OnlinePharmacy = (): JSX.Element => {
-  const { data, isPending, isError, refetch, isRefetching } = useSalesP();
-  console.log(data?.[0].name);
+  const [page, setPage] = useState(1);
+  useRender();
+  const { data, isPending, isError, refetch, isRefetching } = useSalesP(page);
+  const handlePagination = useCallback((direction: 'next' | 'prev') => {
+    setPage((prev) => prev + (direction === 'next' ? 1 : -1));
+  }, []);
 
+  const isLastPage = useMemo(() => {
+    if (!data?.count) return false;
+
+    return data?.count <= page * 10;
+  }, [data?.count, page]);
   const handleRefetch = useCallback(() => refetch(), []);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -43,17 +54,17 @@ export const OnlinePharmacy = (): JSX.Element => {
     return '';
   }, [startDate, endDate]);
   const filterByDate = useMemo(() => {
-    if (!startDate || !endDate || !data) return data;
+    if (!startDate || !endDate || !data?.data) return data?.data;
 
     const start = format(startDate, 'dd-MM-yyyy');
     const end = format(endDate, 'dd-MM-yyyy');
 
-    return data.filter((d) => {
+    return data.data.filter((d) => {
       const salesDate = d.dateX.split(' ')[0].replace('/', '-').replace('/', '-');
 
       return isWithinInterval(salesDate, { start, end });
     });
-  }, [data, startDate, endDate]);
+  }, [data?.data, startDate, endDate]);
 
   const filterAccount = useMemo(() => {
     if (!value.trim()) {
@@ -84,7 +95,23 @@ export const OnlinePharmacy = (): JSX.Element => {
       {isPending ? (
         <ExpenseLoader />
       ) : (
-        <SalesFlatlist data={filterAccount} isLoading={isLoading} refetch={handleRefetch} />
+        <SalesFlatlist
+          // @ts-ignore
+          data={filterAccount}
+          isLoading={isLoading}
+          refetch={handleRefetch}
+          pagination={
+            data?.data.length ? (
+              <PaginationButton
+                page={page}
+                handlePagination={handlePagination}
+                isLastPage={isLastPage}
+              />
+            ) : (
+              <></>
+            )
+          }
+        />
       )}
       <CalenderSheet
         ref={bottomRef}

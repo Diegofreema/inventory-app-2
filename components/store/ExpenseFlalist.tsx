@@ -11,9 +11,15 @@ type Props = {
   data: Expenses[];
   fetching: boolean;
   refetch: () => void;
+  pagination?: JSX.Element;
 };
 
-export const ExpenseFlalist = ({ data, fetching, refetch }: Props): JSX.Element => {
+export const ExpenseFlalist = ({
+  data,
+  fetching,
+  refetch,
+  pagination: Pagination,
+}: Props): JSX.Element => {
   return (
     <FlatList
       data={data}
@@ -24,6 +30,7 @@ export const ExpenseFlalist = ({ data, fetching, refetch }: Props): JSX.Element 
       contentContainerStyle={{ gap: 15, paddingBottom: 20 }}
       ListEmptyComponent={() => <Empty text="No Expenses yet" />}
       style={{ marginTop: 20 }}
+      ListFooterComponent={Pagination}
     />
   );
 };

@@ -4,20 +4,17 @@ import { Redirect, useLocalSearchParams } from 'expo-router';
 
 import { Container } from '~/components/Container';
 import { NavHeader } from '~/components/ui/NavHeader';
-import { SingleProduct } from '~/components/ui/SingleProduct';
-import { useGet } from '~/hooks/useGet';
+import SingleProduct from '~/components/ui/SingleProduct';
 
 const ProductDetails = (): JSX.Element => {
   const { productId } = useLocalSearchParams<{ productId: string }>();
-
-  const { singleProduct } = useGet(productId);
 
   if (!productId) return <Redirect href="/" />;
 
   return (
     <Container>
       <NavHeader title="Product Details" />
-      <SingleProduct product={singleProduct!} />
+      <SingleProduct productId={productId} />
     </Container>
   );
 };

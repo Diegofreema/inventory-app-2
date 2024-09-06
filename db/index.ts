@@ -2,7 +2,7 @@ import { Database } from '@nozbe/watermelondb';
 import SQLiteAdapter from '@nozbe/watermelondb/adapters/sqlite';
 import { Platform } from 'react-native';
 
-// import migrations from './migration';
+import migrations from './migration';
 import CartItem from './model/CartItems';
 import Categories from './model/Category';
 import DisposedProducts from './model/DisposedProducts';
@@ -20,7 +20,7 @@ import schema from './schema';
 const adapter = new SQLiteAdapter({
   schema,
 
-  //   migrations,
+  migrations,
 
   jsi: Platform.OS === 'ios',
 

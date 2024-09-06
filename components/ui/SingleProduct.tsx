@@ -1,4 +1,6 @@
 /* eslint-disable prettier/prettier */
+
+import { withObservables } from '@nozbe/watermelondb/react';
 import { useCallback, useMemo, useState } from 'react';
 import { Card, CardHeader, Stack, XStack } from 'tamagui';
 
@@ -8,8 +10,9 @@ import { CustomSubHeading } from './typography';
 
 import { colors } from '~/constants';
 import Product from '~/db/model/Product';
+import { products } from '~/db';
 
-export const SingleProduct = ({ product }: { product: Product }): JSX.Element => {
+const SingleProduct = ({ product }: { product: Product }): JSX.Element => {
   const [showMenu, setShowMenu] = useState(false);
   const isLow = product?.qty <= 10;
 
@@ -51,3 +54,9 @@ export const SingleProduct = ({ product }: { product: Product }): JSX.Element =>
     </Card>
   );
 };
+
+const enhanced = withObservables(['productId'], ({ productId }) => ({
+  product: products.findAndObserve(productId),
+}));
+
+export default enhanced(SingleProduct);

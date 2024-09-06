@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "247Inventory",
+    "name": "247inventory",
     "slug": "247-inventory-app",
     "version": "1.0.0",
     "scheme": "inventory-app",
@@ -12,7 +12,6 @@
     "plugins": [
       [
         "expo-build-properties",
-
         {
           "android": {
             "compileSdkVersion": 34,
@@ -20,7 +19,9 @@
             "buildToolsVersion": "34.0.0",
             "kotlinVersion": "1.6.10",
             "packagingOptions": {
-              "pickFirst": ["**/libc++_shared.so"]
+              "pickFirst": [
+                "**/libc++_shared.so"
+              ]
             }
           },
           "ios": {
@@ -28,7 +29,10 @@
             "extraPods": [
               {
                 "name": "simdjson",
-                "configuration": ["Debug", "Release"],
+                "configuration": [
+                  "Debug",
+                  "Release"
+                ],
                 "path": "./node_modules/@nozbe/simdjson",
                 "modular_headers": true
               }
@@ -51,16 +55,6 @@
           "recordAudioAndroid": true
         }
       ],
-      [
-        "@sentry/react-native/expo",
-        {
-          "organization": "darkside-fj",
-          "project": "247inventory",
-          // If you are using a self-hosted instance, update the value of the url property
-          // to point towards your self-hosted instance. For example, https://self-hosted.example.com/.
-          "url": "https://sentry.io/"
-        }
-      ],
       "expo-secure-store"
     ],
     "experiments": {
@@ -75,10 +69,11 @@
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.diegodark.inventoryapp",
       "entitlements": {
         "com.apple.developer.networking.wifi-info": true
       }
@@ -88,15 +83,20 @@
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.diegodark.inventoryapp",
       "softwareKeyboardLayoutMode": "pan",
-      "permissions": ["android.permission.CAMERA", "android.permission.RECORD_AUDIO"]
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.hadhavdh.asdband"
     },
     "extra": {
       "router": {
         "origin": false
       },
-      "eas": {}
+      "eas": {
+        "projectId": "d15349ac-28d9-4c1f-9723-e0d9e1930b72"
+      }
     }
   }
 }

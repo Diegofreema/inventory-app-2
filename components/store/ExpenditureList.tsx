@@ -9,9 +9,15 @@ type Props = {
   data: { accountName: string }[];
   onRefetch: () => void;
   isFetching: boolean;
+  pagination?: JSX.Element;
 };
 
-export const ExpenditureList = ({ data, onRefetch, isFetching }: Props): JSX.Element => {
+export const ExpenditureList = ({
+  data,
+  onRefetch,
+  isFetching,
+  pagination: Pagination,
+}: Props): JSX.Element => {
   return (
     <FlatList
       data={data}
@@ -23,6 +29,7 @@ export const ExpenditureList = ({ data, onRefetch, isFetching }: Props): JSX.Ele
       keyExtractor={(item, index) => index.toString()}
       contentContainerStyle={{ gap: 20, paddingBottom: 20 }}
       showsVerticalScrollIndicator={false}
+      ListFooterComponent={Pagination}
     />
   );
 };

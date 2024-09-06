@@ -11,14 +11,26 @@ import { StoreActions } from '../store/StoreActions';
 import { AnimatedContainer } from '../ui/AniminatedContainer';
 import { Error } from '../ui/Error';
 import { ExpenseLoader } from '../ui/Loading';
+import { PaginationButton } from '../ui/PaginationButton';
 
+import { useRender } from '~/hooks/useRender';
 import { formattedDate } from '~/lib/helper';
 import { useSalesS } from '~/lib/tanstack/queries';
 
 export const Offline = (): JSX.Element => {
-  const { data, isPending, isError, refetch, isRefetching } = useSalesS();
+  const [page, setPage] = useState(1);
+  const { data, isPending, isError, refetch, isRefetching } = useSalesS(page);
   const handleRefetch = useCallback(() => refetch(), []);
+  useRender();
+  const handlePagination = useCallback((direction: 'next' | 'prev') => {
+    setPage((prev) => prev + (direction === 'next' ? 1 : -1));
+  }, []);
 
+  const isLastPage = useMemo(() => {
+    if (!data?.count) return false;
+
+    return data?.count <= page * 10;
+  }, [data?.count, page]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const bottomRef = useRef<BottomSheetMethods | null>(null);
@@ -28,17 +40,17 @@ export const Offline = (): JSX.Element => {
   const onSetValue = useCallback((val: string) => setValue(val), [value]);
   const handleNav = useCallback(() => router.push('/addOfflineScreen'), [router]);
   const filterByDate = useMemo(() => {
-    if (!startDate || !endDate || !data) return data;
+    if (!startDate || !endDate || !data?.data) return data?.data;
 
     const start = format(startDate, 'dd-MM-yyyy');
     const end = format(endDate, 'dd-MM-yyyy');
 
-    return data.filter((d) => {
+    return data.data.filter((d) => {
       const salesDate = d.dateX.split(' ')[0].replace('/', '-').replace('/', '-');
 
       return isWithinInterval(salesDate, { start, end });
     });
-  }, [data, startDate, endDate]);
+  }, [data?.data, startDate, endDate]);
   const filterSales = useMemo(() => {
     if (!value.trim()) {
       return filterByDate || [];
@@ -87,8 +99,23 @@ export const Offline = (): JSX.Element => {
       {isPending ? (
         <ExpenseLoader />
       ) : (
-        // @ts-ignore
-        <SalesFlatlist data={filterSales} isLoading={isLoading} refetch={handleRefetch} />
+        <SalesFlatlist
+          // @ts-ignore
+          data={filterSales}
+          isLoading={isLoading}
+          refetch={handleRefetch}
+          pagination={
+            data?.data.length ? (
+              <PaginationButton
+                isLastPage={isLastPage}
+                handlePagination={handlePagination}
+                page={page}
+              />
+            ) : (
+              <></>
+            )
+          }
+        />
       )}
       <CalenderSheet
         ref={bottomRef}

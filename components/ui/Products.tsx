@@ -24,6 +24,7 @@ type Props = {
   isLoading?: boolean;
   onRefetch?: () => void;
   navigate?: boolean;
+  pagination?: JSX.Element;
 };
 
 export const Products = ({
@@ -36,6 +37,7 @@ export const Products = ({
   isLoading,
   onRefetch,
   navigate,
+  pagination: Pagination,
 }: Props): JSX.Element => {
   return (
     <FlatList
@@ -47,11 +49,19 @@ export const Products = ({
       scrollEnabled={scrollEnabled}
       data={data}
       renderItem={({ item }) => <ProductCard nav={navigate} item={item} show={show} />}
-      contentContainerStyle={{ gap: 15, flexGrow: 1, paddingHorizontal: 5, paddingVertical: 15 }}
+      contentContainerStyle={{
+        gap: 15,
+        flexGrow: 1,
+        paddingHorizontal: 5,
+        paddingVertical: 15,
+        paddingBottom: 25,
+        minHeight: 600,
+      }}
       style={{ flex: 1, backgroundColor: 'transparent', marginTop: 10 }}
       ListEmptyComponent={() => <Empty text="No products in store" />}
       showsVerticalScrollIndicator={false}
       keyExtractor={(item, index) => index.toString()}
+      ListFooterComponent={Pagination}
     />
   );
 };
