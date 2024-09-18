@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import { Q } from '@nozbe/watermelondb';
 import { createId } from '@paralleldrive/cuid2';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
@@ -13,7 +14,6 @@ import {
   addOnlineSales,
   addProduct,
   createProduct,
-  createProducts,
   sendDisposedProducts,
   supplyProducts,
 } from '../helper';
@@ -34,8 +34,6 @@ import database, {
 import CartItem from '~/db/model/CartItems';
 import { useNetwork } from '~/hooks/useNetwork';
 import { ExtraSalesType, SupplyInsert } from '~/type';
-import { Q } from '@nozbe/watermelondb';
-import StoreSales from '~/db/model/StoreSale';
 
 export const useAddNewProduct = () => {
   const storeId = useStore((state) => state.id);
@@ -248,8 +246,6 @@ export const useCart = () => {
             arrayOfAddedSales.push({ id: item.name, qty: item.qty, storeId: data.id });
           });
         });
-        // console.log('🚀 ~ awaitdatabase.write ~ arrayOfAddedSales:', arrayOfAddedSales[0].id);
-        console.log('working....');
 
         queryClient.invalidateQueries({ queryKey: ['salesStore'] });
         queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
@@ -271,23 +267,18 @@ export const useCart = () => {
         });
         queryClient.invalidateQueries({ queryKey: ['cart_item_ref'] });
         queryClient.invalidateQueries({ queryKey: ['cart_item'] });
-        console.log('🚀 ~ useCart ~ arrayOfAddedSales:', arrayOfAddedSales.length);
 
         await database.write(async () => {
           const prods = await products.query().fetch();
           arrayOfAddedSales.forEach(async (item) => {
             prods.forEach(async (prod) => {
-              console.log('🚀 ~  ~ prod:', prod.product, item.id);
               if (prod.product === item.id) {
-                console.log('🚀 ~  ~ arrayOfAddedSales:', 'true');
-
                 await database.write(async () => {
                   await prod.update((product) => {
                     product.qty = product.qty - item.qty;
                   });
                 });
               } else {
-                console.log('🚀 ~  ~ sjhdbs:', 'false');
               }
             });
           });
@@ -480,7 +471,7 @@ export const useSupply = () => {
 
       Toast.show({
         text1: 'Something went wrong',
-        text2: 'Failed to restock product',
+        text2: error.message,
       });
     },
     onSuccess: (data) => {

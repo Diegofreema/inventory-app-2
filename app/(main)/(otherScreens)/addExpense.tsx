@@ -41,7 +41,7 @@ export default function AddExpense() {
     resolver: zodResolver(expenseSchema),
   });
   const expenses = useMemo(() => {
-    return exp?.map((ex) => ({
+    return exp?.data?.map((ex) => ({
       label: ex.accountName,
       value: ex.accountName,
     }));

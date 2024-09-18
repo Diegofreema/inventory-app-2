@@ -11,7 +11,6 @@ type Props = {
   scroll?: boolean;
 };
 export const Disposal = ({ data, scroll = true }: Props) => {
-  console.log(data);
   return (
     <FlatList
       scrollEnabled={scroll}

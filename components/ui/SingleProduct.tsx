@@ -9,8 +9,8 @@ import { FlexText } from './FlexText';
 import { CustomSubHeading } from './typography';
 
 import { colors } from '~/constants';
+import database, { products } from '~/db';
 import Product from '~/db/model/Product';
-import { products } from '~/db';
 
 const SingleProduct = ({ product }: { product: Product }): JSX.Element => {
   const [showMenu, setShowMenu] = useState(false);
@@ -27,6 +27,15 @@ const SingleProduct = ({ product }: { product: Product }): JSX.Element => {
     }),
     [product?.id, product?.product, product?.sellingPrice]
   );
+
+  const toggleOnline = async () => {
+    await database.write(async () => {
+      const pd = await products.find(product.id);
+      await pd.update((p) => {
+        p.online = !p.online;
+      });
+    });
+  };
 
   return (
     <Card backgroundColor="white" borderWidth={1} borderColor={colors.lightGray}>
@@ -48,7 +57,14 @@ const SingleProduct = ({ product }: { product: Product }): JSX.Element => {
 
         <XStack justifyContent="space-between" alignItems="center">
           <CustomSubHeading text="Actions" fontSize={15} />
-          <ActionMenu visible={showMenu} onClose={onClose} onOpen={onOpen} details={details} />
+          <ActionMenu
+            visible={showMenu}
+            onClose={onClose}
+            onOpen={onOpen}
+            details={details}
+            online={product.online}
+            toggleOnline={toggleOnline}
+          />
         </XStack>
       </CardHeader>
     </Card>

@@ -68,7 +68,7 @@ const StaffsFlatList = ({ data }: { data: Staff[] }) => {
 const StaffCard = ({ index, item }: { item: Staff; index: number }) => {
   const router = useRouter();
   const isAdmin = useStore((state) => state.isAdmin);
-  console.log(isAdmin);
+
   const onSetDelete = async () => {
     router.push(`/deleteStaff?id=${item.id}`);
   };

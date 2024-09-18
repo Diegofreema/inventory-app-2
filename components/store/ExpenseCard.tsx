@@ -31,7 +31,7 @@ export const ExpenseCard = ({ index, item }: Props): JSX.Element => {
         <FlexText text="Account name" text2={item?.accountName} />
         <FlexText text="Amount" text2={`₦${item?.amount}`} />
         <FlexText text="Date" text2={item?.dateX} />
-        <FlexText text="Description" text2={item?.description!} />
+        {item?.description && <FlexText text="Description" text2={item?.description!} />}
       </CardHeader>
     </AnimatedCard>
   );

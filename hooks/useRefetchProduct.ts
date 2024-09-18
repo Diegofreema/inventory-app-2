@@ -4,12 +4,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 
-import { ProductSelect } from '~/db/schema';
+import Product from '~/db/model/Product';
 import { getProducts } from '~/lib/helper';
 import { useStore } from '~/lib/zustand/useStore';
 
 export const useRefetchProduct = () => {
-  const [products, setProducts] = useState<ProductSelect[] | undefined>([]);
+  const [products, setProducts] = useState<Product[] | undefined>([]);
   const id = useStore((state) => state.id);
   const queryClient = useQueryClient();
   const router = useRouter();

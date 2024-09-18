@@ -16,10 +16,7 @@
     "test": "jest --watchAll"
   },
   "jest": {
-    "preset": "jest-expo",
-    "transformIgnorePatterns": [
-      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg)"
-    ]
+    "preset": "jest-expo"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
@@ -32,7 +29,7 @@
     "@react-navigation/bottom-tabs": "^6.5.8",
     "@react-navigation/drawer": "^6.6.15",
     "@react-navigation/native": "^6.1.7",
-    "@sentry/react-native": "~5.22.0",
+    "@shopify/flash-list": "1.6.4",
     "@tamagui/font-inter": "1.74.8",
     "@tamagui/lucide-icons": "1.74.8",
     "@tamagui/react-native-media-driver": "1.74.8",

@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 
-import { CircleEllipsis, Repeat, Trash2 } from '@tamagui/lucide-icons';
+import { CircleEllipsis, Repeat, RotateCcw, Trash2 } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
 import { Menu, MenuDivider, MenuItem } from 'react-native-material-menu';
 import { XStack } from 'tamagui';
@@ -13,14 +13,23 @@ type Props = {
   visible: boolean;
   onClose: () => void;
   onOpen: () => void;
+  toggleOnline?: () => void;
   details: {
     productId: string;
     name: string;
     price: number;
   };
+  online?: boolean;
 };
 
-export const ActionMenu = ({ onClose, visible, onOpen, details }: Props): JSX.Element => {
+export const ActionMenu = ({
+  onClose,
+  visible,
+  onOpen,
+  details,
+  online,
+  toggleOnline,
+}: Props): JSX.Element => {
   const router = useRouter();
   const handleDispose = () => {
     router.push(`/dispose?productId=${details?.productId}&name=${details?.name}`);
@@ -55,6 +64,15 @@ export const ActionMenu = ({ onClose, visible, onOpen, details }: Props): JSX.El
           <CustomSubHeading text="Dispose item" />
         </XStack>
       </MenuItem>
+      {toggleOnline && <MenuDivider />}
+      {toggleOnline && (
+        <MenuItem onPress={toggleOnline}>
+          <XStack gap={5}>
+            <CustomBarIcon color="black" size={20} icon={RotateCcw} />
+            <CustomSubHeading text={online ? 'Set offline' : 'Set online'} />
+          </XStack>
+        </MenuItem>
+      )}
     </Menu>
   );
 };

@@ -85,6 +85,7 @@ const ProductCard = ({ item, show, nav }: { item: Product; show?: boolean; nav?:
     if (!nav) return;
     router.push(`/product/${item.id}`);
   };
+
   return (
     <CustomPressable onPress={onPress}>
       <Card

@@ -23,11 +23,6 @@ export const Expenditure = (): JSX.Element => {
     setPage((prev) => prev + (direction === 'next' ? 1 : -1));
   }, []);
 
-  const isLastPage = useMemo(() => {
-    if (!data?.count) return false;
-
-    return data?.count <= page * 10;
-  }, [data?.count, page]);
   const router = useRouter();
   const handleNav = () => {
     router.push('/addExpenditure');
@@ -35,12 +30,26 @@ export const Expenditure = (): JSX.Element => {
   const onRefetch = useCallback(() => refetch, []);
   const filterAccount = useMemo(() => {
     if (!value.trim()) {
-      return data?.data || [];
+      return data?.allData || [];
     }
 
     const lowerCaseValue = value.toLowerCase();
-    return data?.data?.filter((d) => d?.accountName?.toLowerCase().includes(lowerCaseValue)) || [];
-  }, [value, data?.data]);
+    return (
+      data?.allData?.filter((d) => d?.accountName?.toLowerCase().includes(lowerCaseValue)) || []
+    );
+  }, [value, data?.allData]);
+  const isLastPage = useMemo(() => {
+    if (!filterAccount?.length) return false;
+
+    return filterAccount?.length <= page * 10;
+  }, [filterAccount, page]);
+  const dataToRender = useMemo(() => {
+    if (!value) {
+      return data?.data || [];
+    } else {
+      return filterAccount;
+    }
+  }, [value, data?.data, filterAccount]);
   if (isError) {
     return <Error onRetry={refetch} />;
   }
@@ -60,9 +69,9 @@ export const Expenditure = (): JSX.Element => {
         <ExpenditureList
           onRefetch={onRefetch}
           isFetching={isRefetching}
-          data={filterAccount}
+          data={dataToRender}
           pagination={
-            data.data.length ? (
+            data.data.length && !value ? (
               <PaginationButton
                 handlePagination={handlePagination}
                 page={page}

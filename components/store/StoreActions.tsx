@@ -24,6 +24,7 @@ type Props = {
   dateValue?: string;
   resetDates?: () => void;
   hide?: boolean;
+  showButton?: boolean;
 };
 
 export const StoreActions = ({
@@ -40,6 +41,7 @@ export const StoreActions = ({
   dateValue,
   resetDates,
   hide,
+  showButton = true,
 }: Props): JSX.Element => {
   const [open, setOpen] = useState(false);
 
@@ -120,7 +122,7 @@ export const StoreActions = ({
           />
         )}
 
-        {!hide && (
+        {!hide && showButton && (
           <Button
             backgroundColor={colors.green}
             alignSelf="flex-end"

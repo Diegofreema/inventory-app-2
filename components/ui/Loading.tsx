@@ -209,7 +209,7 @@ export const SquareLoader = () => {
         <ShimmerPlaceHolder
           LinearGradient={LinearGradient}
           visible={false}
-          style={{ height: 150, borderRadius: 10, width: '100%', marginTop: 15 }}
+          style={{ height: 150, borderRadius: 10, marginTop: 15 }}
         />
       )}
       showsHorizontalScrollIndicator={false}

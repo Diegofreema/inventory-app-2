@@ -10,8 +10,6 @@ import { NavHeader } from '~/components/ui/NavHeader';
 import { useCartItemsWithRef } from '~/lib/tanstack/queries';
 const Cart = () => {
   const salesRef = SecureStore.getItem('salesRef');
-  console.log(salesRef);
-
   const { data, isPending, isError, refetch } = useCartItemsWithRef(salesRef!);
 
   if (isError) return <Error onRetry={refetch} />;

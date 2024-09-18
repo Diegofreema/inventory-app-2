@@ -39,7 +39,6 @@ export const useTrading = ({
       const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
       return isBefore(salesDate, start);
     });
-    console.log({ onlineprices: onlineSales.map((d) => d.unitPrice) });
 
     const online = onlineSales.filter((d) => {
       const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
@@ -103,9 +102,6 @@ export const useTrading = ({
       totalAmount(allDisposed) -
       totalAmount(allStore) -
       totalAmount(allOnline);
-    console.log({ allProducts, allDisposed, allStore, allOnline, total });
-
-    console.log({ total });
 
     return total <= 0 ? 0 : total;
   }, [productSupply, emptyDates, disposal, storeSales, onlineSales, startDate]);

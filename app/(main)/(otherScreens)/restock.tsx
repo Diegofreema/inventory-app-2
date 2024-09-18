@@ -27,7 +27,7 @@ const Restock = (): JSX.Element => {
   }>();
   const router = useRouter();
 
-  const { data: info, isPending: isLoading, isError, refetch } = useInfo();
+  const { data, isPending: isLoading, isError, refetch } = useInfo();
   const {
     handleSubmit,
     control,
@@ -43,15 +43,15 @@ const Restock = (): JSX.Element => {
     resolver: zodResolver(productSupplySchema),
   });
   if (isError) return <Error onRetry={refetch} />;
-
+  const info = data?.[0];
   const onSubmit = async (value: z.infer<typeof productSupplySchema>) => {
-    if (!info?.sharenetpro || !info?.shareprice || !info?.shareseller) return;
+    if (!info?.shareNetpro || !info?.sharePrice || !info?.shareSeller) return;
 
     try {
       await mutateAsync({
-        dealerShare: info?.shareseller!,
-        netProShare: info?.sharenetpro!,
-        sellingPrice: info?.shareprice!,
+        dealerShare: info?.shareSeller!,
+        netProShare: info?.shareNetpro!,
+        sellingPrice: info?.sharePrice!,
         newPrice: value.newPrice,
         productId,
         qty: +value.qty,

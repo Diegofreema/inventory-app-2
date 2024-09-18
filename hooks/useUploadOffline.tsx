@@ -32,6 +32,7 @@ export const useUploadOffline = () => {
 
   const id = useStore((state) => state.id);
   const { data } = useInfo();
+  const info = data?.[0];
   useEffect(() => {
     const upload = async () => {
       const [supply, dispose, products, accounts, expenses, store, online] = await Promise.all([
@@ -49,8 +50,8 @@ export const useUploadOffline = () => {
           supplyProductsOffline({
             productId: item.productId,
             qty: item.qty,
-            dealerShare: data.shareseller,
-            netProShare: data.sharenetpro,
+            dealerShare: info?.shareSeller!,
+            netProShare: info?.shareNetpro!,
             unitCost: item.unitCost?.toString(),
             newPrice: item?.unitCost?.toString()!,
             sellingPrice: item.unitCost?.toString()!,
@@ -83,15 +84,15 @@ export const useUploadOffline = () => {
           addProduct({
             product: item.product,
             category: item.category!,
-            state: data.statename,
+            state: info?.stateName!,
             id,
             des: item.description!,
             marketprice: item.marketPrice?.toString()!,
             online: !!item.online,
             qty: item.qty.toString(),
             sellingprice: item.sellingPrice?.toString()!,
-            sharedealer: data.shareseller,
-            sharenetpro: data.sharenetpro,
+            sharedealer: info?.shareSeller,
+            sharenetpro: info?.shareNetpro,
             subcategory: item.subcategory!,
             customerproductid: item.customerProductId!,
           }).then(async () => {

@@ -12,6 +12,7 @@ import database, {
   expenseAccounts,
   expenses,
   onlineSales,
+  pharmacyInfo,
   products,
   storeSales,
   supplyProduct,
@@ -20,11 +21,13 @@ import StoreSales from '~/db/model/StoreSale';
 import {
   DisposalFromDb,
   ExpensesFromDb,
+  InfoType,
   OnlineSaleFromDb,
   ProductFromDb,
   StoreSalesFromDb,
   SupplyInsert,
 } from '~/type';
+import PharmacyInfo from '~/db/model/Phamarcy';
 
 export const api = process.env.EXPO_PUBLIC_API;
 
@@ -84,7 +87,6 @@ export const getProducts = async (id: string) => {
   } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
     data = [...response.data];
   }
-  console.log(data);
 
   const formattedProducts = data.map((product) => ({
     category: product.Category,
@@ -174,6 +176,21 @@ export const getSupply = async (id: any) => {
   }));
   return formattedData;
 };
+export const getInfo = async (id: any) => {
+  const { data } = await axios.get(
+    `https://247api.netpro.software/api.aspx?api=pharmacyinfor&cidx=${id}`
+  );
+
+  const formattedData = {
+    businessName: data.businessname,
+    stateName: data.statename,
+    sharePrice: data.shareprice,
+    shareNetpro: data.sharenetpro,
+    shareSeller: data.shareseller,
+  };
+
+  return formattedData;
+};
 
 export const getSale = async (id: any) => {
   const response = await axios.get(
@@ -185,7 +202,6 @@ export const getSale = async (id: any) => {
   } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
     data = [...response.data];
   }
-  console.log(data, 'getSale');
 
   const formattedData = data?.map((sale) => ({
     productId: sale.productid as string,
@@ -584,10 +600,21 @@ export const createSupply = async (supplies: DisposalFromDb[], isUploaded = true
           supply.qty = sup.qty;
           supply.dateX = sup.dateX;
           supply.unitCost = sup.unitCost;
-          supply.isUploaded = isUploaded;
+          supply.isUploaded = true;
           supply.name = productInDb[0]?.product;
         })
       );
+    });
+  });
+};
+export const addInfo = async (info: any) => {
+  return await database.write(async () => {
+    return await pharmacyInfo.create((i) => {
+      i.shareNetpro = info.shareNetpro;
+      i.shareSeller = info.shareSeller;
+      i.sharePrice = info.sharePrice;
+      i.businessName = info.businessName;
+      i.stateName = info.stateName;
     });
   });
 };

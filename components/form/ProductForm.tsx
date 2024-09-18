@@ -26,10 +26,10 @@ import { Cats } from '~/type';
 const { height, width } = Dimensions.get('window');
 export const ProductForm = (): JSX.Element => {
   const { isPending, mutateAsync } = useAddNewProduct();
-  const { data: info, isPending: infoPending, isError, refetch } = useInfo();
+  const { data, isPending: infoPending, isError, refetch } = useInfo();
   const { height, width } = useWindowDimensions();
   const cameraRef = useRef<CameraView>(null);
-
+  const info = data?.[0];
   const [showCamera, setShowCamera] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const { data: cat, isPending: catPending, isError: isErrorCat, refetch: refetchCat } = useCat();
@@ -57,9 +57,9 @@ export const ProductForm = (): JSX.Element => {
       product: '',
       qty: '',
       sellingprice: '',
-      sharedealer: info?.shareseller,
-      sharenetpro: info?.sharenetpro,
-      state: info?.statename,
+      sharedealer: info?.shareSeller,
+      sharenetpro: info?.shareNetpro,
+      state: info?.stateName,
       subcategory: '',
     },
 
@@ -111,13 +111,12 @@ export const ProductForm = (): JSX.Element => {
 
   if (infoPending || catPending) return <FormLoader />;
   const onSubmit = (values: z.infer<typeof newProductSchema>) => {
-    console.log({ values });
     try {
       mutateAsync({
         ...values,
-        sharedealer: info?.shareseller,
-        sharenetpro: info?.sharenetpro,
-        state: info?.statename,
+        sharedealer: info?.sharePrice,
+        sharenetpro: info?.shareNetpro,
+        state: info?.stateName,
         online: values.online,
       });
 
@@ -141,11 +140,8 @@ export const ProductForm = (): JSX.Element => {
     cornerPoints,
     raw,
   }: BarcodeScanningResult) => {
-    console.log({ data, type, bounds, cornerPoints, raw });
-
     // if (!scanning) return;
     if (data) {
-      console.log(data);
       // Haptics.selectionAsync();
       setValue('customerproductid', data);
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);

@@ -2,10 +2,11 @@
 
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
+import { ActivityIndicator } from 'react-native';
+import { View } from 'tamagui';
 
-import { Container } from '~/components/Container';
 import { Error } from '~/components/ui/Error';
-import { ProductLoader, SquareLoader } from '~/components/ui/Loading';
+import { colors } from '~/constants';
 import { useFetchAll } from '~/lib/tanstack/queries';
 
 export default function LoadingDataScreen() {
@@ -22,9 +23,8 @@ export default function LoadingDataScreen() {
   if (error === 'No internet connection, Internet connection needed to sync data')
     return <Error onRetry={handleRefetch} text={error} />;
   return (
-    <Container paddingHorizontal="$4">
-      <SquareLoader />
-      <ProductLoader />
-    </Container>
+    <View flex={1} justifyContent="center" alignItems="center">
+      <ActivityIndicator size="large" color={colors.green} />
+    </View>
   );
 }

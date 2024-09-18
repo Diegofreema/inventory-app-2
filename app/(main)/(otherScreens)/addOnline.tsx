@@ -33,7 +33,6 @@ export default function AddOnlineScreen() {
     reset,
     handleSubmit,
     setValue,
-    watch,
   } = useForm<z.infer<typeof pharmacySales>>({
     defaultValues: {
       qty: '',
@@ -41,15 +40,10 @@ export default function AddOnlineScreen() {
     },
     resolver: zodResolver(pharmacySales),
   });
-  const { productName } = watch();
-  console.log({ productName });
 
   const onSubmit = async (value: z.infer<typeof pharmacySales>) => {
-    console.log(value.productName);
-
     try {
       const productInDb = await products.find(value.productName);
-      console.log(productInDb?.product, 'dfj');
 
       if (!productInDb) return;
       if (productInDb.qty < +value.qty) {

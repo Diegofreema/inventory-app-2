@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useCallback, useEffect, useState } from 'react';
 
 import {
+  addInfo,
   createAccount,
   createCats,
   createDisposals,
@@ -17,6 +18,7 @@ import {
   getCat,
   getDisposal,
   getExpenditure,
+  getInfo,
   getProducts,
   getSale,
   getSalesP,
@@ -32,13 +34,14 @@ import {
   expenseAccounts,
   expenses,
   onlineSales,
+  pharmacyInfo,
   products,
   saleReferences,
   storeSales,
   supplyProduct,
 } from '~/db';
 import { useNetwork } from '~/hooks/useNetwork';
-import { CatType, InfoType, NotType } from '~/type';
+import { CatType, NotType } from '~/type';
 
 export const useFetchAll = () => {
   const id = useStore((state) => state.id);
@@ -50,7 +53,7 @@ export const useFetchAll = () => {
 
   const fetchAll = useCallback(async () => {
     try {
-      const [products, online, store, expenses, disposal, account, supply, cats] =
+      const [products, online, store, expenses, disposal, account, supply, cats, info] =
         await Promise.all([
           getProducts(id!),
           getSalesP(id!),
@@ -60,6 +63,7 @@ export const useFetchAll = () => {
           expensesAccount(id!),
           getSupply(id!),
           getCat(),
+          getInfo(id!),
         ]);
 
       await createProducts(products);
@@ -70,6 +74,7 @@ export const useFetchAll = () => {
       await createDisposals(disposal);
       await createOnlineSales(online);
       await createSupply(supply);
+      await addInfo(info);
       setHasFetched(true);
       setError(null);
     } catch (error) {
@@ -103,9 +108,11 @@ export const useProducts = (page?: number) => {
     const product = await products
       .query(Q.sortBy('created_at', Q.desc), Q.take(10), Q.skip(offset))
       .fetch();
+    const allProducts = await products.query(Q.sortBy('created_at', Q.desc)).fetch();
     const count = await products.query().fetchCount();
     return {
       product,
+      allProducts,
       count,
     };
   };
@@ -124,14 +131,15 @@ export const useSalesP = (page?: number) => {
       const data = await onlineSales
         .query(Q.sortBy('created_at', Q.desc), Q.take(10), Q.skip(offset))
         .fetch();
+      const allData = await onlineSales.query(Q.sortBy('created_at', Q.desc)).fetch();
       const count = await onlineSales.query().fetchCount();
-      return { data, count };
+      return { data, count, allData };
     },
     structuralSharing: false,
     placeholderData: (TData) => TData,
   });
 };
-export const useSalesS = (page?: number) => {
+export const useSalesS = (page: number = 1) => {
   const offset = page ? (page - 1) * 10 : 0;
   return useQuery({
     queryKey: ['salesStore', page],
@@ -139,8 +147,9 @@ export const useSalesS = (page?: number) => {
       const data = await storeSales
         .query(Q.sortBy('created_at', Q.desc), Q.take(10), Q.skip(offset))
         .fetch();
+      const allData = await storeSales.query(Q.sortBy('created_at', Q.desc)).fetch();
       const count = await storeSales.query().fetchCount();
-      return { data, count };
+      return { data, count, allData };
     },
     structuralSharing: false,
     placeholderData: (TData) => TData,
@@ -149,9 +158,12 @@ export const useSalesS = (page?: number) => {
 export const useExpenditure = (page?: number) => {
   const offset = page ? (page - 1) * 10 : 0;
   const getExpenditure = async () => {
-    const data = await expenses.query(Q.sortBy('id', Q.desc), Q.take(10), Q.skip(offset)).fetch();
+    const data = await expenses
+      .query(Q.sortBy('created_at', Q.desc), Q.take(10), Q.skip(offset))
+      .fetch();
+    const allData = await expenses.query(Q.sortBy('id', Q.desc)).fetch();
     const count = await expenses.query().fetchCount();
-    return { data, count };
+    return { data, count, allData };
   };
 
   return useQuery({
@@ -174,17 +186,13 @@ export const useCat = () => {
   });
 };
 export const useInfo = () => {
-  const id = useStore((state) => state.id);
-  const getInfo = async () => {
-    const { data } = await axios.get(
-      `https://247api.netpro.software/api.aspx?api=pharmacyinfor&cidx=${id}`
-    );
-
-    return data;
-  };
-  return useQuery<InfoType>({
-    queryKey: ['info', id],
-    queryFn: getInfo,
+  return useQuery({
+    queryKey: ['info'],
+    queryFn: async () => {
+      const data = await pharmacyInfo.query().fetch();
+      return data;
+    },
+    structuralSharing: false,
   });
 };
 export const useSupply = () => {
@@ -202,11 +210,12 @@ export const useSupply = () => {
 export const useExpAcc = (page?: number) => {
   const offset = page ? (page - 1) * 10 : 0;
   const getExpAcc = async () => {
+    const count = await expenseAccounts.query().fetchCount();
     const data = await expenseAccounts
       .query(Q.sortBy('created_at', Q.desc), Q.take(10), Q.skip(offset))
       .fetch();
-    const count = await expenseAccounts.query().fetchCount();
-    return { data, count };
+    const allData = await expenseAccounts.query(Q.sortBy('created_at', Q.desc)).fetch();
+    return { data, count, allData };
   };
   return useQuery({
     queryKey: ['exp_name', page],

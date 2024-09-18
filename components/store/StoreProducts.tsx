@@ -20,11 +20,6 @@ export const StoreProducts = (): JSX.Element => {
     setPage((prev) => prev + (direction === 'next' ? 1 : -1));
   }, []);
 
-  const isLastPage = useMemo(() => {
-    if (!products?.count) return false;
-
-    return products?.count <= page * 10;
-  }, [products?.count, page]);
   const router = useRouter();
   const handleNav = () => {
     router.push('/newItem');
@@ -32,13 +27,13 @@ export const StoreProducts = (): JSX.Element => {
   const onSetValue = useCallback((val: string) => setValue(val), [value]);
   const selectedCategory = useMemo(() => {
     if (selectedValue === null) {
-      return products?.product || [];
+      return products?.allProducts || [];
     }
 
-    return products?.product?.filter(
+    return products?.allProducts?.filter(
       (product) => product?.category?.toLowerCase() === selectedValue.toLowerCase()
     );
-  }, [selectedValue, products?.product]);
+  }, [selectedValue, products?.allProducts]);
   const filteredProducts = useMemo(() => {
     if (!value.trim()) {
       return selectedCategory || [];
@@ -51,7 +46,18 @@ export const StoreProducts = (): JSX.Element => {
       ) || []
     );
   }, [selectedCategory, value]);
+  const isLastPage = useMemo(() => {
+    if (!products?.count) return false;
 
+    return products?.count <= page * 10;
+  }, [products?.count, page]);
+  const productsToRender = useMemo(() => {
+    if (!value) {
+      return products?.product || [];
+    } else {
+      return filteredProducts;
+    }
+  }, [value, products, filteredProducts]);
   return (
     <AnimatedContainer>
       <StoreActions
@@ -66,13 +72,13 @@ export const StoreProducts = (): JSX.Element => {
       />
 
       <Products
-        data={filteredProducts}
+        data={productsToRender}
         scrollEnabled
         navigate
         onRefetch={fetchData}
         isLoading={fetching}
         pagination={
-          products?.product?.length ? (
+          filteredProducts?.length && !value ? (
             <PaginationButton
               handlePagination={handlePagination}
               page={page}

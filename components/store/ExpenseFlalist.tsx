@@ -1,9 +1,12 @@
 /* eslint-disable prettier/prettier */
 
+import { router, usePathname } from 'expo-router';
 import { FlatList } from 'react-native';
 
 import { ExpenseCard } from './ExpenseCard';
+import { CustomPressable } from '../ui/CustomPressable';
 import { Empty } from '../ui/empty';
+import { CustomSubHeading } from '../ui/typography';
 
 import Expenses from '~/db/model/Expenses';
 
@@ -20,8 +23,12 @@ export const ExpenseFlalist = ({
   refetch,
   pagination: Pagination,
 }: Props): JSX.Element => {
+  const pathname = usePathname();
+  console.log(pathname);
+
   return (
     <FlatList
+      ListHeaderComponent={pathname === '/filterExpense' ? <></> : <Header />}
       data={data}
       onRefresh={refetch}
       refreshing={fetching}
@@ -32,5 +39,22 @@ export const ExpenseFlalist = ({
       style={{ marginTop: 20 }}
       ListFooterComponent={Pagination}
     />
+  );
+};
+
+const Header = () => {
+  return (
+    <CustomPressable
+      onPress={() => router.push('/filterExpense')}
+      style={{
+        padding: 10,
+        borderWidth: 2,
+        borderColor: '#ccc',
+        borderRadius: 10,
+        height: 50,
+        justifyContent: 'center',
+      }}>
+      <CustomSubHeading text="Filter by date" fontSize={16} />
+    </CustomPressable>
   );
 };

@@ -26,11 +26,6 @@ export const Offline = (): JSX.Element => {
     setPage((prev) => prev + (direction === 'next' ? 1 : -1));
   }, []);
 
-  const isLastPage = useMemo(() => {
-    if (!data?.count) return false;
-
-    return data?.count <= page * 10;
-  }, [data?.count, page]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const bottomRef = useRef<BottomSheetMethods | null>(null);
@@ -40,17 +35,18 @@ export const Offline = (): JSX.Element => {
   const onSetValue = useCallback((val: string) => setValue(val), [value]);
   const handleNav = useCallback(() => router.push('/addOfflineScreen'), [router]);
   const filterByDate = useMemo(() => {
-    if (!startDate || !endDate || !data?.data) return data?.data;
+    if (!startDate || !endDate || !data?.allData) return data?.allData;
 
     const start = format(startDate, 'dd-MM-yyyy');
     const end = format(endDate, 'dd-MM-yyyy');
 
-    return data.data.filter((d) => {
+    return data.allData.filter((d) => {
       const salesDate = d.dateX.split(' ')[0].replace('/', '-').replace('/', '-');
 
       return isWithinInterval(salesDate, { start, end });
     });
-  }, [data?.data, startDate, endDate]);
+  }, [data?.allData, startDate, endDate]);
+
   const filterSales = useMemo(() => {
     if (!value.trim()) {
       return filterByDate || [];
@@ -81,6 +77,19 @@ export const Offline = (): JSX.Element => {
     setEndDate('');
     setStartDate('');
   }, []);
+  const isLastPage = useMemo(() => {
+    if (!data?.count) return false;
+
+    return data?.count <= page * 10;
+  }, [data?.count, page]);
+
+  const dataToRender = useMemo(() => {
+    if (!value) {
+      return data?.data || [];
+    } else {
+      return filterSales || [];
+    }
+  }, [value, filterSales, data?.data]);
   if (isError) return <Error onRetry={handleRefetch} />;
 
   return (
@@ -101,11 +110,11 @@ export const Offline = (): JSX.Element => {
       ) : (
         <SalesFlatlist
           // @ts-ignore
-          data={filterSales}
+          data={dataToRender}
           isLoading={isLoading}
           refetch={handleRefetch}
           pagination={
-            data?.data.length ? (
+            filterSales?.length && !value ? (
               <PaginationButton
                 isLastPage={isLastPage}
                 handlePagination={handlePagination}
