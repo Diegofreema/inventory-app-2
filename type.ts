@@ -113,14 +113,9 @@ export type SupplyType = {
   unitcost: string;
 };
 export type NotType = {
-  productid: string;
-  datex: string;
-  unitprice: string;
-  qty: string;
-  id: string;
+  Products: string;
   salesreference: string;
-  dealershare: string;
-  netproshare: string;
+  Datex: string;
 };
 
 export type SalesStore = {
@@ -200,4 +195,22 @@ export type DisposalFromDb = {
   dateX: string;
   qty: number;
   unitCost: number;
+};
+
+export type Receipt1Type = {
+  addres: string;
+  community: string;
+  customerCommunity: string;
+  customerCommunityFee: string;
+  customername: string;
+  phone: string;
+  statename: string;
+  totalsale: string;
+};
+
+export type Receipt2Type = {
+  productid: string;
+  Product: string;
+  qty: string;
+  unitprice: string;
 };

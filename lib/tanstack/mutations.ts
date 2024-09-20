@@ -2,7 +2,9 @@
 import { Q } from '@nozbe/watermelondb';
 import { createId } from '@paralleldrive/cuid2';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import { format } from 'date-fns';
+import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import Toast from 'react-native-toast-message';
 import { z } from 'zod';
@@ -665,6 +667,49 @@ export const useAddExp = () => {
         text2: 'Expense has been added',
       });
       queryClient.invalidateQueries({ queryKey: ['expenditure'] });
+    },
+  });
+};
+export const usePickUp = () => {
+  const storeId = useStore((state) => state.id);
+  return useMutation({
+    mutationFn: async ({
+      ref,
+      fee,
+      state,
+      communityId,
+    }: {
+      ref: string;
+      fee: string;
+      state: string;
+      communityId: string;
+    }) => {
+      const { data } = await axios.get(
+        `https://247api.netpro.software/api.aspx?api=callforpickup&cidx=${storeId}&salesref=${ref}&customerCommunityID=${communityId}&customerCommunityFee=${fee}&statename=${state}`
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      if (data.result === 'done') {
+        Toast.show({
+          text1: 'Success',
+          text2: 'Pickup call has been made',
+        });
+        router.back();
+      } else {
+        Toast.show({
+          text1: 'Error',
+          text2: 'Failed to make pickup call',
+        });
+      }
+    },
+    onError: (error) => {
+      console.log(error, 'error');
+
+      Toast.show({
+        text1: 'Error',
+        text2: 'Failed to make pickup call',
+      });
     },
   });
 };

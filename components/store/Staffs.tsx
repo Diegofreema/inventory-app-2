@@ -3,7 +3,7 @@ import { withObservables } from '@nozbe/watermelondb/react';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { FlatList } from 'react-native';
-import { XStack } from 'tamagui';
+import { YStack } from 'tamagui';
 
 import { StoreActions } from './StoreActions';
 import { AnimatedCard } from '../ui/AnimatedCard';
@@ -15,6 +15,7 @@ import { Empty } from '../ui/empty';
 import { staffs } from '~/db';
 import Staff from '~/db/model/Staff';
 import { useRender } from '~/hooks/useRender';
+import { trimText } from '~/lib/helper';
 import { useStore } from '~/lib/zustand/useStore';
 
 const AllStaffs = ({ staffs }: { staffs: Staff[] }): JSX.Element => {
@@ -78,16 +79,16 @@ const StaffCard = ({ index, item }: { item: Staff; index: number }) => {
   };
   return (
     <AnimatedCard index={index}>
-      <FlexText text="Name" text2={item?.name} />
-      <FlexText text="Email" text2={item?.email} />
+      <FlexText text="Name" text2={trimText(item?.name, 22)} />
+      <FlexText text="Email" text2={trimText(item?.email, 22)} />
 
       {isAdmin && (
         <>
           <FlexText text="Password" text2={item?.password} />
-          <XStack gap={8}>
+          <YStack gap={8}>
             <MyButton title="Remove staff" marginTop={10} onPress={onSetDelete} />
             <MyButton title="Edit staff" marginTop={10} flex={1} onPress={onEdit} />
-          </XStack>
+          </YStack>
         </>
       )}
     </AnimatedCard>

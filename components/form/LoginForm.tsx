@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Q } from '@nozbe/watermelondb';
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 import { useCallback, useState } from 'react';
@@ -16,11 +17,9 @@ import { CustomPressable } from '../ui/CustomPressable';
 import { MyButton } from '../ui/MyButton';
 
 import { colors } from '~/constants';
-import { api } from '~/lib/helper';
+import { staffs } from '~/db';
 import { loginSchema } from '~/lib/validators';
 import { useStore } from '~/lib/zustand/useStore';
-import { staffs } from '~/db';
-import { Q } from '@nozbe/watermelondb';
 
 export const LoginForm = (): JSX.Element => {
   const [secure, setSecure] = useState(true);

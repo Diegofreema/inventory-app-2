@@ -1,12 +1,13 @@
 /* eslint-disable prettier/prettier */
 
+import { router } from 'expo-router';
 import { FlatList } from 'react-native';
 
 import { AnimatedCard } from './ui/AnimatedCard';
+import { CustomPressable } from './ui/CustomPressable';
 import { FlexText } from './ui/FlexText';
 import { Empty } from './ui/empty';
 
-import { useGet } from '~/hooks/useGet';
 import { NotType } from '~/type';
 
 type Props = {
@@ -30,16 +31,12 @@ export const Notifications = ({ data, isLoading, onRefetch }: Props): JSX.Elemen
 };
 
 const NotificationCard = ({ index, item }: { item: NotType; index: number }) => {
-  const { singleProduct } = useGet(item.productid);
   return (
-    <AnimatedCard index={index}>
-      <FlexText text="Product" text2={singleProduct?.product} />
-      <FlexText text="Dealer share" text2={item?.dealershare} />
-
-      <FlexText text="Date" text2={item?.datex} />
-      <FlexText text="Unit price" text2={item?.unitprice} />
-      <FlexText text="Quantity" text2={item?.qty} />
-      <FlexText text="Sales reference" text2={item?.salesreference} />
-    </AnimatedCard>
+    <CustomPressable onPress={() => router.push(`/receipt1?ref=${item.salesreference}`)}>
+      <AnimatedCard index={index}>
+        <FlexText text="Quantity" text2={item?.Products} />
+        <FlexText text="Date" text2={item?.Datex} />
+      </AnimatedCard>
+    </CustomPressable>
   );
 };

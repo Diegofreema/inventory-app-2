@@ -41,7 +41,7 @@ import {
   supplyProduct,
 } from '~/db';
 import { useNetwork } from '~/hooks/useNetwork';
-import { CatType, NotType } from '~/type';
+import { CatType, NotType, Receipt1Type, Receipt2Type } from '~/type';
 
 export const useFetchAll = () => {
   const id = useStore((state) => state.id);
@@ -244,6 +244,34 @@ export const useNotify = () => {
     queryKey: ['not', id],
     queryFn: getNot,
     refetchInterval: 500 * 60,
+  });
+};
+export const useReceipt1 = (safeRef: string) => {
+  const id = useStore((state) => state.id);
+  const getReceipt1 = async () => {
+    const { data } = await axios.get(
+      `https://247api.netpro.software/api.aspx?api=get247receipt1&cidx=${id}&salesref=${safeRef}`
+    );
+
+    return data;
+  };
+  return useQuery<Receipt1Type>({
+    queryKey: ['receipt1', id],
+    queryFn: getReceipt1,
+  });
+};
+export const useReceipt2 = (safeRef: string) => {
+  const id = useStore((state) => state.id);
+  const getReceipt1 = async () => {
+    const { data } = await axios.get(
+      `https://247api.netpro.software/api.aspx?api=get247receipt2&cidx=${id}&salesref=${safeRef}`
+    );
+
+    return data;
+  };
+  return useQuery<Receipt2Type>({
+    queryKey: ['receipt2', id],
+    queryFn: getReceipt1,
   });
 };
 export const useDisposal = () => {

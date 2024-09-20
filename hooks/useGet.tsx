@@ -8,7 +8,6 @@ import Product from '~/db/model/Product';
 import StoreSales from '~/db/model/StoreSale';
 
 export const useGet = (id?: string, staffId?: string) => {
-  console.log('🚀 ~ useGet ~ id:', id);
   const [storedProduct, setStoredProducts] = useState<Product[] | undefined>([]);
   const [singleProduct, setSingleProduct] = useState<Product | undefined>();
   const [online, setOnline] = useState<OnlineSale[]>([]);

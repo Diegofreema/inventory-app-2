@@ -12,10 +12,6 @@ export const loginSchema = z.object({
   password: z
     .string({ required_error: 'Please enter your password' })
     .min(1, { message: 'Password must be at least 5 characters long' }),
-  // .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/, {
-  //   message:
-  //     'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
-  // }),
 });
 export const addStaffSchema = z
   .object({

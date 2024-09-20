@@ -13,7 +13,6 @@ import { CustomSubHeading } from '../ui/typography';
 import StoreSales from '~/db/model/StoreSale';
 import { useGet } from '~/hooks/useGet';
 import { calculateTotalsByPaymentType } from '~/lib/helper';
-import { useInfo } from '~/lib/tanstack/queries';
 
 type Props = {
   data: StoreSales[];
@@ -42,7 +41,6 @@ export const SalesFlatList = ({ data, scroll = true }: Props): JSX.Element => {
 const SalesCard = ({ item, index }: { item: StoreSales; index: number }) => {
   const { worker } = useGet(item?.productId, item.userId!);
   const [printing, setPrinting] = useState(false);
-  const { data } = useInfo();
 
   const price = +item?.qty * +item?.unitPrice;
   const html = `
@@ -51,9 +49,7 @@ const SalesCard = ({ item, index }: { item: StoreSales; index: number }) => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
   </head>
   <body style="text-align: center;">
-    <h1 style="font-size: 50px; font-family: Helvetica Neue; font-weight: normal;">
-      ${data?.businessname}
-    </h1>
+   
   <div style='width: 80%; margin: 0 auto;'>
     <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
       <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">

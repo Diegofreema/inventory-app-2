@@ -1,11 +1,11 @@
 /* eslint-disable prettier/prettier */
 import { FlashList } from '@shopify/flash-list';
-import { Text, View } from 'tamagui';
 
-import DisposedProducts from '~/db/model/DisposedProducts';
 import { AnimatedCard } from './ui/AnimatedCard';
 import { FlexText } from './ui/FlexText';
 import { Empty } from './ui/empty';
+
+import DisposedProducts from '~/db/model/DisposedProducts';
 import { trimText } from '~/lib/helper';
 
 type Props = {
