@@ -212,6 +212,12 @@ const Receipt1 = () => {
           contentContainerStyle={{ gap: 10 }}
           ItemSeparatorComponent={() => <Separator my={10} />}
           ListFooterComponent={() => <FlexText text="Total Sale" text2={`₦${data?.totalsale}`} />}
+          ListFooterComponentStyle={{
+            marginTop: 20,
+            borderTopWidth: 1,
+            borderTopColor: 'black',
+            paddingTop: 10,
+          }}
         />
         <YStack mt={10} gap={10}>
           <MyButton title="Print" onPress={print} loading={printing} />
