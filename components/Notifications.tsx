@@ -4,8 +4,8 @@ import { router } from 'expo-router';
 import { FlatList } from 'react-native';
 
 import { AnimatedCard } from './ui/AnimatedCard';
-import { CustomPressable } from './ui/CustomPressable';
 import { FlexText } from './ui/FlexText';
+import { MyButton } from './ui/MyButton';
 import { Empty } from './ui/empty';
 
 import { NotType } from '~/type';
@@ -32,11 +32,14 @@ export const Notifications = ({ data, isLoading, onRefetch }: Props): JSX.Elemen
 
 const NotificationCard = ({ index, item }: { item: NotType; index: number }) => {
   return (
-    <CustomPressable onPress={() => router.push(`/receipt1?ref=${item.salesreference}`)}>
-      <AnimatedCard index={index}>
-        <FlexText text="Quantity" text2={item?.Products} />
-        <FlexText text="Date" text2={item?.Datex} />
-      </AnimatedCard>
-    </CustomPressable>
+    <AnimatedCard index={index}>
+      <FlexText text="Quantity" text2={item?.Products} />
+      <FlexText text="Date" text2={item?.Datex} />
+      <MyButton
+        title="View"
+        onPress={() => router.push(`/receipt1?ref=${item.salesreference}`)}
+        mt={20}
+      />
+    </AnimatedCard>
   );
 };

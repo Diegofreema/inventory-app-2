@@ -30,7 +30,7 @@ const DisposedProductsFlatList = ({
     const end = format(endDate, 'dd-MM-yyyy');
 
     return disposedProduct.filter((d) => {
-      const salesDate = d.dateX.split(' ')[0].replace('/', '-').replace('/', '-');
+      const salesDate = d?.dateX?.split(' ')[0]?.replace('/', '-')?.replace('/', '-');
 
       return isWithinInterval(salesDate, { start, end });
     });
@@ -52,7 +52,7 @@ const DisposedProductsFlatList = ({
 };
 
 const enhancedComponent = withObservables([], () => ({
-  disposedProduct: disposedProducts.query(Q.sortBy('created_at', Q.desc)).observe(),
+  disposedProduct: disposedProducts?.query(Q.sortBy('created_at', Q.desc)).observe(),
 }));
 const EnhancedComponent = enhancedComponent(DisposedProductsFlatList);
 export default EnhancedComponent;

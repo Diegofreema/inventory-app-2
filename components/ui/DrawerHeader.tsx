@@ -6,14 +6,17 @@ import { Bell } from '@tamagui/lucide-icons';
 import { usePathname, useRouter } from 'expo-router';
 // import { Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { XStack } from 'tamagui';
+import { Circle, XStack } from 'tamagui';
 
 import { CustomPressable } from './CustomPressable';
 import { CustomSubHeading } from './typography';
+
+import { useRead } from '~/lib/zustand/useRead';
 // import { MenuSvg } from '../svg/MenuSvg';
 
 export const DrawerHeader = (): JSX.Element => {
   const { top } = useSafeAreaInsets();
+  const read = useRead((state) => state.read);
   const pathname = usePathname();
   const formattedPathname = pathname === '/' ? 'HOME' : pathname.replace('/', '').toUpperCase();
   const router = useRouter();
@@ -47,6 +50,16 @@ export const DrawerHeader = (): JSX.Element => {
         onPress={onNavigate}
         style={{ alignSelf: 'flex-end', flex: 0, position: 'absolute', right: 20 }}>
         <Bell size={25} color="black" />
+        {!read && (
+          <Circle
+            width={10}
+            height={10}
+            backgroundColor="red"
+            position="absolute"
+            top={0}
+            right={0}
+          />
+        )}
       </CustomPressable>
     </XStack>
   );

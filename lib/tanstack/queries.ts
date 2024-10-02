@@ -269,7 +269,7 @@ export const useReceipt2 = (safeRef: string) => {
 
     return data;
   };
-  return useQuery<Receipt2Type>({
+  return useQuery<Receipt2Type[]>({
     queryKey: ['receipt2', id],
     queryFn: getReceipt1,
   });

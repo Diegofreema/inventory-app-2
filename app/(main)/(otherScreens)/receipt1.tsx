@@ -1,6 +1,7 @@
 import * as Print from 'expo-print';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
+import { FlatList } from 'react-native';
 import { Separator, YStack } from 'tamagui';
 
 import { Container } from '~/components/Container';
@@ -13,17 +14,21 @@ import { NavHeader } from '~/components/ui/NavHeader';
 import { trimText } from '~/lib/helper';
 import { usePickUp } from '~/lib/tanstack/mutations';
 import { useReceipt1, useReceipt2 } from '~/lib/tanstack/queries';
+import { Receipt2Type } from '~/type';
 
 const Receipt1 = () => {
   const { ref } = useLocalSearchParams<{ ref: string }>();
   const { data, isPending, isError, refetch } = useReceipt1(ref);
   const { mutateAsync, isPending: isPendingPickUp } = usePickUp();
+
   const {
     data: data2,
     isPending: isPending2,
     isError: isError2,
     refetch: refetch2,
   } = useReceipt2(ref);
+  console.log({ data, data2 });
+
   const [printing, setPrinting] = useState(false);
   const html = `
 <html>
@@ -82,45 +87,60 @@ const Receipt1 = () => {
       </h1>
     </div>
     
-    
-   <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
-        Product
-      </h1>
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
-        ${data2?.Product}
-      </h1>
-    </div>
-   <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
-        Quantity
-      </h1>
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
-        ${data2?.qty}
-      </h1>
-    </div>
+ <div style='gap: 10px;'>
+    ${
+      data2
+        ? data2
+            .map(
+              (d) => `
+      <div style="margin-bottom: 15px; border-bottom: 1px solid black;">
+        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+          <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+            Product
+          </h1>
+          <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+            ${d.Product || ''}
+          </h1>
+        </div>
+        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+          <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+            Quantity
+          </h1>
+          <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+            ${d.qty || ''}
+          </h1>
+        </div>
+        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
+          <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+            Price
+          </h1>
+          <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+            ₦${d.unitprice || ''}
+          </h1>
+        </div>
+      </div>
+    `
+            )
+            .join('')
+        : ''
+    }
+ </div>
+
+   
      <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
       <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
-        Price
-      </h1>
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
-        ₦${data2?.unitprice}
-      </h1>
-    </div>
-     <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
-        Total cost
-      </h1>
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
-        ₦${data?.totalsale}
-      </h1>
-    </div>
-     <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
-        Total cost
+        Delivery fee
       </h1>
       <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
         ₦${data?.customerCommunityFee}
+      </h1>
+    </div>
+      <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+        Total cost
+      </h1>
+      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+        ₦${(Number(data?.totalsale) || 0) + (Number(data?.customerCommunityFee) || 0)}
       </h1>
     </div>
     <div style="width: 100%;">
@@ -132,6 +152,9 @@ const Receipt1 = () => {
       </h1>
     </div>
   </div>
+  <script>
+    
+  </script>
   </body>
 </html>
 `;
@@ -179,11 +202,17 @@ const Receipt1 = () => {
         <FlexText text="State" text2={data?.statename} />
         <FlexText text="Community" text2={trimText(data?.customerCommunity, 22)} />
         <FlexText text="Delivery Fee" text2={`₦${data?.customerCommunityFee}`} />
-        <FlexText text="Total Sale" text2={`₦${data?.totalsale}`} />
+
         <Separator my={10} />
-        <FlexText text="Product" text2={data2?.Product} />
-        <FlexText text="Quantity" text2={data2?.qty} />
-        <FlexText text="Unit Price" text2={`₦${data2?.unitprice}`} />
+        <FlatList
+          data={data2}
+          renderItem={({ item }) => <DataCard {...item} />}
+          keyExtractor={(item) => item.productid}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ gap: 10 }}
+          ItemSeparatorComponent={() => <Separator my={10} />}
+          ListFooterComponent={() => <FlexText text="Total Sale" text2={`₦${data?.totalsale}`} />}
+        />
         <YStack mt={10} gap={10}>
           <MyButton title="Print" onPress={print} loading={printing} />
           <MyButton title="Call for pickup" loading={isPendingPickUp} onPress={handlePickUp} />
@@ -194,3 +223,13 @@ const Receipt1 = () => {
 };
 
 export default Receipt1;
+
+const DataCard = ({ Product, qty, unitprice }: Receipt2Type) => {
+  return (
+    <YStack>
+      <FlexText text="Product" text2={Product} />
+      <FlexText text="Quantity" text2={qty} />
+      <FlexText text="Unit Price" text2={`₦${unitprice}`} />
+    </YStack>
+  );
+};

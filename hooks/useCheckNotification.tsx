@@ -4,6 +4,7 @@ import { Audio } from 'expo-av';
 import * as Store from 'expo-secure-store';
 import { useCallback, useEffect, useState } from 'react';
 
+import { useRead } from '~/lib/zustand/useRead';
 import { NotType } from '~/type';
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 
 export const useCheckNotification = ({ data }: Props) => {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const setUnread = useRead((state) => state.setUnread);
 
   const loadSound = useCallback(async () => {
     if (sound) return;
@@ -30,7 +32,6 @@ export const useCheckNotification = ({ data }: Props) => {
     loadSound();
     return () => {
       if (sound) {
-        console.log('Unloading Sound');
         sound.unloadAsync();
       }
     };
@@ -45,6 +46,7 @@ export const useCheckNotification = ({ data }: Props) => {
 
       if (data.length > prevLength) {
         await playSound();
+        setUnread();
         Store.setItem('dataLength', data.length.toString());
       }
     };
