@@ -85,6 +85,7 @@ export const StoreProducts = (): JSX.Element => {
               isLastPage={isLastPage}
             />
           ) : (
+            // @ts-ignore
             <></>
           )
         }

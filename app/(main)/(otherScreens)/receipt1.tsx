@@ -1,3 +1,4 @@
+import { Q } from '@nozbe/watermelondb';
 import * as Print from 'expo-print';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
@@ -11,8 +12,9 @@ import { FlexText } from '~/components/ui/FlexText';
 import { ProductLoader } from '~/components/ui/Loading';
 import { MyButton } from '~/components/ui/MyButton';
 import { NavHeader } from '~/components/ui/NavHeader';
+import { products } from '~/db';
 import { trimText } from '~/lib/helper';
-import { usePickUp } from '~/lib/tanstack/mutations';
+import { useAdd247, usePickUp } from '~/lib/tanstack/mutations';
 import { useReceipt1, useReceipt2 } from '~/lib/tanstack/queries';
 import { Receipt2Type } from '~/type';
 
@@ -20,6 +22,7 @@ const Receipt1 = () => {
   const { ref } = useLocalSearchParams<{ ref: string }>();
   const { data, isPending, isError, refetch } = useReceipt1(ref);
   const { mutateAsync, isPending: isPendingPickUp } = usePickUp();
+  const { mutateAsync: onAddOnline, isPending: isPendingAddOnline } = useAdd247();
 
   const {
     data: data2,
@@ -184,11 +187,29 @@ const Receipt1 = () => {
   }
 
   const handlePickUp = async () => {
+    console.log(data2);
     await mutateAsync({
       ref,
       communityId: data?.community,
       fee: data?.customerCommunityFee,
       state: data?.statename,
+    });
+    data2.forEach(async (d) => {
+      const product = await products
+        .query(Q.where('product_id', Q.eq(d.productid)), Q.take(1))
+        .fetch();
+      const singleProduct = product[0];
+      onAddOnline({ productId: singleProduct.id, qty: +d.qty, unitPrice: +d.unitprice });
+      // const product = await products
+      //   .query(Q.where('product_id', Q.eq(d.productid)), Q.take(1))
+      //   .fetch();
+      // const singleProduct = product[0];
+      // await database.write(async () => {
+      //   const pd = await products.find(singleProduct.id);
+      //   await pd.update((p) => {
+      //     p.qty = p.qty - Number(d.qty);
+      //   });
+      // });
     });
   };
 
@@ -221,7 +242,11 @@ const Receipt1 = () => {
         />
         <YStack mt={10} gap={10}>
           <MyButton title="Print" onPress={print} loading={printing} />
-          <MyButton title="Call for pickup" loading={isPendingPickUp} onPress={handlePickUp} />
+          <MyButton
+            title="Call for pickup"
+            loading={isPendingPickUp || isPendingAddOnline}
+            onPress={handlePickUp}
+          />
         </YStack>
       </AnimatedCard>
     </Container>
