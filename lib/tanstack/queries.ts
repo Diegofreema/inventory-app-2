@@ -263,10 +263,15 @@ export const useReceipt1 = (safeRef: string) => {
 export const useReceipt2 = (safeRef: string) => {
   const id = useStore((state) => state.id);
   const getReceipt1 = async () => {
-    const { data } = await axios.get(
+    const response = await axios.get(
       `https://247api.netpro.software/api.aspx?api=get247receipt2&cidx=${id}&salesref=${safeRef}`
     );
-
+    let data = [];
+    if (Object.prototype.toString.call(response.data) === '[object Object]') {
+      data.push(response.data);
+    } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
+      data = [...response.data];
+    }
     return data;
   };
   return useQuery<Receipt2Type[]>({

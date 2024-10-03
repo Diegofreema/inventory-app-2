@@ -150,6 +150,7 @@ export const LoginForm = (): JSX.Element => {
 
   const handleSecure = useCallback(() => setSecure((prev) => !prev), []);
   return (
+    // @ts-ignore
     <>
       <LoadingModal visible={loading} />
       <Stack gap={10}>

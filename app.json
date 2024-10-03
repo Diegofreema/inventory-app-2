@@ -19,9 +19,7 @@
             "buildToolsVersion": "34.0.0",
             "kotlinVersion": "1.6.10",
             "packagingOptions": {
-              "pickFirst": [
-                "**/libc++_shared.so"
-              ]
+              "pickFirst": ["**/libc++_shared.so"]
             }
           },
           "ios": {
@@ -29,10 +27,7 @@
             "extraPods": [
               {
                 "name": "simdjson",
-                "configuration": [
-                  "Debug",
-                  "Release"
-                ],
+                "configuration": ["Debug", "Release"],
                 "path": "./node_modules/@nozbe/simdjson",
                 "modular_headers": true
               }
@@ -69,9 +64,7 @@
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "entitlements": {
@@ -85,10 +78,7 @@
         "backgroundColor": "#ffffff"
       },
       "softwareKeyboardLayoutMode": "pan",
-      "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
-      ],
+      "permissions": ["android.permission.CAMERA", "android.permission.RECORD_AUDIO"],
       "package": "com.hadhavdh.asdband"
     },
     "extra": {

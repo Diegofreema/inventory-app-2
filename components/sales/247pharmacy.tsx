@@ -116,6 +116,7 @@ export const OnlinePharmacy = (): JSX.Element => {
                 isLastPage={isLastPage}
               />
             ) : (
+              // @ts-ignore
               <></>
             )
           }
