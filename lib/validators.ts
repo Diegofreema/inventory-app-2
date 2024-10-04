@@ -77,7 +77,7 @@ export const newProductSchema = z.object({
   des: z.string().min(1, { message: 'Description is required' }),
   marketprice: z.string().min(1, { message: 'Price is required' }),
   online: z.boolean(),
-  sellingprice: z.string().min(1, { message: 'Selling price is required' }),
+
   qty: z.string().min(1, { message: 'Quantity is required' }),
   sharedealer: z.string().optional(),
   sharenetpro: z.string().optional(),

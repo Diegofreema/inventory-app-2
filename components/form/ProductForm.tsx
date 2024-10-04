@@ -25,6 +25,8 @@ import { useCat, useInfo } from '~/lib/tanstack/queries';
 import { Cats } from '~/type';
 const { height, width } = Dimensions.get('window');
 export const ProductForm = (): JSX.Element => {
+  console.log('product form');
+
   const { isPending, mutateAsync } = useAddNewProduct();
   const { data, isPending: infoPending, isError, refetch } = useInfo();
   const { height, width } = useWindowDimensions();
@@ -56,7 +58,7 @@ export const ProductForm = (): JSX.Element => {
       online: true,
       product: '',
       qty: '',
-      sellingprice: '',
+
       sharedealer: info?.shareSeller,
       sharenetpro: info?.shareNetpro,
       state: info?.stateName,
@@ -114,13 +116,14 @@ export const ProductForm = (): JSX.Element => {
     try {
       mutateAsync({
         ...values,
-        sharedealer: info?.sharePrice,
+        sharedealer: info?.shareSeller,
         sharenetpro: info?.shareNetpro,
+        sharePrice: info?.sharePrice!,
         state: info?.stateName,
         online: values.online,
       });
 
-      reset();
+      // reset();
     } catch (error: any) {
       Toast.show({
         text1: 'Failed',
@@ -159,14 +162,6 @@ export const ProductForm = (): JSX.Element => {
           control={control}
           errors={errors}
           label="Product Name"
-        />
-        <CustomController
-          name="sellingprice"
-          placeholder="Selling Price"
-          control={control}
-          errors={errors}
-          label="Selling price"
-          type="numeric"
         />
 
         <CustomController

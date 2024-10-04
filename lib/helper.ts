@@ -318,10 +318,16 @@ export const supplyProducts = async ({
   unitCost,
   id,
 }: SupplyInsert & { id: string }) => {
-  const { data } = await axios.get(
-    `https://247api.netpro.software/api.aspx?api=addsupply&cidx=${id}&productid=${productId}&qty=${qty}&unitcost=${unitCost}&newprice=${newPrice}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}`
-  );
-  return data;
+  try {
+    const { data } = await axios.get(
+      `https://247api.netpro.software/api.aspx?api=addsupply&cidx=${id}&productid=${productId}&qty=${qty}&unitcost=${unitCost}&newprice=${newPrice}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}`
+    );
+    console.log(data, 'sent');
+
+    return data;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const sendDisposedProducts = async ({
@@ -351,12 +357,19 @@ export const addProduct = async ({
   subcategory,
   customerproductid,
   id,
-}: z.infer<typeof newProductSchema> & { id: string | undefined }) => {
-  const { data } = await axios.get(
-    `https://247api.netpro.software/api.aspx?api=addproduct&customerproductid=${customerproductid}&online=${online}&productname=${product}&cidx=${id}&qty=${qty}&statename=${state}&description=${des}&productcategory=${category}&productsubcategory=${subcategory}&marketprice=${marketprice}&getsellingprice=${sellingprice}&getdealershare=${sharedealer}&getnetproshare=${sharenetpro}`
-  );
+}: z.infer<typeof newProductSchema> & { id: string | undefined; sellingprice: string }) => {
+  const ifOnline = online ? 1 : 0;
+  try {
+    const { data } = await axios.get(
+      `https://247api.netpro.software/api.aspx?api=addproduct&customerproductid=${customerproductid}&online=${ifOnline}&productname=${encodeURIComponent(product)}&cidx=${id}&qty=${qty}&statename=${state}&description=${encodeURIComponent(des)}&productcategory=${encodeURIComponent(category)}&productsubcategory=${encodeURIComponent(subcategory)}&marketprice=${marketprice}&getsellingprice=${sellingprice}&getdealershare=${sharedealer}&getnetproshare=${sharenetpro}`
+    );
 
-  return data;
+    return data;
+  } catch (error) {
+    console.log(JSON.stringify(error, null, 1));
+
+    console.log(JSON.stringify(error, null, 2));
+  }
 };
 
 export const addAccountName = async ({

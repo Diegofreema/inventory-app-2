@@ -50,24 +50,34 @@ export const useAddNewProduct = () => {
       marketprice,
       online,
       product,
-      sellingprice,
       qty,
       sharedealer,
       sharenetpro,
       subcategory,
       customerproductid,
-    }: z.infer<typeof newProductSchema>) => {
+      sharePrice,
+    }: z.infer<typeof newProductSchema> & { sharePrice: string }) => {
+      const shareDealerToNumber = Number(sharedealer);
+
+      const shareNetproToNumber = Number(sharenetpro);
+      const marketPriceToNumber = Number(marketprice);
+      const sharePriceToNumber = Number(sharePrice);
+      const dealerShare = (shareDealerToNumber * marketPriceToNumber) / 100;
+      const netProShare = (shareNetproToNumber * marketPriceToNumber) / 100;
+      const sellingPrice = (marketPriceToNumber * sharePriceToNumber) / 100;
       const productId = createId() + Math.random().toString(36).slice(2);
+      console.log({ sellingPrice, sharePriceToNumber });
+
       const createdProduct = await createProduct({
         category,
         description: des,
-        marketPrice: +marketprice,
+        marketPrice: marketPriceToNumber,
         online,
         product,
-        sellingPrice: +sellingprice,
+        sellingPrice,
         qty: +qty,
-        shareDealer: Number(sharedealer),
-        shareNetpro: Number(sharenetpro),
+        shareDealer: dealerShare,
+        shareNetpro: netProShare,
         subcategory,
         customerProductId: customerproductid,
         productId,
@@ -82,7 +92,7 @@ export const useAddNewProduct = () => {
           online,
           product,
           qty,
-          sellingprice,
+          sellingprice: sharePrice,
           sharedealer,
           sharenetpro,
           state,
@@ -91,12 +101,20 @@ export const useAddNewProduct = () => {
           id: storeId!,
         });
 
-        await database.write(async () => {
-          await createdProduct.update((product) => {
-            product.productId = data.result;
+        if (data?.result) {
+          await database.write(async () => {
+            await createdProduct.update((product) => {
+              product.productId = data?.result;
+            });
           });
-        });
-        return data;
+          return data;
+        } else {
+          await database.write(async () => {
+            await createdProduct.update((product) => {
+              product.isUploaded = false;
+            });
+          });
+        }
       } else if (!isConnected) {
         return await database.write(async () => {
           await createdProduct.update((product) => {
@@ -442,9 +460,9 @@ export const useSupply = () => {
       });
 
       if (!updatedProduct) throw Error('Failed to update product');
-      console.log(isConnected, 'is connected');
 
       if (isConnected) {
+        console.log(isConnected, 'is connected');
         const data = await supplyProducts({
           productId,
           qty,
