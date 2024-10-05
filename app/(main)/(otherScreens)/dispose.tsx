@@ -15,7 +15,11 @@ import { useDisposal } from '~/lib/tanstack/mutations';
 import { disposeSchema } from '~/lib/validators';
 
 const Dispose = (): JSX.Element => {
-  const { name, productId } = useLocalSearchParams<{ productId: string; name: string }>();
+  const { name, productId, id } = useLocalSearchParams<{
+    productId: string;
+    name: string;
+    id: string;
+  }>();
   const { isPending, mutateAsync } = useDisposal();
   const router = useRouter();
   const {
@@ -33,7 +37,7 @@ const Dispose = (): JSX.Element => {
 
   const onSubmit = async (values: z.infer<typeof disposeSchema>) => {
     try {
-      await mutateAsync({ qty: +values.qty, productId });
+      await mutateAsync({ qty: +values.qty, productId, id });
       reset();
       router.back();
     } catch (error) {

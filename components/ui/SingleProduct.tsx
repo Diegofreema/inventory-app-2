@@ -15,17 +15,19 @@ import Product from '~/db/model/Product';
 const SingleProduct = ({ product }: { product: Product }): JSX.Element => {
   const [showMenu, setShowMenu] = useState(false);
   const isLow = product?.qty <= 10;
+  console.log({ id: product.id });
 
   const onClose = useCallback(() => setShowMenu(false), []);
   const onOpen = useCallback(() => setShowMenu(true), []);
 
   const details = useMemo(
     () => ({
-      productId: product?.id,
+      id: product?.id,
       name: product?.product,
       price: product?.sellingPrice!,
+      productId: product?.productId,
     }),
-    [product?.id, product?.product, product?.sellingPrice]
+    [product?.id, product?.product, product?.sellingPrice, product?.productId]
   );
 
   const toggleOnline = async () => {

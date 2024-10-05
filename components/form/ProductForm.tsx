@@ -123,7 +123,7 @@ export const ProductForm = (): JSX.Element => {
         online: values.online,
       });
 
-      // reset();
+      reset();
     } catch (error: any) {
       Toast.show({
         text1: 'Failed',

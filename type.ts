@@ -134,6 +134,7 @@ export type SupplyInsert = {
   dealerShare: string;
   netProShare: string;
   unitCost?: string;
+  id: string;
 };
 
 export type Cats = {

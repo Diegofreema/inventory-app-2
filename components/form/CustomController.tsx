@@ -19,6 +19,8 @@ type Props = {
   type?: KeyboardTypeOptions;
   variant?: 'text' | 'textarea' | 'select';
   data?: { value: any; label: string }[];
+  query?: string;
+  setQuery?: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export const CustomController = ({
@@ -35,8 +37,11 @@ export const CustomController = ({
   variant,
   data,
   setValue,
+  query,
+  setQuery,
 }: Props): JSX.Element => {
   return (
+    // @ts-ignore
     <>
       <Controller
         control={control}
@@ -58,6 +63,8 @@ export const CustomController = ({
             data={data}
             setValue={setValue}
             name={name}
+            query={query}
+            setQuery={setQuery}
           />
         )}
       />

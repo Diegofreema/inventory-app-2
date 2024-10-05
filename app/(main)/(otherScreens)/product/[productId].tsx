@@ -8,6 +8,7 @@ import SingleProduct from '~/components/ui/SingleProduct';
 
 const ProductDetails = (): JSX.Element => {
   const { productId } = useLocalSearchParams<{ productId: string }>();
+  console.log(productId);
 
   if (!productId) return <Redirect href="/" />;
 

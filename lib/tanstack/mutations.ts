@@ -436,8 +436,9 @@ export const useSupply = () => {
       newPrice,
       sellingPrice,
       unitCost,
+      id,
     }: SupplyInsert) => {
-      const checkIfProductExists = await products.find(productId);
+      const checkIfProductExists = await products.find(id);
       if (!checkIfProductExists) throw Error('Product does not exist');
 
       const addedProduct = await database.write(async () => {
@@ -509,9 +510,11 @@ export const useDisposal = () => {
   const queryClient = useQueryClient();
   const isConnected = useNetwork();
   return useMutation({
-    mutationFn: async ({ productId, qty }: { qty: number; productId: string }) => {
+    mutationFn: async ({ productId, qty, id }: { qty: number; productId: string; id: string }) => {
+      console.log({ qty, productId, id });
+
       try {
-        const productInStore = await products.find(productId);
+        const productInStore = await products.find(id);
         if (!productInStore) throw Error('Product does not exist');
         if (qty > productInStore.qty) throw Error('Not enough stock to dispose');
 

@@ -75,11 +75,12 @@ const ProductCard = ({ item, show, nav }: { item: Product; show?: boolean; nav?:
 
   const details = useMemo(
     () => ({
-      productId: item?.id,
+      productId: item?.productId,
       name: item?.product,
       price: item?.sellingPrice!,
+      id: item?.id,
     }),
-    [item?.id, item?.product, item?.sellingPrice]
+    [item?.id, item?.product, item?.sellingPrice, item.productId]
   );
   const onPress = () => {
     if (!nav) return;

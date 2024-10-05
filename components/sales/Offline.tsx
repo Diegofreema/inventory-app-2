@@ -121,6 +121,7 @@ export const Offline = (): JSX.Element => {
                 page={page}
               />
             ) : (
+              // @ts-ignore
               <></>
             )
           }

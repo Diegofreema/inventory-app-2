@@ -38,9 +38,7 @@ export const SalesCard = ({ index, item }: Props): JSX.Element => {
       <FlexText text="Price" text2={`₦${price}`} />
       {item?.isPaid && <FlexText text="Paid" text2={item?.isPaid ? 'Yes' : 'No'} />}
       {item?.paymentType && <FlexText text="Payment type" text2={item?.paymentType} />}
-      {item?.salesReference && (
-        <FlexText text="Sale's reference" text2={trimText(item?.salesReference!)} />
-      )}
+
       {item?.transferInfo && <FlexText text="Transaction info" text2={item?.transferInfo} />}
       {item?.userId && <FlexText text="Staff" text2={staff} />}
     </AnimatedCard>

@@ -320,13 +320,12 @@ export const supplyProducts = async ({
 }: SupplyInsert & { id: string }) => {
   try {
     const { data } = await axios.get(
-      `https://247api.netpro.software/api.aspx?api=addsupply&cidx=${id}&productid=${productId}&qty=${qty}&unitcost=${unitCost}&newprice=${newPrice}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}`
+      `https://247api.netpro.software/api.aspx?api=addsupply&cidx=${id}&productid=${productId}&qty=${qty}&unitcost=${unitCost || newPrice}&newprice=${newPrice}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}`
     );
-    console.log(data, 'sent');
 
     return data;
   } catch (error) {
-    console.log(error);
+    console.log(JSON.stringify(error, null, 1));
   }
 };
 
@@ -337,10 +336,20 @@ export const sendDisposedProducts = async ({
   qty: number;
   productId: string;
 }) => {
-  const { data } = await axios.get(
-    `https://247api.netpro.software/api.aspx?api=adddisposal&qty=${qty}&productid=${productId}`
-  );
-  return data;
+  console.log({ qty, productId });
+
+  try {
+    const { data } = await axios.get(
+      `https://247api.netpro.software/api.aspx?api=adddisposal&qty=${qty}&productid=${productId}`
+    );
+    console.log(
+      `https://247api.netpro.software/api.aspx?api=adddisposal&qty=${qty}&productid=${productId}`
+    );
+
+    return data;
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export const addProduct = async ({

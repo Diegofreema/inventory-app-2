@@ -20,12 +20,14 @@ import { productSupplySchema } from '~/lib/validators';
 
 const Restock = (): JSX.Element => {
   const { isPending, mutateAsync } = useSupply();
-  const { name, price, productId } = useLocalSearchParams<{
+  const { name, price, productId, id } = useLocalSearchParams<{
     productId: string;
     name: string;
     price: string;
+    id: string;
   }>();
   const router = useRouter();
+  console.log(name, price, productId, id);
 
   const { data, isPending: isLoading, isError, refetch } = useInfo();
   const {
@@ -56,6 +58,7 @@ const Restock = (): JSX.Element => {
         productId,
         qty: +value.qty,
         unitCost: value.unitPrice,
+        id,
       });
       reset();
       router.back();

@@ -18,6 +18,8 @@ type Props = TextInputProps & {
   data?: { value: string; label: string }[];
   setValue?: UseFormSetValue<any>;
   name: string;
+  query?: string;
+  setQuery?: React.Dispatch<React.SetStateAction<string>>;
 };
 
 export const CustomInput = ({
@@ -30,6 +32,8 @@ export const CustomInput = ({
   data,
   setValue,
   name,
+  query,
+  setQuery,
   ...props
 }: Props): JSX.Element => {
   const handleChange = (text: string) => {
@@ -100,6 +104,8 @@ export const CustomInput = ({
           placeholder={props.placeholder!}
           value={props.value}
           onValueChange={handleChange}
+          query={query}
+          setQuery={setQuery}
         />
       )}
     </YStack>

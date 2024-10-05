@@ -7,7 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FlatList } from 'react-native';
 import Toast from 'react-native-toast-message';
@@ -33,7 +33,7 @@ import { addToCart } from '~/lib/validators';
 
 export default function AddOfflineScreen() {
   const { error, mutateAsync, isPending } = useAddSales();
-
+  const [query, setQuery] = useState('');
   const { data } = useSalesRef();
   const router = useRouter();
   const { storedProduct } = useGet();
@@ -56,6 +56,10 @@ export default function AddOfflineScreen() {
       value: item?.id,
       label: item?.product,
     })) || [];
+  const filteredData = useMemo(() => {
+    if (!query) return formattedProducts;
+    return formattedProducts.filter((f) => f.label.toLowerCase().includes(query.toLowerCase()));
+  }, [query, formattedProducts]);
   const { productId } = watch();
   const memoizedPrice = useMemo(() => {
     if (!productId) return null;
@@ -105,8 +109,10 @@ export default function AddOfflineScreen() {
             placeholder="Product Name"
             label="Product Name"
             variant="select"
-            data={formattedProducts}
+            data={filteredData}
             setValue={setValue}
+            query={query}
+            setQuery={setQuery}
           />
           <CustomController
             name="qty"

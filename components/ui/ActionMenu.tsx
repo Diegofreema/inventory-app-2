@@ -18,6 +18,7 @@ type Props = {
     productId: string;
     name: string;
     price: number;
+    id: string;
   };
   online?: boolean;
 };
@@ -32,13 +33,13 @@ export const ActionMenu = ({
 }: Props): JSX.Element => {
   const router = useRouter();
   const handleDispose = () => {
-    router.push(`/dispose?productId=${details?.productId}&name=${details?.name}`);
+    router.push(`/dispose?productId=${details?.productId}&name=${details?.name}&id=${details?.id}`);
     onClose();
   };
 
   const handleSupply = () => {
     router.push(
-      `/restock?productId=${details?.productId}&name=${details?.name}&price=${details?.price}`
+      `/restock?productId=${details?.productId}&name=${details?.name}&price=${details?.price}&id=${details?.id}`
     );
     onClose();
   };

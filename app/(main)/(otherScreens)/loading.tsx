@@ -23,7 +23,7 @@ export default function LoadingDataScreen() {
   if (error === 'No internet connection, Internet connection needed to sync data')
     return <Error onRetry={handleRefetch} text={error} />;
   return (
-    <View flex={1} justifyContent="center" alignItems="center">
+    <View flex={1} justifyContent="center" alignItems="center" bg="white">
       <ActivityIndicator size="large" color={colors.green} />
     </View>
   );
