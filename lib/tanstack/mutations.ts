@@ -734,3 +734,47 @@ export const usePickUp = () => {
     },
   });
 };
+export const useEdit = () => {
+  return useMutation({
+    mutationFn: async ({
+      customerProductId,
+      dealerShare,
+      netProShare,
+      online,
+      price,
+      productId,
+      qty,
+      sellingPrice,
+    }: {
+      qty: string;
+      customerProductId: string;
+      online: string;
+      price: string;
+      sellingPrice: string;
+      dealerShare: string;
+      netProShare: string;
+      productId: string;
+    }) => {
+      const { data } = await axios.get(
+        `https://247api.netpro.software/api.aspx?api=updateproductpricenqty&qty=${qty}&customerproductid=${customerProductId}&online=${online}&price=${price}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}&productid=${productId}`
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      if (data.result === 'done') {
+        Toast.show({
+          text1: 'Success',
+          text2: 'Product updated',
+        });
+      }
+    },
+    onError: (error) => {
+      console.log(error, 'error');
+
+      Toast.show({
+        text1: 'Error',
+        text2: 'Failed to update product',
+      });
+    },
+  });
+};

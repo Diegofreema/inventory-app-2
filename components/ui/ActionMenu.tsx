@@ -21,6 +21,7 @@ type Props = {
     id: string;
   };
   online?: boolean;
+  disabled?: boolean;
 };
 
 export const ActionMenu = ({
@@ -30,6 +31,7 @@ export const ActionMenu = ({
   details,
   online,
   toggleOnline,
+  disabled,
 }: Props): JSX.Element => {
   const router = useRouter();
   const handleDispose = () => {
@@ -67,7 +69,7 @@ export const ActionMenu = ({
       </MenuItem>
       {toggleOnline && <MenuDivider />}
       {toggleOnline && (
-        <MenuItem onPress={toggleOnline}>
+        <MenuItem onPress={toggleOnline} disabled={disabled}>
           <XStack gap={5}>
             <CustomBarIcon color="black" size={20} icon={RotateCcw} />
             <CustomSubHeading text={online ? 'Set offline' : 'Set online'} />
