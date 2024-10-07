@@ -32,6 +32,7 @@ import database, {
   saleReferences,
   storeSales,
   supplyProduct,
+  updateProducts,
 } from '~/db';
 import CartItem from '~/db/model/CartItems';
 import { useNetwork } from '~/hooks/useNetwork';
@@ -735,6 +736,7 @@ export const usePickUp = () => {
   });
 };
 export const useEdit = () => {
+  const isConnected = useNetwork();
   return useMutation({
     mutationFn: async ({
       customerProductId,
@@ -755,18 +757,34 @@ export const useEdit = () => {
       netProShare: string;
       productId: string;
     }) => {
-      const { data } = await axios.get(
-        `https://247api.netpro.software/api.aspx?api=updateproductpricenqty&qty=${qty}&customerproductid=${customerProductId}&online=${online}&price=${price}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}&productid=${productId}`
-      );
-      return data;
-    },
-    onSuccess: (data) => {
-      if (data.result === 'done') {
-        Toast.show({
-          text1: 'Success',
-          text2: 'Product updated',
+      if (isConnected) {
+        await axios.get(
+          `https://247api.netpro.software/api.aspx?api=updateproductpricenqty&qty=${qty}&customerproductid=${customerProductId}&online=${online}&price=${price}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}&productid=${productId}`
+        );
+      } else {
+        await database.write(async () => {
+          const product = await products
+            .query(Q.where('product_id', Q.eq(productId)), Q.take(1))
+            .fetch();
+          const singleProduct = product[0];
+          await updateProducts.create((p) => {
+            p.product = singleProduct.product;
+            p.productId = singleProduct.productId;
+            p.customerProductId = customerProductId;
+            p.marketPrice = +price;
+            p.qty = +qty;
+            p.sellingPrice = +sellingPrice;
+            p.shareDealer = +dealerShare;
+            p.shareNetpro = +netProShare;
+          });
         });
       }
+    },
+    onSuccess: () => {
+      Toast.show({
+        text1: 'Success',
+        text2: 'Product updated',
+      });
     },
     onError: (error) => {
       console.log(error, 'error');

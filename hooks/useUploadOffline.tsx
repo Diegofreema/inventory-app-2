@@ -13,6 +13,7 @@ import database, {
   expenses as expensesDb,
   storeSales,
   onlineSales,
+  updateProducts,
 } from '~/db';
 import {
   addAccountName,
@@ -25,6 +26,7 @@ import {
 } from '~/lib/helper';
 import { useInfo } from '~/lib/tanstack/queries';
 import { useStore } from '~/lib/zustand/useStore';
+import axios from 'axios';
 
 /* eslint-disable prettier/prettier */
 export const useUploadOffline = () => {
@@ -35,16 +37,33 @@ export const useUploadOffline = () => {
   const info = data?.[0];
   useEffect(() => {
     const upload = async () => {
-      const [supply, dispose, products, accounts, expenses, store, online] = await Promise.all([
-        supplyProduct.query(Q.where('isUploaded', Q.eq(false))).fetch(),
-        disposedProducts.query(Q.where('isUploaded', Q.eq(false))).fetch(),
-        productsDb.query(Q.where('isUploaded', Q.eq(false))).fetch(),
-        expenseAccounts.query(Q.where('isUploaded', Q.eq(false))).fetch(),
-        expensesDb.query(Q.where('isUploaded', Q.eq(false))).fetch(),
-        storeSales.query(Q.where('isUploaded', Q.eq(false))).fetch(),
-        onlineSales.query(Q.where('isUploaded', Q.eq(false))).fetch(),
-      ]);
+      const [supply, dispose, products, accounts, expenses, store, online, updatedProducts] =
+        await Promise.all([
+          supplyProduct.query(Q.where('is_uploaded', Q.eq(false))).fetch(),
+          disposedProducts.query(Q.where('is_uploaded', Q.eq(false))).fetch(),
+          productsDb.query(Q.where('is_uploaded', Q.eq(false))).fetch(),
+          expenseAccounts.query(Q.where('is_uploaded', Q.eq(false))).fetch(),
+          expensesDb.query(Q.where('is_uploaded', Q.eq(false))).fetch(),
+          storeSales.query(Q.where('is_uploaded', Q.eq(false))).fetch(),
+          onlineSales.query(Q.where('is_uploaded', Q.eq(false))).fetch(),
+          updateProducts.query(Q.where('is_uploaded', Q.eq(false))).fetch(),
+        ]);
       if (!id || !data) return;
+      if (updatedProducts.length) {
+        updatedProducts.forEach(async (item) => {
+          axios
+            .get(
+              `https://247api.netpro.software/api.aspx?api=updateproductpricenqty&qty=${item.qty}&customerproductid=${item.customerProductId}&online=${item.online ? '1' : '0'}&price=${item.marketPrice}&getsellingprice=${item.sellingPrice}&getdealershare=${item.shareDealer}&getnetproshare=${item.shareNetpro}&productid=${item.productId}`
+            )
+            .then(async () => {
+              await database.write(async () => {
+                updatedProducts.forEach(async (item) => {
+                  await database.batch(item.prepareUpdate((item) => (item.isUploaded = true)));
+                });
+              });
+            });
+        });
+      }
       if (supply.length) {
         supply.forEach(async (item) => {
           supplyProductsOffline({
@@ -95,10 +114,15 @@ export const useUploadOffline = () => {
             sharenetpro: info?.shareNetpro,
             subcategory: item.subcategory!,
             customerproductid: item.customerProductId!,
-          }).then(async () => {
+          }).then(async (data) => {
             await database.write(async () => {
               products.forEach(async (item) => {
-                await database.batch(item.prepareUpdate((item) => (item.isUploaded = true)));
+                await database.batch(
+                  item.prepareUpdate((item) => {
+                    item.isUploaded = true;
+                    item.productId = data?.result;
+                  })
+                );
               });
             });
           });

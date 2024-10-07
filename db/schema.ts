@@ -25,6 +25,26 @@ export default appSchema({
         { name: 'updated_at', type: 'number' },
       ],
     }),
+    tableSchema({
+      name: 'update_products',
+      columns: [
+        { name: 'product_id', type: 'string' },
+        { name: 'category', type: 'string' },
+        { name: 'subcategory', type: 'string' },
+        { name: 'customer_product_id', type: 'string', isOptional: true },
+        { name: 'market_price', type: 'number', isOptional: true },
+        { name: 'online', type: 'boolean' },
+        { name: 'product', type: 'string' },
+        { name: 'description', type: 'string' },
+        { name: 'qty', type: 'number' },
+        { name: 'selling_price', type: 'number' },
+        { name: 'share_dealer', type: 'number' },
+        { name: 'share_netpro', type: 'number' },
+        { name: 'is_uploaded', type: 'boolean', isOptional: true },
+        { name: 'created_at', type: 'number' },
+        { name: 'updated_at', type: 'number' },
+      ],
+    }),
 
     tableSchema({
       name: 'staffs',

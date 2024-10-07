@@ -15,13 +15,12 @@ import SaleReference from './model/SalesReference';
 import Staff from './model/Staff';
 import StoreSales from './model/StoreSale';
 import SupplyProduct from './model/SupplyProduct';
+import UpdateProducts from './model/UpdateOffline';
 import schema from './schema';
 
 const adapter = new SQLiteAdapter({
   schema,
-
   migrations,
-
   jsi: Platform.OS === 'ios',
 
   onSetUpError: (error) => {
@@ -43,13 +42,14 @@ const database = new Database({
     PharmacyInfo,
     SupplyProduct,
     SaleReference,
-
+    UpdateProducts,
     CartItem,
   ],
 });
 
 export default database;
 export const products = database.get<Product>('products');
+export const updateProducts = database.get<UpdateProducts>('update_products');
 export const staffs = database.get<Staff>('staffs');
 export const onlineSales = database.get<OnlineSale>('online_sales');
 export const storeSales = database.get<StoreSales>('store_sales');
