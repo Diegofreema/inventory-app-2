@@ -25,7 +25,7 @@ export const SalesFlatList = ({ data, scroll = true }: Props): JSX.Element => {
   return (
     <FlatList
       scrollEnabled={scroll}
-      ListHeaderComponent={() => <CustomSubHeading text="Store Sales" fontSize={20} />}
+      ListHeaderComponent={() => <CustomSubHeading text="Store Sales" fontSize={2.2} />}
       data={data}
       renderItem={({ item, index }) => <SalesCard item={item} index={index} />}
       showsVerticalScrollIndicator={false}
@@ -134,7 +134,7 @@ const BottomList = ({
 }) => {
   return (
     <AnimatedCard index={index}>
-      <CustomSubHeading text="Sales summary" fontSize={20} />
+      <CustomSubHeading text="Sales summary" fontSize={2.2} />
       {data.map((d, i) => (
         <FlexText text={d.type} key={i} text2={`₦${d.value}`} />
       ))}

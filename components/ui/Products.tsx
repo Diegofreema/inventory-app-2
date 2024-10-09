@@ -78,10 +78,10 @@ const ProductCard = ({ item, show, nav }: { item: Product; show?: boolean; nav?:
     () => ({
       productId: item?.productId,
       name: item?.product,
-      price: item?.sellingPrice!,
+      price: item?.marketPrice!,
       id: item?.id,
     }),
-    [item?.id, item?.product, item?.sellingPrice, item.productId]
+    [item?.id, item?.product, item?.marketPrice, item.productId]
   );
   const onPress = () => {
     if (!nav) return;
@@ -101,7 +101,7 @@ const ProductCard = ({ item, show, nav }: { item: Product; show?: boolean; nav?:
           </XStack>
           <FlexText text="Category" text2={item?.category!} />
           <FlexText text={`Stock ${isLow ? '(low stock)' : ''}`} text2={item?.qty.toString()} />
-          <FlexText text="Unit price" text2={'₦' + item?.sellingPrice} />
+          <FlexText text="Market price" text2={'₦' + item?.marketPrice} />
           {show && (
             <Stack gap={10}>
               <FlexText text="Dealer share" text2={'₦' + item?.shareDealer} />

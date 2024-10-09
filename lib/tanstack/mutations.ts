@@ -435,7 +435,7 @@ export const useSupply = () => {
       dealerShare,
       netProShare,
       newPrice,
-      sellingPrice,
+      sellingPrice: sharePrice,
       unitCost,
       id,
     }: SupplyInsert) => {
@@ -447,17 +447,26 @@ export const useSupply = () => {
           supply.productId = checkIfProductExists.productId;
           supply.qty = qty;
           supply.dateX = format(Date.now(), 'dd/MM/yyyy HH:mm');
-          supply.unitCost = Number(newPrice || unitCost);
+          supply.unitCost = Number(unitCost);
           supply.isUploaded = true;
           supply.name = checkIfProductExists.product;
         });
       });
-
+      const shareNetproToNumber = Number(netProShare);
+      const marketPriceToNumber = Number(newPrice);
+      const sharePriceToNumber = Number(sharePrice);
+      const shareDealerToNumber = Number(dealerShare);
+      const dealer = (shareDealerToNumber * marketPriceToNumber) / 100;
+      const netPro = (shareNetproToNumber * marketPriceToNumber) / 100;
+      const sellingPrice = (marketPriceToNumber * sharePriceToNumber) / 100;
       if (!addedProduct) throw Error('Failed to supply product');
       const updatedProduct = await database.write(async () => {
         return await checkIfProductExists.update((product) => {
-          product.sellingPrice = +newPrice;
+          product.marketPrice = +newPrice;
           product.qty = checkIfProductExists.qty + qty;
+          product.shareDealer = dealer;
+          product.shareNetpro = netPro;
+          product.sellingPrice = sellingPrice;
         });
       });
 
@@ -471,7 +480,7 @@ export const useSupply = () => {
           dealerShare,
           netProShare,
           newPrice,
-          sellingPrice,
+          sellingPrice: sharePrice,
           unitCost,
           id: storeId!,
         });

@@ -63,6 +63,7 @@ export default function Record() {
           resetDates={resetDates}
         />
         {dateValue && (
+          // @ts-ignore
           <>
             <SalesFlatList scroll={false} data={filterData} />
             <ProductSupply scroll={false} data={filterSupply} />

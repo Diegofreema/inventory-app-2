@@ -21,6 +21,7 @@ type Props = {
   data?: { value: any; label: string }[];
   query?: string;
   setQuery?: React.Dispatch<React.SetStateAction<string>>;
+  multiline?: boolean;
 };
 
 export const CustomController = ({
@@ -38,6 +39,7 @@ export const CustomController = ({
   data,
   setValue,
   query,
+  multiline,
   setQuery,
 }: Props): JSX.Element => {
   return (
@@ -65,6 +67,7 @@ export const CustomController = ({
             name={name}
             query={query}
             setQuery={setQuery}
+            multiline={multiline}
           />
         )}
       />

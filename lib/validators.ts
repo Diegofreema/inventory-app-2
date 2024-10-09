@@ -86,7 +86,7 @@ export const newProductSchema = z.object({
 });
 export const productSupplySchema = z.object({
   product: z.string().min(1, { message: 'Product Name is required' }),
-  unitPrice: z.string().optional(),
+  unitPrice: z.string().min(1, { message: 'Unit cost is required' }),
   newPrice: z.string().min(1, { message: 'Price is required' }),
   qty: z.string().min(1, { message: 'Quantity is required' }),
 });

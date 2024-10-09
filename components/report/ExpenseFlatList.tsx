@@ -18,7 +18,7 @@ export const ExpenseFlatList = ({ data, scroll = true }: Props): JSX.Element => 
   return (
     <FlatList
       scrollEnabled={scroll}
-      ListHeaderComponent={() => <CustomSubHeading text="Expense" fontSize={20} />}
+      ListHeaderComponent={() => <CustomSubHeading text="Expense" fontSize={2.2} />}
       data={data}
       renderItem={({ item, index }) => <ExpenseCard item={item} index={index} />}
       showsVerticalScrollIndicator={false}

@@ -27,7 +27,6 @@ const Restock = (): JSX.Element => {
     id: string;
   }>();
   const router = useRouter();
-  console.log(name, price, productId, id);
 
   const { data, isPending: isLoading, isError, refetch } = useInfo();
   const {
@@ -87,13 +86,14 @@ const Restock = (): JSX.Element => {
               placeholder="Product Name"
               label="Product Name"
               editable={false}
+              multiline
             />
             <CustomController
               name="unitPrice"
               control={control}
               errors={errors}
-              placeholder="Unit Price"
-              label="Unit Price (NGN)"
+              placeholder="Unit Cost"
+              label="Unit Cost (NGN)"
             />
             <CustomController
               name="newPrice"

@@ -18,7 +18,7 @@ export const ProductSupply = ({ data, scroll = true }: Props): JSX.Element => {
   return (
     <FlatList
       scrollEnabled={scroll}
-      ListHeaderComponent={() => <CustomSubHeading text="Product Supply" fontSize={20} />}
+      ListHeaderComponent={() => <CustomSubHeading text="Product Supply" fontSize={2.2} />}
       data={data}
       renderItem={({ item, index }) => <SupplyCard item={item} index={index} />}
       showsVerticalScrollIndicator={false}
@@ -30,6 +30,8 @@ export const ProductSupply = ({ data, scroll = true }: Props): JSX.Element => {
 
 const SupplyCard = ({ item, index }: { item: SupplyProduct; index: number }) => {
   const totalPrice = Number(item.unitCost) * Number(item?.qty);
+  console.log(item.unitCost);
+
   return (
     <AnimatedCard index={index}>
       <FlexText text="Product" text2={item?.name} />
