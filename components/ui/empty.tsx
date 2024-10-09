@@ -11,7 +11,7 @@ type Props = {
 export const Empty = ({ text }: Props): JSX.Element => {
   return (
     <Stack>
-      <CustomHeading text={text} textAlign="center" fontSize={20} />
+      <CustomHeading text={text} textAlign="center" fontSize={2.2} />
     </Stack>
   );
 };

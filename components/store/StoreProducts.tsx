@@ -26,7 +26,7 @@ export const StoreProducts = (): JSX.Element => {
   };
   const onSetValue = useCallback((val: string) => setValue(val), [value]);
   const selectedCategory = useMemo(() => {
-    if (selectedValue === null) {
+    if (selectedValue === null || selectedValue === 'All') {
       return products?.allProducts || [];
     }
 

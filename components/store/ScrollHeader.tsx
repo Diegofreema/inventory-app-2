@@ -70,7 +70,7 @@ export const ScrollHeader = ({ screens, active, setActive }: Props): JSX.Element
           }}>
           <CustomSubHeading
             text={screen}
-            fontSize={15}
+            fontSize={1.7}
             color={active === index ? colors.green : 'black'}
             style={{ fontFamily: 'InterBold' }}
           />

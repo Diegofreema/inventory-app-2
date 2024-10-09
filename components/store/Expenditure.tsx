@@ -78,6 +78,7 @@ export const Expenditure = (): JSX.Element => {
                 isLastPage={isLastPage}
               />
             ) : (
+              // @ts-ignore
               <></>
             )
           }

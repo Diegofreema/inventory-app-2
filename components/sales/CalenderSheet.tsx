@@ -5,6 +5,8 @@ import { forwardRef, ForwardedRef, useMemo } from 'react';
 import { StyleSheet } from 'react-native'; // Added import for Text and StyleSheet
 import { Calendar, DateData } from 'react-native-calendars';
 
+import { CustomSubHeading } from '../ui/typography';
+
 import { colors } from '~/constants';
 type Props = {
   setStartDate: React.Dispatch<React.SetStateAction<string>>;
@@ -60,6 +62,11 @@ export const CalenderSheet = forwardRef<BottomSheetMethods, Props>(
         enablePanDownToClose
         snapPoints={snapPoints}>
         <BottomSheetView style={styles.contentContainer}>
+          <CustomSubHeading
+            text="Select a start date and end date"
+            textAlign="center"
+            fontSize={1.7}
+          />
           <Calendar onDayPress={onDayPress} markedDates={markedDates} markingType="period" />
         </BottomSheetView>
       </BottomSheet>

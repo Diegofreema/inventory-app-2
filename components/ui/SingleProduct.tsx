@@ -58,22 +58,22 @@ const SingleProduct = ({ product }: { product: Product }): JSX.Element => {
     <Card backgroundColor="white" borderWidth={1} borderColor={colors.lightGray}>
       <CardHeader gap={10}>
         <XStack gap={14} alignItems="center">
-          <CustomSubHeading text={product?.product} fontSize={17} />
+          <CustomSubHeading text={product?.product} fontSize={1.9} />
         </XStack>
         <FlexText text="Category" text2={product?.category!} />
         <FlexText text={`Stock ${isLow ? '(low stock)' : ''}`} text2={product?.qty.toString()} />
-        <FlexText text="Unit price" text2={'₦' + product?.sellingPrice} />
+        <FlexText text="Market price" text2={'₦' + product?.marketPrice} />
 
         <Stack gap={10}>
+          <FlexText text="Platform price" text2={'₦' + product?.sellingPrice} />
           <FlexText text="Dealer share" text2={'₦' + product?.shareDealer} />
-          <FlexText text="Market price" text2={'₦' + product?.marketPrice} />
 
           <FlexText text="Subcategory" text2={product?.subcategory!} />
           <FlexText text="Online" text2={product?.online ? 'Yes' : 'No'} />
         </Stack>
 
         <XStack justifyContent="space-between" alignItems="center">
-          <CustomSubHeading text="Actions" fontSize={15} />
+          <CustomSubHeading text="Actions" fontSize={1.7} />
           <ActionMenu
             visible={showMenu}
             onClose={onClose}

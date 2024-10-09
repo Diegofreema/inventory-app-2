@@ -98,7 +98,7 @@ export const StoreActions = ({
               />
             </CustomPressable>
             {dateValue && (
-              <CustomPressable onPress={handleReset} style={{ flex: 0 }}>
+              <CustomPressable onPress={handleReset} style={{ flex: 0, marginRight: 10 }}>
                 <X color="black" size={25} />
               </CustomPressable>
             )}

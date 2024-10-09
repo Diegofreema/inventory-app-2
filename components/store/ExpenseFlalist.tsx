@@ -28,6 +28,7 @@ export const ExpenseFlalist = ({
 
   return (
     <FlatList
+      // @ts-ignore
       ListHeaderComponent={pathname === '/filterExpense' ? <></> : <Header />}
       data={data}
       onRefresh={refetch}
@@ -54,7 +55,7 @@ const Header = () => {
         height: 50,
         justifyContent: 'center',
       }}>
-      <CustomSubHeading text="Filter by date" fontSize={16} />
+      <CustomSubHeading text="Filter by date" fontSize={1.6} />
     </CustomPressable>
   );
 };

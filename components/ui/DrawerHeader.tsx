@@ -40,7 +40,7 @@ export const DrawerHeader = (): JSX.Element => {
       {!isOpen && (
         <CustomSubHeading
           text={formattedPathname}
-          fontSize={20}
+          fontSize={2.5}
           color="black"
           style={{ fontFamily: 'InterBold' }}
         />

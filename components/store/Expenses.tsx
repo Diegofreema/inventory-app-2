@@ -80,6 +80,7 @@ export const Expenses = (): JSX.Element => {
                 handlePagination={handlePagination}
               />
             ) : (
+              // @ts-ignore
               <></>
             )
           }

@@ -3,6 +3,7 @@
 import { Href, Link, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { FlatList } from 'react-native';
+import { RFPercentage } from 'react-native-responsive-fontsize';
 import { Card, CardHeader, Stack, Text, XStack } from 'tamagui';
 
 import { ActionMenu } from './ActionMenu';
@@ -96,7 +97,7 @@ const ProductCard = ({ item, show, nav }: { item: Product; show?: boolean; nav?:
         borderColor={colors.lightGray}>
         <CardHeader gap={10}>
           <XStack gap={14} alignItems="center">
-            <CustomSubHeading text={item?.product} fontSize={17} />
+            <CustomSubHeading text={item?.product} fontSize={1.9} />
           </XStack>
           <FlexText text="Category" text2={item?.category!} />
           <FlexText text={`Stock ${isLow ? '(low stock)' : ''}`} text2={item?.qty.toString()} />
@@ -112,7 +113,7 @@ const ProductCard = ({ item, show, nav }: { item: Product; show?: boolean; nav?:
           )}
 
           <XStack justifyContent="space-between" alignItems="center">
-            <CustomSubHeading text="Actions" fontSize={15} />
+            <CustomSubHeading text="Actions" fontSize={1.7} />
             <ActionMenu visible={showMenu} onClose={onClose} onOpen={onOpen} details={details} />
           </XStack>
         </CardHeader>
@@ -132,10 +133,13 @@ const ProductHeader = ({
 }) => {
   return (
     <XStack justifyContent="space-between" alignItems="center">
-      <CustomSubHeading text={text} fontSize={17} />
+      <CustomSubHeading text={text} fontSize={1.7} />
       {href && (
         <Link href={href}>
-          <Text fontSize={12} color={colors.green} style={{ fontFamily: 'InterBold' }}>
+          <Text
+            fontSize={RFPercentage(1.5)}
+            color={colors.green}
+            style={{ fontFamily: 'InterBold' }}>
             {linkText}
           </Text>
         </Link>

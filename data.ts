@@ -1,6 +1,10 @@
 /* eslint-disable prettier/prettier */
 export const cats = [
   {
+    label: 'All',
+    value: 'all',
+  },
+  {
     label: 'Pharmacy',
     value: 'pharmacy',
   },

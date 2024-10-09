@@ -34,7 +34,7 @@ export const Main = ({
   return (
     <Container>
       <XStack justifyContent="space-between" alignItems="center">
-        <CustomHeading text="Dashboard" fontSize={15} />
+        <CustomHeading text="Dashboard" fontSize={1.7} />
         <LogoutButton />
       </XStack>
       {/* <MyButton title="btn" onPress={createCart} /> */}

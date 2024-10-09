@@ -96,10 +96,10 @@ const DashBoardCard = ({ amount, title, index }: PreviewType & { index: number }
             <CustomSubHeading
               maxWidth={isSmallScreen ? '100%' : '90%'}
               text={title!}
-              fontSize={12}
+              fontSize={1.5}
               color={colors.grey}
             />
-            <CustomSubHeading text={amount!} fontSize={18} color={colors.black} />
+            <CustomSubHeading text={amount!} fontSize={2} color={colors.black} />
           </Stack>
           <Circle backgroundColor={color.color1} padding={5}>
             <CustomBarIcon icon={Icon} size={20} color={color.color2} />
