@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 
 import { Q } from '@nozbe/watermelondb';
+import axios from 'axios';
 import { useEffect } from 'react';
 
 import { useNetwork } from './useNetwork';
@@ -26,7 +27,6 @@ import {
 } from '~/lib/helper';
 import { useInfo } from '~/lib/tanstack/queries';
 import { useStore } from '~/lib/zustand/useStore';
-import axios from 'axios';
 
 /* eslint-disable prettier/prettier */
 export const useUploadOffline = () => {

@@ -3,10 +3,8 @@
 import { Check, ChevronDown, ChevronUp } from '@tamagui/lucide-icons';
 import { useMemo } from 'react';
 import type { FontSizeTokens, SelectProps } from 'tamagui';
-import { Adapt, Select, Sheet, View, YStack, getFontSize } from 'tamagui';
+import { Adapt, Input, Select, Sheet, View, YStack, getFontSize } from 'tamagui';
 import { LinearGradient } from 'tamagui/linear-gradient';
-
-import { CustomInput } from './CustomInput';
 
 type Props = SelectProps & {
   placeholder: string;
@@ -95,10 +93,9 @@ export const CustomSelect = ({
             <Select.Group backgroundColor="white">
               {setQuery ? (
                 <View marginHorizontal={10}>
-                  <CustomInput
+                  <Input
                     placeholder="Search product by name"
-                    label=""
-                    name=""
+                    value={query}
                     onChangeText={setQuery}
                   />
                 </View>
