@@ -101,6 +101,7 @@ export const CartFlatList = ({ data }: Props): JSX.Element => {
       ListEmptyComponent={() => <Empty text="No item in cart" />}
       keyExtractor={(item, index) => index.toString()}
       ListFooterComponent={() => (
+        // @ts-ignore
         <>
           <ExtraDataForm control={control} errors={errors} setValue={setValue} />
 

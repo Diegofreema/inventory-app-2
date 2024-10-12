@@ -113,6 +113,7 @@ export default function AddOfflineScreen() {
             setValue={setValue}
             query={query}
             setQuery={setQuery}
+            autoFocus
           />
           <CustomController
             name="qty"
@@ -140,7 +141,7 @@ export default function AddOfflineScreen() {
             <CustomSubHeading
               text="Not attending to a customer"
               color={colors.black}
-              fontSize={18}
+              fontSize={2}
             />
           )}
         </View>

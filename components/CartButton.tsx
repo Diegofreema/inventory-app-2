@@ -24,7 +24,7 @@ const CartButton = ({ qty, onPress }: { qty: number; onPress: () => void }) => {
         right={0}
         justifyContent="center"
         alignItems="center">
-        <CustomSubHeading text={qty} fontSize={15} color={colors.white} />
+        <CustomSubHeading text={qty} fontSize={1.5} color={colors.white} />
       </View>
       <ShoppingCart color={colors.white} size={30} />
     </CustomPressable>

@@ -308,9 +308,11 @@ export const useCart = () => {
 
         if (isConnected) {
           try {
-            productsToAdd.forEach(async ({ ...rest }) => {
+            productsToAdd.forEach(async ({ productId, ...rest }) => {
+              const product = await products.find(productId);
               await addOfflineSales({
                 ...rest,
+                productId: product.productId!,
                 storeId: storeId!,
                 transactionInfo: extraData.transactionInfo!,
                 salesRepId: +extraData.salesRepId,

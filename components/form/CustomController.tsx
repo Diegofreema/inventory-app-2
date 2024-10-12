@@ -22,6 +22,7 @@ type Props = {
   query?: string;
   setQuery?: React.Dispatch<React.SetStateAction<string>>;
   multiline?: boolean;
+  autoFocus?: boolean;
 };
 
 export const CustomController = ({
@@ -41,6 +42,7 @@ export const CustomController = ({
   query,
   multiline,
   setQuery,
+  autoFocus,
 }: Props): JSX.Element => {
   return (
     // @ts-ignore
@@ -68,6 +70,7 @@ export const CustomController = ({
             query={query}
             setQuery={setQuery}
             multiline={multiline}
+            autoFocus={autoFocus}
           />
         )}
       />

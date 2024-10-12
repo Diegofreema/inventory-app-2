@@ -21,13 +21,11 @@ import StoreSales from '~/db/model/StoreSale';
 import {
   DisposalFromDb,
   ExpensesFromDb,
-  InfoType,
   OnlineSaleFromDb,
   ProductFromDb,
   StoreSalesFromDb,
   SupplyInsert,
 } from '~/type';
-import PharmacyInfo from '~/db/model/Phamarcy';
 
 export const api = process.env.EXPO_PUBLIC_API;
 
@@ -430,8 +428,12 @@ export const addOfflineSales = async ({
   salesRepId: number;
 }) => {
   const { data } = await axios.get(
-    `https://247api.netpro.software/api.aspx?api=makepharmacysale&cidx=${storeId}&qty=${qty}&productid=${productId}&salesref=${salesReference}&paymenttype=${paymentType}&transactioninfo=${transactionInfo}&salesrepid=${salesRepId}`
+    `https://247api.netpro.software/api.aspx?api=makepharmacysale&cidx=${storeId}&qty=${qty}&productid=${productId}&salesref=${encodeURIComponent(salesReference)}&paymenttype=${paymentType}&transactioninfo=${transactionInfo ?? ''}&salesrepid=${salesRepId}`
   );
+  console.log(
+    `https://247api.netpro.software/api.aspx?api=makepharmacysale&cidx=${storeId}&qty=${qty}&productid=${productId}&salesref=${encodeURIComponent(salesReference)}&paymenttype=${paymentType}&transactioninfo=${transactionInfo}&salesrepid=${salesRepId}`
+  );
+
   return data;
 };
 
