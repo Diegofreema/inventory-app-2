@@ -26,6 +26,7 @@ export const ExpenseCard = ({ index, item }: Props): JSX.Element => {
       entering={SlideDirection}
       backgroundColor="white"
       borderWidth={1}
+      flex={1}
       borderColor={colors.lightGray}>
       <CardHeader gap={5}>
         <FlexText text="Account name" text2={item?.accountName} />

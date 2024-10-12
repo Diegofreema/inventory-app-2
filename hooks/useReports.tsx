@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 
+import { Q } from '@nozbe/watermelondb';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
@@ -28,7 +29,7 @@ export const useReports = () => {
           queryClient.fetchQuery({
             queryKey: ['salesStore'],
             queryFn: async () => {
-              const data = await storeSales.query().fetch();
+              const data = await storeSales.query(Q.sortBy('created_at', Q.desc)).fetch();
               return data;
             },
             structuralSharing: false,
@@ -36,7 +37,7 @@ export const useReports = () => {
           queryClient.fetchQuery({
             queryKey: ['supply'],
             queryFn: async () => {
-              const data = await supplyProduct.query().fetch();
+              const data = await supplyProduct.query(Q.sortBy('created_at', Q.desc)).fetch();
               return data;
             },
             structuralSharing: false,
@@ -44,7 +45,7 @@ export const useReports = () => {
           queryClient.fetchQuery({
             queryKey: ['expenditure'],
             queryFn: async () => {
-              const data = await expenses.query().fetch();
+              const data = await expenses.query(Q.sortBy('created_at', Q.desc)).fetch();
               return data;
             },
             structuralSharing: false,
@@ -52,7 +53,7 @@ export const useReports = () => {
           queryClient.fetchQuery({
             queryKey: ['disposal'],
             queryFn: async () => {
-              const data = await disposedProducts.query().fetch();
+              const data = await disposedProducts.query(Q.sortBy('created_at', Q.desc)).fetch();
               return data;
             },
             structuralSharing: false,
@@ -60,7 +61,7 @@ export const useReports = () => {
           queryClient.fetchQuery({
             queryKey: ['salesPharmacy'],
             queryFn: async () => {
-              const data = await onlineSales.query().fetch();
+              const data = await onlineSales.query(Q.sortBy('created_at', Q.desc)).fetch();
               return data;
             },
             structuralSharing: false,

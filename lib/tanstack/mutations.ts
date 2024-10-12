@@ -101,6 +101,7 @@ export const useAddNewProduct = () => {
           customerproductid,
           id: storeId!,
         });
+        console.log({ data });
 
         if (data?.result) {
           await database.write(async () => {
@@ -521,10 +522,14 @@ export const useDisposal = () => {
   const isConnected = useNetwork();
   return useMutation({
     mutationFn: async ({ productId, qty, id }: { qty: number; productId: string; id: string }) => {
-      console.log({ qty, productId, id });
-
       try {
         const productInStore = await products.find(id);
+
+        const suppliedProducts = await supplyProduct
+          .query(Q.where('product_id', Q.eq(productId)), Q.sortBy('created_at', Q.desc), Q.take(1))
+          .fetch();
+
+        if (suppliedProducts.length === 0) throw Error('Product does not exist');
         if (!productInStore) throw Error('Product does not exist');
         if (qty > productInStore.qty) throw Error('Not enough stock to dispose');
 
@@ -533,7 +538,7 @@ export const useDisposal = () => {
             disposedProduct.qty = qty;
             disposedProduct.productId = productId;
             disposedProduct.dateX = format(Date.now(), 'dd/MM/yyyy HH:mm');
-            disposedProduct.unitCost = productInStore.sellingPrice;
+            disposedProduct.unitCost = suppliedProducts[0].unitCost;
             disposedProduct.isUploaded = true;
             disposedProduct.name = productInStore.product;
           });

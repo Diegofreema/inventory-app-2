@@ -2,7 +2,7 @@
 
 import { Href, Link, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, useWindowDimensions } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import { Card, CardHeader, Stack, Text, XStack } from 'tamagui';
 
@@ -40,6 +40,8 @@ export const Products = ({
   navigate,
   pagination: Pagination,
 }: Props): JSX.Element => {
+  const { width } = useWindowDimensions();
+  const isLargeScreen = width >= 500;
   return (
     <FlatList
       onRefresh={onRefetch}
@@ -63,6 +65,8 @@ export const Products = ({
       showsVerticalScrollIndicator={false}
       keyExtractor={(item, index) => index.toString()}
       ListFooterComponent={Pagination}
+      columnWrapperStyle={isLargeScreen && { gap: 15 }}
+      numColumns={isLargeScreen ? 2 : undefined}
     />
   );
 };
@@ -78,7 +82,7 @@ const ProductCard = ({ item, show, nav }: { item: Product; show?: boolean; nav?:
     () => ({
       productId: item?.productId,
       name: item?.product,
-      price: item?.marketPrice!,
+      price: item?.marketPrice,
       id: item?.id,
     }),
     [item?.id, item?.product, item?.marketPrice, item.productId]
@@ -87,13 +91,17 @@ const ProductCard = ({ item, show, nav }: { item: Product; show?: boolean; nav?:
     if (!nav) return;
     router.push(`/product/${item.id}`);
   };
-
+  const { width } = useWindowDimensions();
+  console.log(width);
+  const isSmaller = width <= 400;
+  const isBigScreen = width >= 500;
+  const cardHeight = isSmaller ? 150 : isBigScreen ? 250 : 200;
   return (
     <CustomPressable onPress={onPress}>
       <Card
         backgroundColor="white"
         borderWidth={1}
-        height={show ? 'auto' : 200}
+        height={show ? 'auto' : cardHeight}
         borderColor={colors.lightGray}>
         <CardHeader gap={10}>
           <XStack gap={14} alignItems="center">

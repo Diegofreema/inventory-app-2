@@ -12,6 +12,7 @@ import { CustomPressable } from './CustomPressable';
 import { CustomSubHeading } from './typography';
 
 import { useRead } from '~/lib/zustand/useRead';
+import { useWindowDimensions } from 'react-native';
 // import { MenuSvg } from '../svg/MenuSvg';
 
 export const DrawerHeader = (): JSX.Element => {
@@ -29,6 +30,10 @@ export const DrawerHeader = (): JSX.Element => {
   const onNavigate = () => {
     router.push('/notification');
   };
+  const { width } = useWindowDimensions();
+  console.log(width);
+  const isSmaller = width < 400;
+  const iconSize = isSmaller ? 20 : 25;
 
   return (
     <XStack backgroundColor="white" paddingTop={top + 5} paddingHorizontal="$4" gap={5}>
@@ -49,7 +54,7 @@ export const DrawerHeader = (): JSX.Element => {
       <CustomPressable
         onPress={onNavigate}
         style={{ alignSelf: 'flex-end', flex: 0, position: 'absolute', right: 20 }}>
-        <Bell size={25} color="black" />
+        <Bell size={iconSize} color="black" />
         {!read && (
           <Circle
             width={10}

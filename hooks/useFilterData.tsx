@@ -37,6 +37,7 @@ export const useFilterData = ({
       return isWithinInterval(salesDate, { start, end });
     });
   }, [storeSales, startDate, endDate]);
+  // ? filter supply
   const filterSupply = useMemo(() => {
     if (!startDate || !endDate || !productSupply) return [];
 
@@ -49,6 +50,7 @@ export const useFilterData = ({
       return isWithinInterval(salesDate, { start, end });
     });
   }, [startDate, endDate, productSupply]);
+  // ? filter expense
   const filterExpense = useMemo(() => {
     if (!startDate || !endDate || !expense) return [];
 
@@ -60,6 +62,8 @@ export const useFilterData = ({
       return isWithinInterval(salesDate, { start, end });
     });
   }, [startDate, endDate, expense]);
+
+  // ? filter disposal
   const filteredDisposal = useMemo(() => {
     if (!startDate || !endDate || !disposal) return [];
 

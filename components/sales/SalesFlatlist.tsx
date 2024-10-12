@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 
-import { FlatList } from 'react-native';
+import { FlatList, useWindowDimensions } from 'react-native';
 
 import { SalesCard } from './SalesCard';
 import { Empty } from '../ui/empty';
@@ -21,6 +21,8 @@ export const SalesFlatlist = ({
   refetch,
   pagination: Pagination,
 }: Props): JSX.Element => {
+  const { width } = useWindowDimensions();
+  const isSmallTablet = width >= 500;
   return (
     <FlatList
       onRefresh={refetch}
@@ -33,6 +35,8 @@ export const SalesFlatlist = ({
       ListEmptyComponent={() => <Empty text="No Sales yet" />}
       showsVerticalScrollIndicator={false}
       ListFooterComponent={Pagination}
+      columnWrapperStyle={isSmallTablet && { gap: 20 }}
+      numColumns={isSmallTablet ? 2 : undefined}
     />
   );
 };

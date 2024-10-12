@@ -36,7 +36,7 @@ export const CustomSelect = ({
         </Select.Trigger>
 
         {/* @ts-ignore */}
-        <Adapt when="sm" platform="touch">
+        <Adapt platform="touch">
           <Sheet
             native={!!props.native}
             modal

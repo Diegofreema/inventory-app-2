@@ -140,10 +140,12 @@ export const useTrading = ({
   //#region
   const memoizedDisposal = useMemo(() => {
     if (!disposal || emptyDates) return 0;
-    const start = format(startDate, 'MM-dd-yyyy');
-    const end = format(endDate, 'MM-dd-yyyy');
+    const start = format(startDate, 'dd-MM-yyyy');
+    const end = format(endDate, 'dd-MM-yyyy');
     const filteredData = disposal.filter((d) => {
       const salesDate = d?.dateX.split(' ')[0].replace('/', '-').replace('/', '-');
+      console.log({ salesDate });
+
       return isWithinInterval(salesDate, { start, end });
     });
     const numbers = filteredData?.map((d) => Number(d?.unitCost) * Number(d?.qty));
@@ -152,15 +154,18 @@ export const useTrading = ({
   //#endregion
   const memoizedSupply = useMemo(() => {
     if (!productSupply || emptyDates) return 0;
-    const start = format(startDate, 'yyyy-MM-dd');
-    const end = format(endDate, 'yyyy-MM-dd');
+    const start = format(startDate, 'dd-MM-yyyy');
+    const end = format(endDate, 'dd-MM-yyyy');
     const filteredData = productSupply.filter((d) => {
       const salesDate = d?.dateX.split(' ')[0].replace('/', '-').replace('/', '-');
+
       return isWithinInterval(salesDate, { start, end });
     });
+
     const numbers = filteredData?.map(
       (padding) => Number(padding?.unitCost) * Number(padding?.qty)
     );
+
     return totalAmount(numbers);
   }, [productSupply, emptyDates]);
 
@@ -209,27 +214,27 @@ export const useTrading = ({
         (d) => rearrangeDateString(d.dateX.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
       );
 
-      return Number(recentDate?.unitCost) || 0 * Number(sale?.qty) || 0;
+      return Number(recentDate?.unitCost) * Number(sale?.qty);
     });
 
     const allStore = store?.map((sale) => {
       const maxDate = max(store.map((d) => rearrangeDateString(d.dateX.split(' ')[0])));
-      if (sale.isPaid) {
-        const recentPrice = store.find(
-          (s) => rearrangeDateString(s.dateX.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
-        );
 
-        return Number(recentPrice?.unitPrice) || 0 * Number(sale?.qty) || 0;
-      }
-      return 0;
+      const recentPrice = store.find(
+        (s) => rearrangeDateString(s.dateX.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
+      );
+
+      return Number(recentPrice?.unitPrice) * Number(sale?.qty);
     });
+
     const allOnline = online?.map((sale) => {
       const maxDate = max(online.map((d) => rearrangeDateString(d.dateX.split(' ')[0])));
       const recentPrice = online.find(
         (s) => rearrangeDateString(s.dateX.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
       );
-      return Number(recentPrice?.dealerShare) || 0 * Number(sale?.qty) || 0;
+      return Number(recentPrice?.dealerShare) * Number(sale?.qty);
     });
+
     const allDisposed = disposed?.map((sale) => {
       const maxDate = max(disposed.map((d) => rearrangeDateString(d.dateX.split(' ')[0])));
 
@@ -237,7 +242,7 @@ export const useTrading = ({
         (d) => rearrangeDateString(d.dateX.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
       );
 
-      return Number(recentPrice?.unitCost) || 0 * Number(sale?.qty) || 0;
+      return Number(recentPrice?.unitCost) * Number(sale?.qty);
     });
 
     const total =
@@ -246,7 +251,7 @@ export const useTrading = ({
       totalAmount(allStore) -
       totalAmount(allOnline);
 
-    return total <= 0 ? 0 : total;
+    return total;
   }, [productSupply, emptyDates, disposal, storeSales, onlineSales, startDate, endDate]);
 
   return {

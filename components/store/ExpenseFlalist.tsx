@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 
 import { router, usePathname } from 'expo-router';
-import { FlatList } from 'react-native';
+import { FlatList, useWindowDimensions } from 'react-native';
 
 import { ExpenseCard } from './ExpenseCard';
 import { CustomPressable } from '../ui/CustomPressable';
@@ -24,7 +24,8 @@ export const ExpenseFlalist = ({
   pagination: Pagination,
 }: Props): JSX.Element => {
   const pathname = usePathname();
-  console.log(pathname);
+  const { width } = useWindowDimensions();
+  const isSmallTablet = width >= 500;
 
   return (
     <FlatList
@@ -39,6 +40,8 @@ export const ExpenseFlalist = ({
       ListEmptyComponent={() => <Empty text="No Expenses yet" />}
       style={{ marginTop: 20 }}
       ListFooterComponent={Pagination}
+      columnWrapperStyle={isSmallTablet && { gap: 20 }}
+      numColumns={isSmallTablet ? 2 : undefined}
     />
   );
 };

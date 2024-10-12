@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 
-import { FlatList } from 'react-native';
+import { FlatList, useWindowDimensions } from 'react-native';
 
 import { AnimatedCard } from '../ui/AnimatedCard';
 import { FlexText } from '../ui/FlexText';
@@ -15,6 +15,8 @@ type Props = {
 };
 
 export const ProductSupply = ({ data, scroll = true }: Props): JSX.Element => {
+  const { width } = useWindowDimensions();
+  const isSmallTablet = width >= 500;
   return (
     <FlatList
       scrollEnabled={scroll}
@@ -24,6 +26,8 @@ export const ProductSupply = ({ data, scroll = true }: Props): JSX.Element => {
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ gap: 20, paddingBottom: 20 }}
       ListEmptyComponent={() => <Empty text="No Supply for this date" />}
+      numColumns={isSmallTablet ? 2 : undefined}
+      columnWrapperStyle={isSmallTablet && { gap: 20 }}
     />
   );
 };

@@ -24,6 +24,7 @@ export const AnimatedCard = ({ children, index, style }: Props): JSX.Element => 
       borderWidth={1}
       borderColor={colors.lightGray}
       borderRadius={10}
+      flex={1}
       entering={SlideDirection}
       style={style}>
       <CardHeader gap={5}>{children}</CardHeader>

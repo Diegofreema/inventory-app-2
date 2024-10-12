@@ -2,7 +2,7 @@
 import { withObservables } from '@nozbe/watermelondb/react';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, useWindowDimensions } from 'react-native';
 import { YStack } from 'tamagui';
 
 import { StoreActions } from './StoreActions';
@@ -54,6 +54,8 @@ const enhance = withObservables([], () => ({
 export const Staffs = enhance(AllStaffs);
 
 const StaffsFlatList = ({ data }: { data: Staff[] }) => {
+  const { width } = useWindowDimensions();
+  const isSmallTablet = width >= 500;
   return (
     <FlatList
       data={data}
@@ -62,6 +64,8 @@ const StaffsFlatList = ({ data }: { data: Staff[] }) => {
       contentContainerStyle={{ gap: 20, paddingBottom: 20 }}
       ListEmptyComponent={() => <Empty text="No staff yet" />}
       style={{ marginTop: 20 }}
+      numColumns={isSmallTablet ? 2 : undefined}
+      columnWrapperStyle={isSmallTablet && { gap: 20 }}
     />
   );
 };
@@ -83,6 +87,7 @@ const StaffCard = ({ index, item }: { item: Staff; index: number }) => {
       <FlexText text="Email" text2={trimText(item?.email, 22)} />
 
       {isAdmin && (
+        // @ts-ignore
         <>
           <FlexText text="Password" text2={item?.password} />
           <YStack gap={8}>

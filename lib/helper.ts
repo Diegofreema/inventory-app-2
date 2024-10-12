@@ -336,7 +336,7 @@ export const sendDisposedProducts = async ({
   qty: number;
   productId: string;
 }) => {
-  console.log({ qty, productId });
+  console.log({ disposed: qty, productId });
 
   try {
     const { data } = await axios.get(

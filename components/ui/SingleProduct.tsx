@@ -2,6 +2,7 @@
 
 import { withObservables } from '@nozbe/watermelondb/react';
 import { useCallback, useMemo, useState } from 'react';
+import { useWindowDimensions } from 'react-native';
 import { Card, CardHeader, Stack, XStack } from 'tamagui';
 
 import { ActionMenu } from './ActionMenu';
@@ -17,9 +18,9 @@ import { useInfo } from '~/lib/tanstack/queries';
 const SingleProduct = ({ product }: { product: Product }): JSX.Element => {
   const [showMenu, setShowMenu] = useState(false);
   const { mutateAsync, isPending } = useEdit();
+  const { width } = useWindowDimensions();
   const { data } = useInfo();
   const isLow = product?.qty <= 10;
-  console.log({ id: product.id });
 
   const onClose = useCallback(() => setShowMenu(false), []);
   const onOpen = useCallback(() => setShowMenu(true), []);
@@ -28,10 +29,10 @@ const SingleProduct = ({ product }: { product: Product }): JSX.Element => {
     () => ({
       id: product?.id,
       name: product?.product,
-      price: product?.sellingPrice!,
+      price: product?.marketPrice!,
       productId: product?.productId,
     }),
-    [product?.id, product?.product, product?.sellingPrice, product?.productId]
+    [product?.id, product?.product, product?.marketPrice, product?.productId]
   );
 
   const toggleOnline = async () => {
@@ -53,9 +54,19 @@ const SingleProduct = ({ product }: { product: Product }): JSX.Element => {
       });
     });
   };
+  const isBigScreen = width >= 500;
 
+  const isSmallTablet = width >= 500;
+  const isBigTablet = width >= 700;
+  const containerWidth = isSmallTablet ? '80%' : isBigTablet ? '60%' : '100%';
   return (
-    <Card backgroundColor="white" borderWidth={1} borderColor={colors.lightGray}>
+    <Card
+      backgroundColor="white"
+      borderWidth={1}
+      mt={isBigScreen ? 30 : 10}
+      borderColor={colors.lightGray}
+      width={containerWidth}
+      mx="auto">
       <CardHeader gap={10}>
         <XStack gap={14} alignItems="center">
           <CustomSubHeading text={product?.product} fontSize={1.9} />

@@ -73,7 +73,7 @@ export const Button = styled(ButtonTamagui, {
 const config = createTamagui({
   light: {
     color: {
-      background: 'gray',
+      background: 'white',
       text: 'black',
     },
   },

@@ -4,6 +4,7 @@ import { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { format, isWithinInterval } from 'date-fns';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
+import { useWindowDimensions } from 'react-native';
 
 import { CalenderSheet } from './CalenderSheet';
 import { SalesFlatlist } from './SalesFlatlist';
@@ -21,7 +22,12 @@ export const Offline = (): JSX.Element => {
   const [page, setPage] = useState(1);
   const { data, isPending, isError, refetch, isRefetching } = useSalesS(page);
   const handleRefetch = useCallback(() => refetch(), []);
+  const { width } = useWindowDimensions();
+  const isSmallTablet = width >= 500;
+  const isBigTablet = width >= 700;
+  const containerWidth = isBigTablet ? '70%' : isSmallTablet ? '80%' : '100%';
   useRender();
+
   const handlePagination = useCallback((direction: 'next' | 'prev') => {
     setPage((prev) => prev + (direction === 'next' ? 1 : -1));
   }, []);
@@ -93,7 +99,7 @@ export const Offline = (): JSX.Element => {
   if (isError) return <Error onRetry={handleRefetch} />;
 
   return (
-    <AnimatedContainer>
+    <AnimatedContainer width={containerWidth}>
       <StoreActions
         placeholder="by name of product"
         title="sales"

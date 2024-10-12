@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { StyleProp, TextStyle, ViewStyle } from 'react-native';
+import { RFPercentage } from 'react-native-responsive-fontsize';
 import { Button, ButtonProps, Spinner } from 'tamagui';
 
 import { colors } from '~/constants';
@@ -28,7 +29,12 @@ export const MyButton = ({
   console.log(loading);
 
   return (
-    <Button {...props} backgroundColor={bgColor} color={color} fontSize={20} fontWeight="bold">
+    <Button
+      {...props}
+      backgroundColor={bgColor}
+      color={color}
+      fontSize={RFPercentage(1.5)}
+      fontWeight="bold">
       {loading ? <Spinner size="large" color="white" /> : title}
     </Button>
   );

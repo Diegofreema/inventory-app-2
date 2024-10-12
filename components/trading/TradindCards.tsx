@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 
+import { useWindowDimensions } from 'react-native';
 import { Separator, Stack } from 'tamagui';
 
 import { FlexText } from '../ui/FlexText';
@@ -21,6 +22,10 @@ type Props = {
   };
 };
 export const TradingCards = ({ data }: Props) => {
+  const { width } = useWindowDimensions();
+  const isSmallTablet = width >= 500;
+  const isBigTablet = width >= 700;
+  const containerWidth = isBigTablet ? '70%' : isSmallTablet ? '80%' : '100%';
   const expenses = data?.expenses?.map((exp) => ({
     accountname: exp.accountName,
     amount: exp.amount,
@@ -42,9 +47,9 @@ export const TradingCards = ({ data }: Props) => {
 
   const profit = credits - debits;
   return (
-    <Stack gap={15}>
+    <Stack gap={15} width={containerWidth} mx="auto" flex={1}>
       <AnimatedCard index={1}>
-        <CustomSubHeading text="Debit" fontSize={20} />
+        <CustomSubHeading text="Debit" fontSize={2.2} />
         <Separator backgroundColor="#ccc" />
         <FlexText text="Opening Stock" text2={`₦${data.openingStock?.toString()}`} />
         <FlexText text="Purchased Products" text2={`₦${data.supply?.toString()}`} />
@@ -55,7 +60,7 @@ export const TradingCards = ({ data }: Props) => {
         ))}
       </AnimatedCard>
       <AnimatedCard index={2}>
-        <CustomSubHeading text="Credit" fontSize={20} />
+        <CustomSubHeading text="Credit" fontSize={2.2} />
         <Separator backgroundColor="#ccc" />
         <FlexText text="Online Sales" text2={`₦${data.onlineSales?.toString()}`} />
         <FlexText text="Offline Sales" text2={`₦${data.offlineSales?.toString()}`} />

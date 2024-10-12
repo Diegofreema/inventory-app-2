@@ -2,7 +2,7 @@
 
 import { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, useWindowDimensions } from 'react-native';
 
 import { Container } from '~/components/Container';
 import { ExpenseFlatList } from '~/components/report/ExpenseFlatList';
@@ -28,6 +28,10 @@ export default function Record() {
     storeSales: storeSale,
     disposal,
   });
+  const { width } = useWindowDimensions();
+  const isSmallTablet = width >= 500;
+  const isBigTablet = width >= 700;
+  const containerWidth = isBigTablet ? '70%' : isSmallTablet ? '80%' : '100%';
   const bottomRef = useRef<BottomSheetMethods | null>(null);
 
   const onOpenCalender = useCallback(() => {
@@ -54,7 +58,7 @@ export default function Record() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 20, gap: 20 }}
-        style={{ flex: 1 }}>
+        style={{ flex: 1, width: containerWidth, marginHorizontal: 'auto' }}>
         <StoreActions
           hide
           date
@@ -65,8 +69,8 @@ export default function Record() {
         {dateValue && (
           // @ts-ignore
           <>
-            <SalesFlatList scroll={false} data={filterData} />
             <ProductSupply scroll={false} data={filterSupply} />
+            <SalesFlatList scroll={false} data={filterData} />
             <ExpenseFlatList scroll={false} data={filterExpense} />
             <Disposal scroll={false} data={filteredDisposal} />
           </>

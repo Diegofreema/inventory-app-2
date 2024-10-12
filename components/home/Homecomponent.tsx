@@ -2,7 +2,8 @@
 import { Q } from '@nozbe/watermelondb';
 import { withObservables } from '@nozbe/watermelondb/react';
 import { useMemo } from 'react';
-import { ScrollView, XStack } from 'tamagui';
+import { useWindowDimensions } from 'react-native';
+import { ScrollView, View, XStack } from 'tamagui';
 
 import { Container } from '~/components/Container';
 import { LogoutButton } from '~/components/LogoutButton';
@@ -26,6 +27,10 @@ export const Main = ({
   storeSales: StoreSales[];
 }) => {
   useRender();
+  const { width } = useWindowDimensions();
+  const isSmallTablet = width >= 500;
+  const isBigTablet = width >= 700;
+  const containerWidth = isBigTablet ? '60%' : isSmallTablet ? '80%' : '100%';
   const limitedProducts = useMemo(() => {
     if (!products) return [];
     return products.slice(0, 10);
@@ -33,21 +38,23 @@ export const Main = ({
 
   return (
     <Container>
-      <XStack justifyContent="space-between" alignItems="center">
-        <CustomHeading text="Dashboard" fontSize={1.7} />
-        <LogoutButton />
-      </XStack>
-      {/* <MyButton title="btn" onPress={createCart} /> */}
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <DashBoardCards products={products} salesP={onlineSales} salesS={storeSales} />
-        <Products
-          data={limitedProducts}
-          text="Product list"
-          linkText="View Product Page"
-          href="/store"
-          navigate
-        />
-      </ScrollView>
+      <View width={containerWidth} mx="auto">
+        <XStack justifyContent="space-between" alignItems="center">
+          <CustomHeading text="Dashboard" fontSize={1.7} />
+          <LogoutButton />
+        </XStack>
+        {/* <MyButton title="btn" onPress={createCart} /> */}
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <DashBoardCards products={products} salesP={onlineSales} salesS={storeSales} />
+          <Products
+            data={limitedProducts}
+            text="Product list"
+            linkText="View Product Page"
+            href="/store"
+            navigate
+          />
+        </ScrollView>
+      </View>
     </Container>
   );
 };

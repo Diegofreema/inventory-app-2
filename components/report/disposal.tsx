@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { FlatList } from 'react-native';
+import { FlatList, useWindowDimensions } from 'react-native';
 
 import { AnimatedCard } from '~/components/ui/AnimatedCard';
 import { FlexText } from '~/components/ui/FlexText';
@@ -11,6 +11,8 @@ type Props = {
   scroll?: boolean;
 };
 export const Disposal = ({ data, scroll = true }: Props) => {
+  const { width } = useWindowDimensions();
+  const isSmallTablet = width >= 500;
   return (
     <FlatList
       scrollEnabled={scroll}
@@ -19,6 +21,8 @@ export const Disposal = ({ data, scroll = true }: Props) => {
       showsVerticalScrollIndicator={false}
       contentContainerStyle={{ gap: 20, paddingBottom: 20 }}
       ListEmptyComponent={() => <Empty text="No disposal for this date" />}
+      numColumns={isSmallTablet ? 2 : undefined}
+      columnWrapperStyle={isSmallTablet && { gap: 20 }}
     />
   );
 };

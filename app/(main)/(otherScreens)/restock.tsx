@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
+import { useWindowDimensions } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { Stack, View } from 'tamagui';
 import { z } from 'zod';
@@ -43,6 +44,10 @@ const Restock = (): JSX.Element => {
     },
     resolver: zodResolver(productSupplySchema),
   });
+  const { width } = useWindowDimensions();
+  const isSmallTablet = width >= 500;
+  const isBigTablet = width >= 700;
+  const containerWidth = isBigTablet ? '60%' : isSmallTablet ? '80%' : '100%';
   if (isError) return <Error onRetry={refetch} />;
   const info = data?.[0];
   const onSubmit = async (value: z.infer<typeof productSupplySchema>) => {
@@ -71,56 +76,58 @@ const Restock = (): JSX.Element => {
 
   return (
     <Container paddingHorizontal={isLoading ? 0 : '$4'}>
-      <View paddingHorizontal={isLoading ? '$4' : 0}>
-        <NavHeader title="Product Supply" />
-      </View>
-      {isLoading ? (
-        <FormLoader />
-      ) : (
-        <CustomScroll>
-          <Stack gap={10}>
-            <CustomController
-              name="product"
-              control={control}
-              errors={errors}
-              placeholder="Product Name"
-              label="Product Name"
-              editable={false}
-              multiline
-            />
-            <CustomController
-              name="unitPrice"
-              control={control}
-              errors={errors}
-              placeholder="Unit Cost"
-              label="Unit Cost (NGN)"
-            />
-            <CustomController
-              name="newPrice"
-              control={control}
-              errors={errors}
-              placeholder="New Price"
-              label="New Price (NGN)"
-            />
-            <CustomController
-              name="qty"
-              control={control}
-              errors={errors}
-              placeholder="Quantity"
-              label="Quantity"
-            />
+      <View mx="auto" width={containerWidth}>
+        <View paddingHorizontal={isLoading ? '$4' : 0}>
+          <NavHeader title="Product Supply" />
+        </View>
+        {isLoading ? (
+          <FormLoader />
+        ) : (
+          <CustomScroll>
+            <Stack gap={10}>
+              <CustomController
+                name="product"
+                control={control}
+                errors={errors}
+                placeholder="Product Name"
+                label="Product Name"
+                editable={false}
+                multiline
+              />
+              <CustomController
+                name="unitPrice"
+                control={control}
+                errors={errors}
+                placeholder="Unit Cost"
+                label="Unit Cost (NGN)"
+              />
+              <CustomController
+                name="newPrice"
+                control={control}
+                errors={errors}
+                placeholder="New Price"
+                label="New Price (NGN)"
+              />
+              <CustomController
+                name="qty"
+                control={control}
+                errors={errors}
+                placeholder="Quantity"
+                label="Quantity"
+              />
 
-            <MyButton
-              title="Add Supply"
-              disabled={isPending}
-              loading={isPending}
-              height={60}
-              marginTop={20}
-              onPress={handleSubmit(onSubmit)}
-            />
-          </Stack>
-        </CustomScroll>
-      )}
+              <MyButton
+                title="Add Supply"
+                disabled={isPending}
+                loading={isPending}
+                height={60}
+                marginTop={20}
+                onPress={handleSubmit(onSubmit)}
+              />
+            </Stack>
+          </CustomScroll>
+        )}
+      </View>
     </Container>
   );
 };

@@ -3,7 +3,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
-import { Stack } from 'tamagui';
+import { useWindowDimensions } from 'react-native';
+import { Stack, View } from 'tamagui';
 import { z } from 'zod';
 
 import { Container } from '~/components/Container';
@@ -20,6 +21,8 @@ const Dispose = (): JSX.Element => {
     name: string;
     id: string;
   }>();
+  console.log({ name, productId, id });
+
   const { isPending, mutateAsync } = useDisposal();
   const router = useRouter();
   const {
@@ -34,7 +37,10 @@ const Dispose = (): JSX.Element => {
     },
     resolver: zodResolver(disposeSchema),
   });
-
+  const { width } = useWindowDimensions();
+  const isSmallTablet = width >= 500;
+  const isBigTablet = width >= 700;
+  const containerWidth = isBigTablet ? '60%' : isSmallTablet ? '80%' : '100%';
   const onSubmit = async (values: z.infer<typeof disposeSchema>) => {
     try {
       await mutateAsync({ qty: +values.qty, productId, id });
@@ -46,35 +52,37 @@ const Dispose = (): JSX.Element => {
   };
   return (
     <Container>
-      <NavHeader title="Dispose product" />
-      <CustomScroll>
-        <Stack gap={10}>
-          <CustomController
-            control={control}
-            errors={errors}
-            name="productName"
-            label="Product Name"
-            placeholder="Product Name"
-            editable={false}
-          />
-          <CustomController
-            control={control}
-            errors={errors}
-            name="qty"
-            label="Quantity"
-            placeholder="Quantity"
-          />
+      <View w={containerWidth} mx="auto">
+        <NavHeader title="Dispose product" />
+        <CustomScroll>
+          <Stack gap={10}>
+            <CustomController
+              control={control}
+              errors={errors}
+              name="productName"
+              label="Product Name"
+              placeholder="Product Name"
+              editable={false}
+            />
+            <CustomController
+              control={control}
+              errors={errors}
+              name="qty"
+              label="Quantity"
+              placeholder="Quantity"
+            />
 
-          <MyButton
-            title="Dispose"
-            disabled={isPending}
-            loading={isPending}
-            height={60}
-            marginTop={20}
-            onPress={handleSubmit(onSubmit)}
-          />
-        </Stack>
-      </CustomScroll>
+            <MyButton
+              title="Dispose"
+              disabled={isPending}
+              loading={isPending}
+              height={60}
+              marginTop={20}
+              onPress={handleSubmit(onSubmit)}
+            />
+          </Stack>
+        </CustomScroll>
+      </View>
     </Container>
   );
 };

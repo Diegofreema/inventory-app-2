@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 
-import { FlatList } from 'react-native';
+import { FlatList, useWindowDimensions } from 'react-native';
 
 import { ExpenditureCard } from '../ui/ExpenditureCard';
 import { Empty } from '../ui/empty';
@@ -18,6 +18,9 @@ export const ExpenditureList = ({
   isFetching,
   pagination: Pagination,
 }: Props): JSX.Element => {
+  const { width } = useWindowDimensions();
+  const isSmallTablet = width >= 500;
+
   return (
     <FlatList
       data={data}
@@ -30,6 +33,8 @@ export const ExpenditureList = ({
       contentContainerStyle={{ gap: 20, paddingBottom: 20 }}
       showsVerticalScrollIndicator={false}
       ListFooterComponent={Pagination}
+      columnWrapperStyle={isSmallTablet && { gap: 20 }}
+      numColumns={isSmallTablet ? 2 : undefined}
     />
   );
 };

@@ -6,7 +6,6 @@ import { FlatList } from 'react-native';
 import { AnimatedCard } from './ui/AnimatedCard';
 import { FlexText } from './ui/FlexText';
 import { MyButton } from './ui/MyButton';
-import { Empty } from './ui/empty';
 
 import { NotType } from '~/type';
 
@@ -22,7 +21,6 @@ export const Notifications = ({ data, isLoading, onRefetch }: Props): JSX.Elemen
       data={data}
       renderItem={({ item, index }) => <NotificationCard item={item} index={index} />}
       contentContainerStyle={{ gap: 10, paddingBottom: 20 }}
-      ListEmptyComponent={() => <Empty text="No notification" />}
       refreshing={isLoading}
       onRefresh={onRefetch}
       showsVerticalScrollIndicator={false}

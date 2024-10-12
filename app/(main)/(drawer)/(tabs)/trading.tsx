@@ -1,11 +1,14 @@
 /* eslint-disable prettier/prettier */
 import { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { useCallback, useMemo, useRef, useState } from 'react';
+import { useWindowDimensions } from 'react-native';
+import { ScrollView, View } from 'tamagui';
 
 import { Container } from '~/components/Container';
 import { CalenderSheet } from '~/components/sales/CalenderSheet';
 import { StoreActions } from '~/components/store/StoreActions';
 import { TradingCards } from '~/components/trading/TradindCards';
+import { useRender } from '~/hooks/useRender';
 import { useReports } from '~/hooks/useReports';
 import { useTrading } from '~/hooks/useTrading';
 import { formattedDate } from '~/lib/helper';
@@ -14,6 +17,7 @@ const TradingAccount = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const bottomRef = useRef<BottomSheetMethods | null>(null);
+  useRender();
   const {
     onlineSale: onlineSales,
     storeSale: storeSales,
@@ -49,6 +53,10 @@ const TradingAccount = () => {
     setEndDate('');
     setStartDate('');
   }, []);
+  const { width } = useWindowDimensions();
+  const isSmallTablet = width >= 500;
+  const isBigTablet = width >= 700;
+  const containerWidth = isBigTablet ? '60%' : isSmallTablet ? '80%' : '100%';
   const data = {
     supply: memoizedSupply,
     disposal: memoizedDisposal,
@@ -61,15 +69,21 @@ const TradingAccount = () => {
   const emptyDates = !startDate || !endDate;
   return (
     <Container>
-      <StoreActions
-        hide
-        date
-        onOpenCalender={onOpenCalender}
-        dateValue={dateValue}
-        resetDates={resetDates}
-      />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 20 }}>
+        <View width={containerWidth} mx="auto">
+          <StoreActions
+            hide
+            date
+            onOpenCalender={onOpenCalender}
+            dateValue={dateValue}
+            resetDates={resetDates}
+          />
+        </View>
 
-      {!emptyDates && <TradingCards data={data} />}
+        {!emptyDates && <TradingCards data={data} />}
+      </ScrollView>
       <CalenderSheet
         ref={bottomRef}
         setStartDate={setStartDate}

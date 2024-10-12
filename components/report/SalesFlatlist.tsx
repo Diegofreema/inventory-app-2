@@ -2,7 +2,7 @@
 
 import * as Print from 'expo-print';
 import { useState } from 'react';
-import { FlatList } from 'react-native';
+import { FlatList, useWindowDimensions } from 'react-native';
 
 import { AnimatedCard } from '../ui/AnimatedCard';
 import { FlexText } from '../ui/FlexText';
@@ -21,7 +21,8 @@ type Props = {
 
 export const SalesFlatList = ({ data, scroll = true }: Props): JSX.Element => {
   const dt = calculateTotalsByPaymentType(data);
-
+  const { width } = useWindowDimensions();
+  const isSmallTablet = width >= 500;
   return (
     <FlatList
       scrollEnabled={scroll}
@@ -34,6 +35,8 @@ export const SalesFlatList = ({ data, scroll = true }: Props): JSX.Element => {
       ListFooterComponent={() =>
         data.length ? <BottomList data={dt} index={data?.length} /> : null
       }
+      numColumns={isSmallTablet ? 2 : undefined}
+      columnWrapperStyle={isSmallTablet && { gap: 20 }}
     />
   );
 };
