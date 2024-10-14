@@ -92,7 +92,7 @@ const ProductCard = ({ item, show, nav }: { item: Product; show?: boolean; nav?:
     router.push(`/product/${item.id}`);
   };
   const { width } = useWindowDimensions();
-  console.log(width);
+
   const isSmaller = width <= 400;
   const isBigScreen = width >= 500;
   const cardHeight = isSmaller ? 150 : isBigScreen ? 250 : 200;
