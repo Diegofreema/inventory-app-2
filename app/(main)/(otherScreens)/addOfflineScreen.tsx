@@ -63,7 +63,7 @@ export default function AddOfflineScreen() {
   const { productId } = watch();
   const memoizedPrice = useMemo(() => {
     if (!productId) return null;
-    return storedProduct?.find((item) => item?.id === productId)?.sellingPrice;
+    return storedProduct?.find((item) => item?.id === productId)?.marketPrice;
   }, [storedProduct, productId]);
 
   const onSubmit = async (value: z.infer<typeof addToCart>) => {

@@ -3,7 +3,7 @@ import { Q } from '@nozbe/watermelondb';
 import { createId } from '@paralleldrive/cuid2';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { format } from 'date-fns';
+import { format, isSameDay, max } from 'date-fns';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import Toast from 'react-native-toast-message';
@@ -16,6 +16,7 @@ import {
   addOnlineSales,
   addProduct,
   createProduct,
+  rearrangeDateString,
   sendDisposedProducts,
   supplyProducts,
 } from '../helper';
@@ -239,12 +240,6 @@ export const useCart = () => {
         name: item.name,
         id: item.id,
       }));
-      console.log(
-        '🚀 ~ useCart ~ productsToAdd:',
-        productsToAdd[0].name,
-        productsToAdd[0].id,
-        productsToAdd[0].productId
-      );
 
       const arrayOfAddedSales: { id: string; qty: number; storeId: string }[] = [];
       try {
@@ -528,10 +523,38 @@ export const useDisposal = () => {
         const productInStore = await products.find(id);
 
         const suppliedProducts = await supplyProduct
-          .query(Q.where('product_id', Q.eq(productId)), Q.sortBy('created_at', Q.desc), Q.take(1))
+          .query(Q.where('product_id', Q.eq(productId)))
           .fetch();
 
         if (suppliedProducts.length === 0) throw Error('Product does not exist');
+        const formattedDateOfProducts = suppliedProducts.map((product) => {
+          const productDate = rearrangeDateString(product.dateX.split(' ')[0]);
+          return {
+            unitCost: product.unitCost,
+            dateX: productDate,
+            productId: product.productId,
+          };
+        });
+        const mostRecentDate = max(formattedDateOfProducts.map((product) => product.dateX));
+
+        const recentPrice = formattedDateOfProducts
+          .filter((product) => {
+            const year = Number(product.dateX.split('-')[0]);
+            const month = Number(product.dateX.split('-')[1]);
+            const day = Number(product.dateX.split('-')[2]);
+            const productDate = new Date(year, month - 1, day);
+            const recentDate = new Date(
+              mostRecentDate.getFullYear(),
+              mostRecentDate.getMonth(),
+              mostRecentDate.getDate()
+            );
+            console.log(isSameDay(productDate, recentDate), 'adhbdjbjfhb');
+
+            return isSameDay(productDate, recentDate);
+          })
+          .map((product) => product.unitCost)[0];
+        console.log({ recentPrice });
+
         if (!productInStore) throw Error('Product does not exist');
         if (qty > productInStore.qty) throw Error('Not enough stock to dispose');
 
@@ -540,7 +563,7 @@ export const useDisposal = () => {
             disposedProduct.qty = qty;
             disposedProduct.productId = productId;
             disposedProduct.dateX = format(Date.now(), 'dd/MM/yyyy HH:mm');
-            disposedProduct.unitCost = suppliedProducts[0].unitCost;
+            disposedProduct.unitCost = recentPrice;
             disposedProduct.isUploaded = true;
             disposedProduct.name = productInStore.product;
           });

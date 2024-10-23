@@ -8,7 +8,7 @@ import { FlexText } from '../ui/FlexText';
 import { AnimatedCard } from '~/components/ui/AnimatedCard';
 import { CustomSubHeading } from '~/components/ui/typography';
 import Expenses from '~/db/model/Expenses';
-import { totalAmount } from '~/lib/helper';
+import { addCommas, totalAmount } from '~/lib/helper';
 import { GroupedExpense } from '~/type';
 type Props = {
   data: {
@@ -51,23 +51,27 @@ export const TradingCards = ({ data }: Props) => {
       <AnimatedCard index={1}>
         <CustomSubHeading text="Debit" fontSize={2.2} />
         <Separator backgroundColor="#ccc" />
-        <FlexText text="Opening Stock" text2={`₦${data.openingStock?.toString()}`} />
-        <FlexText text="Purchased Products" text2={`₦${data.supply?.toString()}`} />
-        <FlexText text="Disposed Products" text2={`₦${data.disposal?.toString()}`} />
+        <FlexText text="Opening Stock" text2={`₦${addCommas(data.openingStock?.toString())}`} />
+        <FlexText text="Purchased Products" text2={`₦${addCommas(data.supply?.toString())}`} />
+        <FlexText text="Disposed Products" text2={`₦${addCommas(data.disposal?.toString())}`} />
         {groupedExpenses?.map((expense, i) => (
-          // @ts-ignore
-          <FlexText key={i} text={expense?.accountname} text2={`₦${expense?.amount?.toString()}`} />
+          <FlexText
+            key={i}
+            // @ts-ignore
+            text={expense?.accountname}
+            text2={`₦${addCommas(expense?.amount?.toString())}`}
+          />
         ))}
       </AnimatedCard>
       <AnimatedCard index={2}>
         <CustomSubHeading text="Credit" fontSize={2.2} />
         <Separator backgroundColor="#ccc" />
-        <FlexText text="Online Sales" text2={`₦${data.onlineSales?.toString()}`} />
+        <FlexText text="Online Sales" text2={`₦${addCommas(data.onlineSales?.toString())}`} />
         <FlexText text="Offline Sales" text2={`₦${data.offlineSales?.toString()}`} />
-        <FlexText text="Closing stock" text2={`₦${data.closingStock?.toString()}`} />
+        <FlexText text="Closing stock" text2={`₦${addCommas(data.closingStock?.toString())}`} />
       </AnimatedCard>
       <AnimatedCard index={3}>
-        <FlexText text="Net profit" text2={`₦${profit?.toString()}`} />
+        <FlexText text="Net profit" text2={`₦${addCommas(profit?.toString())}`} />
       </AnimatedCard>
     </Stack>
   );

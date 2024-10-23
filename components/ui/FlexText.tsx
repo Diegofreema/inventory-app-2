@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-
 import type { IconProps } from '@tamagui/helpers-icon';
 import { XStack } from 'tamagui';
 

@@ -15,6 +15,7 @@ import OnlineSale from '~/db/model/OnlineSale';
 import Product from '~/db/model/Product';
 import StoreSales from '~/db/model/StoreSale';
 import { useRender } from '~/hooks/useRender';
+import { useStore } from '~/lib/zustand/useStore';
 // import { getSale } from '~/lib/helper';
 
 export const Main = ({
@@ -28,6 +29,7 @@ export const Main = ({
 }) => {
   useRender();
   const { width } = useWindowDimensions();
+
   const isSmallTablet = width >= 500;
   const isBigTablet = width >= 700;
   const containerWidth = isBigTablet ? '60%' : isSmallTablet ? '80%' : '100%';
@@ -44,7 +46,9 @@ export const Main = ({
           <LogoutButton />
         </XStack>
         {/* <MyButton title="btn" onPress={createCart} /> */}
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 50 }}>
           <DashBoardCards products={products} salesP={onlineSales} salesS={storeSales} />
           <Products
             data={limitedProducts}

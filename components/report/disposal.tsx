@@ -1,6 +1,8 @@
 /* eslint-disable prettier/prettier */
 import { FlatList, useWindowDimensions } from 'react-native';
 
+import { CustomSubHeading } from '../ui/typography';
+
 import { AnimatedCard } from '~/components/ui/AnimatedCard';
 import { FlexText } from '~/components/ui/FlexText';
 import { Empty } from '~/components/ui/empty';
@@ -16,6 +18,7 @@ export const Disposal = ({ data, scroll = true }: Props) => {
   return (
     <FlatList
       scrollEnabled={scroll}
+      ListHeaderComponent={() => <CustomSubHeading text="Disposal" fontSize={2.2} />}
       data={data}
       renderItem={({ item, index }) => <DisposalCard item={item} index={index} />}
       showsVerticalScrollIndicator={false}

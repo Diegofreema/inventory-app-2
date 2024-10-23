@@ -32,8 +32,6 @@ const Trading = ({ disposal, expense, onlineSales, productSupply, storeSales }: 
   const bottomRef = useRef<BottomSheetMethods | null>(null);
   useRender();
 
-  console.log({ length: storeSales.length });
-
   const {
     memoizedDisposal,
     memoizedExpense,

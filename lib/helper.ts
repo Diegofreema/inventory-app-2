@@ -26,6 +26,7 @@ import {
   StoreSalesFromDb,
   SupplyInsert,
 } from '~/type';
+import SupplyProduct from '~/db/model/SupplyProduct';
 
 export const api = process.env.EXPO_PUBLIC_API;
 
@@ -703,3 +704,17 @@ export const nameUnnamedSupply = async () => {
     }
   });
 };
+
+export function addCommas(numberString: string) {
+  // Remove any existing commas and spaces
+  numberString = numberString.replace(/[,\s]/g, '');
+
+  // Split the number into integer and decimal parts (if any)
+  let [integerPart, decimalPart] = numberString.split('.');
+
+  // Add commas to the integer part
+  integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  // Reconstruct the number with commas
+  return decimalPart ? `${integerPart}.${decimalPart}` : integerPart;
+}
