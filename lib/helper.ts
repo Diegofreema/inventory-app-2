@@ -23,7 +23,9 @@ import {
   ExpensesFromDb,
   OnlineSaleFromDb,
   ProductFromDb,
+  ProductFromServer,
   StoreSalesFromDb,
+  SupplyFromDb,
   SupplyInsert,
 } from '~/type';
 import SupplyProduct from '~/db/model/SupplyProduct';
@@ -80,7 +82,7 @@ export const getProducts = async (id: string) => {
   const response = await axios.get(
     `https://247api.netpro.software/api.aspx?api=getproducts&cidx=${id}`
   );
-  let data = [];
+  let data: ProductFromServer[] = [];
   if (Object.prototype.toString.call(response.data) === '[object Object]') {
     data.push(response.data);
   } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
@@ -99,7 +101,6 @@ export const getProducts = async (id: string) => {
     sellingPrice: +product.sellingprice,
     shareDealer: +product.sharedealer,
     shareNetpro: +product.sharenetpro,
-    description: product.des,
   }));
   return formattedProducts;
 };
@@ -160,7 +161,7 @@ export const getSupply = async (id: any) => {
   const response = await axios.get(
     `https://247api.netpro.software/api.aspx?api=getproductsupply&cidx=${id}`
   );
-  let data = [];
+  let data: SupplyFromDb[] = [];
   if (Object.prototype.toString.call(response.data) === '[object Object]') {
     data.push(response.data);
   } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
@@ -317,6 +318,7 @@ export const supplyProducts = async ({
   unitCost,
   id,
 }: SupplyInsert & { id: string }) => {
+  console.log({ dealerShare, netProShare, newPrice, productId, qty, sellingPrice, unitCost, id });
   try {
     const { data } = await axios.get(
       `https://247api.netpro.software/api.aspx?api=addsupply&cidx=${id}&productid=${productId}&qty=${qty}&unitcost=${unitCost}&newprice=${newPrice}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}`
@@ -470,7 +472,6 @@ export const createProduct = async (p: ProductFromDb, isUploaded = true) => {
       product.shareDealer = +p.shareDealer;
       product.shareNetpro = +p.shareNetpro;
       product.isUploaded = isUploaded;
-      product.description = p.description;
       product.productId = p.productId;
     });
   });
@@ -491,7 +492,7 @@ export const createProducts = async (newProduct: ProductFromDb[], isUploaded = t
           product.shareDealer = +p.shareDealer;
           product.shareNetpro = +p.shareNetpro;
           product.isUploaded = isUploaded;
-          product.description = p.description;
+
           product.productId = p.productId;
         })
       );
@@ -504,9 +505,6 @@ export const createProducts = async (newProduct: ProductFromDb[], isUploaded = t
 export const createOnlineSales = async (newSales: OnlineSaleFromDb[], isUploaded = true) => {
   await new Promise((resolve) => setTimeout(resolve, 2000));
   newSales.forEach(async (sale) => {
-    const productInDb = await products
-      .query(Q.where('product_id', Q.eq(sale.productId)), Q.take(1))
-      .fetch();
     await database.write(async () => {
       await database.batch(
         onlineSales.prepareCreate((st) => {
@@ -517,7 +515,6 @@ export const createOnlineSales = async (newSales: OnlineSaleFromDb[], isUploaded
           st.dealerShare = sale.dealerShare;
           st.netProShare = sale.netProShare;
           st.isUploaded = isUploaded;
-          st.name = productInDb[0]?.product;
         })
       );
     });
@@ -527,9 +524,6 @@ export const createOnlineSales = async (newSales: OnlineSaleFromDb[], isUploaded
 export const createStoreSales = async (newSales: StoreSalesFromDb[], isUploaded = true) => {
   await new Promise((resolve) => setTimeout(resolve, 2000));
   newSales.forEach(async (sale) => {
-    const productInDb = await products
-      .query(Q.where('product_id', Q.eq(sale.productId)), Q.take(1))
-      .fetch();
     await database.write(async () => {
       await database.batch(
         storeSales.prepareCreate((st) => {
@@ -543,7 +537,6 @@ export const createStoreSales = async (newSales: StoreSalesFromDb[], isUploaded 
           st.transferInfo = sale.transferInfo;
           st.cid = sale.cid;
           st.isUploaded = isUploaded;
-          st.name = productInDb[0]?.product;
         })
       );
     });
@@ -580,7 +573,6 @@ export const createDisposals = async (newDisposal: DisposalFromDb[], isUploaded 
           disposal.qty = dis.qty;
           disposal.unitCost = dis.unitCost;
           disposal.isUploaded = isUploaded;
-          disposal.name = productInDb[0]?.product;
         })
       );
     });
@@ -615,9 +607,6 @@ export const createCats = async (cats: { category: string; subcategory: string }
 export const createSupply = async (supplies: DisposalFromDb[], isUploaded = true) => {
   await new Promise((resolve) => setTimeout(resolve, 2000));
   supplies.forEach(async (sup) => {
-    const productInDb = await products
-      .query(Q.where('product_id', Q.eq(sup.productId)), Q.take(1))
-      .fetch();
     await database.write(async () => {
       await database.batch(
         supplyProduct.prepareCreate((supply) => {
@@ -626,7 +615,6 @@ export const createSupply = async (supplies: DisposalFromDb[], isUploaded = true
           supply.dateX = sup.dateX;
           supply.unitCost = sup.unitCost;
           supply.isUploaded = true;
-          supply.name = productInDb[0]?.product;
         })
       );
     });
@@ -644,67 +632,6 @@ export const addInfo = async (info: any) => {
   });
 };
 
-export const nameUnnamedSales = async () => {
-  const unnamedSales = await onlineSales.query(Q.where('name', Q.eq(''))).fetch();
-  const pts = await products.query().fetch();
-  unnamedSales.forEach(async (sale) => {
-    const product = pts.find((p) => p.productId === sale.productId);
-    if (product) {
-      await database.write(async () => {
-        await sale.update((s) => {
-          s.name = product.product;
-        });
-      });
-    }
-  });
-};
-
-export const nameUnnamedSalesOffline = async () => {
-  const unnamedSales = await storeSales.query(Q.where('name', Q.eq(''))).fetch();
-
-  const pts = await products.query().fetch();
-  unnamedSales.forEach(async (sale) => {
-    const product = pts.find((p) => p.productId === sale.productId);
-    if (product) {
-      await database.write(async () => {
-        await sale.update((s) => {
-          s.name = product.product;
-        });
-      });
-    }
-  });
-};
-export const nameUnnamedDisposed = async () => {
-  const unnamedSales = await disposedProducts.query(Q.where('name', Q.eq(''))).fetch();
-
-  const pts = await products.query().fetch();
-  unnamedSales.forEach(async (sale) => {
-    const product = pts.find((p) => p.productId === sale.productId);
-    if (product) {
-      await database.write(async () => {
-        await sale.update((s) => {
-          s.name = product.product;
-        });
-      });
-    }
-  });
-};
-export const nameUnnamedSupply = async () => {
-  const unnamedSales = await supplyProduct.query(Q.where('name', Q.eq(''))).fetch();
-
-  const pts = await products.query().fetch();
-  unnamedSales.forEach(async (sale) => {
-    const product = pts.find((p) => p.productId === sale.productId);
-    if (product) {
-      await database.write(async () => {
-        await sale.update((s) => {
-          s.name = product.product;
-        });
-      });
-    }
-  });
-};
-
 export function addCommas(numberString: string) {
   // Remove any existing commas and spaces
   numberString = numberString.replace(/[,\s]/g, '');
@@ -716,5 +643,5 @@ export function addCommas(numberString: string) {
   integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
   // Reconstruct the number with commas
-  return decimalPart ? `${integerPart}.${decimalPart}` : integerPart;
+  return decimalPart ? `${integerPart}` : integerPart;
 }

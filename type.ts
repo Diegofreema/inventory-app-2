@@ -5,18 +5,20 @@ export type PreviewType = {
   title?: string;
   amount?: string | number;
 };
-// [product],
-//   [id],
-//   [customerproductid],
-//   [groupname] as Category,
-//   [category] as Subcategory,
-//   [sellingprice],
-//   [sharedealer],
-//   [sharenetpro],
-//   [marketprice],
-//   [qty],
-//   [online];
 
+export type ProductFromServer = {
+  product: string;
+  id: string;
+  customerproductid: string;
+  Category: string;
+  Subcategory: string;
+  sellingprice: string;
+  sharedealer: string;
+  sharenetpro: string;
+  marketprice: string;
+  qty: string;
+  online: 'True' | 'False';
+};
 export type ProductType = {
   product: string;
   id: string;
@@ -148,6 +150,7 @@ export type GroupedExpense = {
   [key: string]: { name: string; amount: number };
 };
 
+export type SupplyFromDb = { datex: string; productid: string; qty: string; unitcost: string };
 export type ProductFromDb = {
   category: any;
   subcategory: any;
@@ -160,7 +163,6 @@ export type ProductFromDb = {
   sellingPrice: number;
   shareDealer: number;
   shareNetpro: number;
-  description: any;
 };
 
 export type OnlineSaleFromDb = {

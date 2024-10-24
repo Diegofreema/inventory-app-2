@@ -35,20 +35,8 @@ const DisposedProductsFlatList = ({
       return isWithinInterval(salesDate, { start, end });
     });
   }, [disposedProduct, startDate, endDate]);
-  const filteredValue: DisposedProducts[] = useMemo(() => {
-    if (!value.trim()) {
-      return filterByDate || [];
-    }
 
-    const lowerCaseValue = value.toLowerCase();
-
-    return (
-      filterByDate?.filter((d) => {
-        return d.name.toLowerCase().includes(lowerCaseValue);
-      }) || []
-    );
-  }, [value, filterByDate]);
-  return <DisposedFlatList disposedProduct={filteredValue} />;
+  return <DisposedFlatList disposedProduct={filterByDate} />;
 };
 
 const enhancedComponent = withObservables([], () => ({

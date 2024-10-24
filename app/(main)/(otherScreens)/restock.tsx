@@ -27,6 +27,8 @@ const Restock = (): JSX.Element => {
     price: string;
     id: string;
   }>();
+  console.log({ name, price, productId, id });
+
   const router = useRouter();
 
   const { data, isPending: isLoading, isError, refetch } = useInfo();

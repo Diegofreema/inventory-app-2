@@ -40,6 +40,7 @@ export const SupplyProducts = (): JSX.Element => {
       <StoreActions
         placeholder="Search by name"
         showButton={false}
+        hide
         val={value}
         setVal={onSetValue}
         date

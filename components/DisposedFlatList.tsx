@@ -1,5 +1,7 @@
 /* eslint-disable prettier/prettier */
+import { Q } from '@nozbe/watermelondb';
 import { FlashList } from '@shopify/flash-list';
+import { useEffect, useState } from 'react';
 import { useWindowDimensions } from 'react-native';
 import { View } from 'tamagui';
 
@@ -7,6 +9,7 @@ import { AnimatedCard } from './ui/AnimatedCard';
 import { FlexText } from './ui/FlexText';
 import { Empty } from './ui/empty';
 
+import { products } from '~/db';
 import DisposedProducts from '~/db/model/DisposedProducts';
 import { trimText } from '~/lib/helper';
 
@@ -39,6 +42,18 @@ const DisPosedCard = ({
   disposedProduct: DisposedProducts;
   index: number;
 }): JSX.Element => {
+  const [productName, setProductName] = useState('');
+  useEffect(() => {
+    const fetchData = async () => {
+      const product = await products
+        .query(Q.where('product_id', disposedProduct.productId), Q.take(1))
+        .fetch();
+      const singleProductName = product[0]?.product;
+      setProductName(singleProductName);
+    };
+    fetchData();
+  }, []);
+
   const gap = 15;
   return (
     <AnimatedCard
@@ -47,7 +62,7 @@ const DisPosedCard = ({
         marginBottom: 15,
         marginRight: index % 1 === 0 ? gap : 0,
       }}>
-      <FlexText text="Product" text2={trimText(disposedProduct.name, 20)} />
+      <FlexText text="Product" text2={trimText(productName || '', 20)} />
       <FlexText text="Price" text2={`₦${disposedProduct.unitCost}`} />
       <FlexText text="Quantity" text2={`${disposedProduct.qty}`} />
       <FlexText text="Date" text2={`${disposedProduct.dateX}`} />

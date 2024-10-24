@@ -41,17 +41,21 @@ export const useTrading = ({
       return isBefore(salesDate, start);
     });
 
+    console.log(store.length, 'store length');
+
     const online = onlineSales.filter((d) => {
       const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
 
       return isBefore(salesDate, start);
     });
+    console.log(online.length, 'online length');
 
     const disposed = disposal.filter((d) => {
       const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
 
       return isBefore(salesDate, start);
     });
+    console.log(disposed.length, 'disposed length');
 
     // ? start of  supply product
     const dataToFilter = productSupply.filter((d) => {
@@ -59,6 +63,7 @@ export const useTrading = ({
 
       return isBefore(salesDate, start);
     });
+    console.log(dataToFilter.length, 'dataToFilter length');
 
     const groupedProducts = dataToFilter.reduce((acc: any, product) => {
       const { name, qty, unitCost, dateX } = product;
@@ -71,7 +76,6 @@ export const useTrading = ({
     const groupProductSupply = [];
     for (const key in groupedProducts) {
       const arrays: SupplyProduct[] = groupedProducts[key];
-      console.log({ arrays });
 
       const formattedArray = arrays.map((item) => {
         const maxDate = max(arrays.map((d) => rearrangeDateString(d.dateX.split(' ')[0])));

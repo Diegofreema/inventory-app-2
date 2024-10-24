@@ -5,7 +5,6 @@ import Staff from './Staff';
 export default class StoreSales extends Model {
   static table = 'store_sales';
 
-  @text('name') name!: string;
   @relation('staffs', 'id') staff!: Staff;
   @text('product_id') productId!: string;
   @field('qty') qty!: number;

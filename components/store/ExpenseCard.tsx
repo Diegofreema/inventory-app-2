@@ -27,7 +27,8 @@ export const ExpenseCard = ({ index, item }: Props): JSX.Element => {
       backgroundColor="white"
       borderWidth={1}
       flex={1}
-      borderColor={colors.lightGray}>
+      borderColor={colors.lightGray}
+      style={{ marginBottom: 15 }}>
       <CardHeader gap={5}>
         <FlexText text="Account name" text2={item?.accountName} />
         <FlexText text="Amount" text2={`₦${item?.amount}`} />

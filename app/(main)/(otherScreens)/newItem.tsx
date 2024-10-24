@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <Container paddingHorizontal={0}>
       <View width={containerWidth} mx="auto">
-        <CustomScroll>
+        <CustomScroll scroll>
           <ProductForm />
         </CustomScroll>
       </View>

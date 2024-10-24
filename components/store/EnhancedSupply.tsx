@@ -11,44 +11,37 @@ import { supplyProduct } from '~/db';
 import SupplyProduct from '~/db/model/SupplyProduct';
 
 type Props = {
-  suppliedProduct: SupplyProduct[];
+  suppliedProducts: SupplyProduct[];
   startDate: string;
   endDate: string;
-  value: string;
 };
 
-export const Supply = ({ suppliedProduct, startDate, endDate, value }: Props): JSX.Element => {
+export const Supply = ({ suppliedProducts, startDate, endDate }: Props): JSX.Element => {
+  console.log(
+    suppliedProducts.map((s) => {
+      return s.productId;
+    })
+  );
+
   const filterByDate = useMemo(() => {
-    if (!suppliedProduct) return [];
-    if (!startDate || !endDate) return suppliedProduct;
+    if (!suppliedProducts) return [];
+    if (!startDate || !endDate) return suppliedProducts;
 
     const start = format(startDate, 'dd-MM-yyyy');
     const end = format(endDate, 'dd-MM-yyyy');
 
-    return suppliedProduct.filter((d) => {
+    return suppliedProducts.filter((d) => {
       const salesDate = d?.dateX?.split(' ')[0]?.replace('/', '-')?.replace('/', '-');
 
       return isWithinInterval(salesDate, { start, end });
     });
-  }, [suppliedProduct, startDate, endDate]);
-  const filteredValue: SupplyProduct[] = useMemo(() => {
-    if (!value.trim()) {
-      return filterByDate || [];
-    }
+  }, [suppliedProducts, startDate, endDate]);
 
-    const lowerCaseValue = value.toLowerCase();
-
-    return (
-      filterByDate?.filter((d) => {
-        return d.name.toLowerCase().includes(lowerCaseValue);
-      }) || []
-    );
-  }, [value, filterByDate]);
-  return <SupplyFlatList supplyProduct={filteredValue} />;
+  return <SupplyFlatList supplyProduct={filterByDate} />;
 };
 
 const enhancedComponent = withObservables([], () => ({
-  suppliedProduct: supplyProduct?.query(Q.sortBy('created_at', Q.desc)).observe(),
+  suppliedProducts: supplyProduct?.query(Q.sortBy('created_at', Q.desc)).observe(),
 }));
 const EnhancedSupply = enhancedComponent(Supply);
 export default EnhancedSupply;

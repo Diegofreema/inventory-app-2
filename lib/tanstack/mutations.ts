@@ -72,7 +72,6 @@ export const useAddNewProduct = () => {
 
       const createdProduct = await createProduct({
         category,
-        description: des,
         marketPrice: marketPriceToNumber,
         online,
         product,
@@ -169,7 +168,6 @@ export const useAdd247 = () => {
             sale.dealerShare = productInDb?.shareDealer;
             sale.unitPrice = +unitPrice;
             sale.netProShare = productInDb?.shareNetpro;
-            sale.name = productInDb?.product;
           });
         });
 
@@ -257,7 +255,6 @@ export const useCart = () => {
               sale.cid = item.cid;
               sale.dateX = item.dateX;
               sale.isUploaded = true;
-              sale.name = item.name;
             });
 
             arrayOfAddedSales.push({ id: item.name, qty: item.qty, storeId: data.id });
@@ -439,6 +436,7 @@ export const useSupply = () => {
     }: SupplyInsert) => {
       const checkIfProductExists = await products.find(id);
       if (!checkIfProductExists) throw Error('Product does not exist');
+      console.log(checkIfProductExists.productId, productId);
 
       const addedProduct = await database.write(async () => {
         return await supplyProduct.create((supply) => {
@@ -447,7 +445,6 @@ export const useSupply = () => {
           supply.dateX = format(Date.now(), 'dd/MM/yyyy HH:mm');
           supply.unitCost = Number(unitCost);
           supply.isUploaded = true;
-          supply.name = checkIfProductExists.product;
         });
       });
       const shareNetproToNumber = Number(netProShare);
@@ -548,7 +545,6 @@ export const useDisposal = () => {
               mostRecentDate.getMonth(),
               mostRecentDate.getDate()
             );
-            console.log(isSameDay(productDate, recentDate), 'adhbdjbjfhb');
 
             return isSameDay(productDate, recentDate);
           })
@@ -565,7 +561,6 @@ export const useDisposal = () => {
             disposedProduct.dateX = format(Date.now(), 'dd/MM/yyyy HH:mm');
             disposedProduct.unitCost = recentPrice;
             disposedProduct.isUploaded = true;
-            disposedProduct.name = productInStore.product;
           });
         });
 
@@ -580,7 +575,7 @@ export const useDisposal = () => {
         if (!updatedProduct) throw Error('Failed to dispose product');
         if (isConnected) {
           const data = await sendDisposedProducts({
-            productId: productInStore.productId,
+            productId,
             qty,
           });
           return data;
@@ -685,6 +680,7 @@ export const useAddExp = () => {
             expense.amount = amount;
             expense.description = description || '';
             expense.isUploaded = true;
+            expense.dateX = format(Date.now(), 'dd/MM/yyyy HH:mm');
           });
         });
 

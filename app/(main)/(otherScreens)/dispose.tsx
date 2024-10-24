@@ -21,6 +21,7 @@ const Dispose = (): JSX.Element => {
     name: string;
     id: string;
   }>();
+  console.log({ name, productId, id });
 
   const { isPending, mutateAsync } = useDisposal();
   const router = useRouter();

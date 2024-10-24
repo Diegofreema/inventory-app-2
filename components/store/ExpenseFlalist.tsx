@@ -9,6 +9,8 @@ import { Empty } from '../ui/empty';
 import { CustomSubHeading } from '../ui/typography';
 
 import Expenses from '~/db/model/Expenses';
+import { FlashList } from '@shopify/flash-list';
+import { View } from 'tamagui';
 
 type Props = {
   data: Expenses[];
@@ -28,21 +30,22 @@ export const ExpenseFlalist = ({
   const isSmallTablet = width >= 500;
 
   return (
-    <FlatList
-      // @ts-ignore
-      ListHeaderComponent={pathname === '/filterExpense' ? <></> : <Header />}
-      data={data}
-      onRefresh={refetch}
-      refreshing={fetching}
-      renderItem={({ item, index }) => <ExpenseCard item={item} index={index} />}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ gap: 15, paddingBottom: 20 }}
-      ListEmptyComponent={() => <Empty text="No Expenses yet" />}
-      style={{ marginTop: 20 }}
-      ListFooterComponent={Pagination}
-      columnWrapperStyle={isSmallTablet && { gap: 20 }}
-      numColumns={isSmallTablet ? 2 : undefined}
-    />
+    <View flex={1} mt={20}>
+      <FlashList
+        // @ts-ignore
+        ListHeaderComponent={pathname === '/filterExpense' ? <></> : <Header />}
+        data={data}
+        onRefresh={refetch}
+        refreshing={fetching}
+        renderItem={({ item, index }) => <ExpenseCard item={item} index={index} />}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 20 }}
+        ListEmptyComponent={() => <Empty text="No Expenses yet" />}
+        ListFooterComponent={Pagination}
+        numColumns={isSmallTablet ? 2 : undefined}
+        estimatedItemSize={500}
+      />
+    </View>
   );
 };
 
@@ -57,6 +60,7 @@ const Header = () => {
         borderRadius: 10,
         height: 50,
         justifyContent: 'center',
+        marginBottom: 10,
       }}>
       <CustomSubHeading text="Filter by date" fontSize={1.6} />
     </CustomPressable>

@@ -1,6 +1,8 @@
 /* eslint-disable prettier/prettier */
 
-import { FlatList, useWindowDimensions } from 'react-native';
+import { FlashList } from '@shopify/flash-list';
+import { useWindowDimensions } from 'react-native';
+import { View } from 'tamagui';
 
 import { ExpenditureCard } from '../ui/ExpenditureCard';
 import { Empty } from '../ui/empty';
@@ -22,19 +24,20 @@ export const ExpenditureList = ({
   const isSmallTablet = width >= 500;
 
   return (
-    <FlatList
-      data={data}
-      onRefresh={onRefetch}
-      refreshing={isFetching}
-      renderItem={({ item, index }) => <ExpenditureCard item={item?.accountName} index={index} />}
-      style={{ marginTop: 10 }}
-      ListEmptyComponent={() => <Empty text="No Expenditure yet" />}
-      keyExtractor={(item, index) => index.toString()}
-      contentContainerStyle={{ gap: 20, paddingBottom: 20 }}
-      showsVerticalScrollIndicator={false}
-      ListFooterComponent={Pagination}
-      columnWrapperStyle={isSmallTablet && { gap: 20 }}
-      numColumns={isSmallTablet ? 2 : undefined}
-    />
+    <View flex={1} marginTop={20}>
+      <FlashList
+        data={data}
+        onRefresh={onRefetch}
+        refreshing={isFetching}
+        renderItem={({ item, index }) => <ExpenditureCard item={item?.accountName} index={index} />}
+        ListEmptyComponent={() => <Empty text="No Expenditure yet" />}
+        keyExtractor={(item, index) => index.toString()}
+        contentContainerStyle={{ paddingBottom: 20 }}
+        showsVerticalScrollIndicator={false}
+        ListFooterComponent={Pagination}
+        numColumns={isSmallTablet ? 2 : undefined}
+        estimatedItemSize={200}
+      />
+    </View>
   );
 };

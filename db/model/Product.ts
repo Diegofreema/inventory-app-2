@@ -15,7 +15,7 @@ export default class Product extends Model {
   @field('share_dealer') shareDealer!: number;
   @field('share_netpro') shareNetpro!: number;
   @field('is_uploaded') isUploaded!: boolean;
-  @text('description') description!: string;
+
   @readonly @date('created_at') createdAt!: number;
   @readonly @date('updated_at') updatedAt!: number;
 }

@@ -41,6 +41,7 @@ export const DisposedProduct = (): JSX.Element => {
         placeholder="Search by name"
         showButton={false}
         val={value}
+        hide
         setVal={onSetValue}
         date
         onOpenCalender={onOpenCalender}

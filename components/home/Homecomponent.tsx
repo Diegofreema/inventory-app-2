@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { Q } from '@nozbe/watermelondb';
 import { withObservables } from '@nozbe/watermelondb/react';
-import { useMemo } from 'react';
 import { useWindowDimensions } from 'react-native';
 import { ScrollView, View, XStack } from 'tamagui';
 
@@ -16,7 +15,6 @@ import Product from '~/db/model/Product';
 import StoreSales from '~/db/model/StoreSale';
 import { useRender } from '~/hooks/useRender';
 import { useStore } from '~/lib/zustand/useStore';
-// import { getSale } from '~/lib/helper';
 
 export const Main = ({
   onlineSales,
@@ -29,15 +27,13 @@ export const Main = ({
 }) => {
   useRender();
   const { width } = useWindowDimensions();
-
+  const id = useStore((state) => state.id);
+  console.log({ id });
   const isSmallTablet = width >= 500;
   const isBigTablet = width >= 700;
   const containerWidth = isBigTablet ? '60%' : isSmallTablet ? '80%' : '100%';
-  const limitedProducts = useMemo(() => {
-    if (!products) return [];
-    return products.slice(0, 10);
-  }, [products]);
 
+  const limitedProducts = products?.slice(0, 10) || [];
   return (
     <Container>
       <View width={containerWidth} mx="auto">
@@ -45,7 +41,7 @@ export const Main = ({
           <CustomHeading text="Dashboard" fontSize={1.7} />
           <LogoutButton />
         </XStack>
-        {/* <MyButton title="btn" onPress={createCart} /> */}
+
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 50 }}>

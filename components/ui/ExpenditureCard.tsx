@@ -19,7 +19,7 @@ export const ExpenditureCard = ({ item, index }: Props): JSX.Element => {
   };
 
   return (
-    <AnimatedCard index={index}>
+    <AnimatedCard index={index} style={{ marginBottom: 20 }}>
       <FlexText text="Account Name" text2={item} />
       <Separator marginVertical={5} />
       <FlexText text="Add Expenses" action icon={PlusCircle} onPress={handlePress} />

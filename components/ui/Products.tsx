@@ -1,8 +1,9 @@
 /* eslint-disable prettier/prettier */
 
+import { FlashList } from '@shopify/flash-list';
 import { Href, Link, useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { FlatList, useWindowDimensions } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 import { RFPercentage } from 'react-native-responsive-fontsize';
 import { Card, CardHeader, Stack, Text, XStack } from 'tamagui';
 
@@ -43,7 +44,7 @@ export const Products = ({
   const { width } = useWindowDimensions();
   const isLargeScreen = width >= 500;
   return (
-    <FlatList
+    <FlashList
       onRefresh={onRefetch}
       refreshing={isLoading}
       ListHeaderComponent={() =>
@@ -53,20 +54,17 @@ export const Products = ({
       data={data}
       renderItem={({ item }) => <ProductCard nav={navigate} item={item} show={show} />}
       contentContainerStyle={{
-        gap: 15,
-        flexGrow: 1,
         paddingHorizontal: 5,
         paddingVertical: 15,
         paddingBottom: 25,
-        minHeight: 600,
       }}
-      style={{ flex: 1, backgroundColor: 'transparent', marginTop: 10 }}
       ListEmptyComponent={() => <Empty text="No products in store" />}
       showsVerticalScrollIndicator={false}
       keyExtractor={(item, index) => index.toString()}
       ListFooterComponent={Pagination}
-      columnWrapperStyle={isLargeScreen && { gap: 15 }}
+      // columnWrapperStyle={isLargeScreen && { gap: 15 }}
       numColumns={isLargeScreen ? 2 : undefined}
+      estimatedItemSize={500}
     />
   );
 };
@@ -97,7 +95,7 @@ const ProductCard = ({ item, show, nav }: { item: Product; show?: boolean; nav?:
   const isBigScreen = width >= 500;
   const cardHeight = isSmaller ? 150 : isBigScreen ? 250 : 200;
   return (
-    <CustomPressable onPress={onPress}>
+    <CustomPressable onPress={onPress} style={{ marginBottom: 20 }}>
       <Card
         backgroundColor="white"
         borderWidth={1}
@@ -140,7 +138,7 @@ const ProductHeader = ({
   linkText?: string;
 }) => {
   return (
-    <XStack justifyContent="space-between" alignItems="center">
+    <XStack justifyContent="space-between" alignItems="center" mb={10}>
       <CustomSubHeading text={text} fontSize={1.7} />
       {href && (
         <Link href={href}>

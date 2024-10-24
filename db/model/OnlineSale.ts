@@ -4,7 +4,6 @@ import { date, field, readonly, text } from '@nozbe/watermelondb/decorators';
 export default class OnlineSale extends Model {
   static table = 'online_sales';
 
-  @text('name') name!: string;
   @text('product_id') productId!: string;
   @field('qty') qty!: number;
   @field('unit_price') unitPrice!: number;
