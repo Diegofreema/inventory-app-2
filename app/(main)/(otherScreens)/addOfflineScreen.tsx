@@ -37,6 +37,7 @@ export default function AddOfflineScreen() {
   const { data } = useSalesRef();
   const router = useRouter();
   const { storedProduct } = useGet();
+
   const {
     control,
     formState: { errors },
@@ -51,6 +52,7 @@ export default function AddOfflineScreen() {
     },
     resolver: zodResolver(addToCart),
   });
+
   const formattedProducts =
     storedProduct?.map((item) => ({
       value: item?.id,
@@ -70,6 +72,7 @@ export default function AddOfflineScreen() {
     if (!memoizedPrice) return;
     try {
       const product = await products?.find(value.productId);
+      if (!product) throw Error('Product not found');
 
       if (product && product?.qty < +value.qty) {
         return Toast.show({
@@ -87,6 +90,8 @@ export default function AddOfflineScreen() {
         reset();
       }
     } catch (error) {
+      console.log(error, 'error');
+
       Toast.show({
         text1: 'Error',
         text2: (error as Error).message,

@@ -354,7 +354,6 @@ export const useCart = () => {
   });
 };
 export const useAddSales = () => {
-  // const storeId = useStore((state) => state.id);
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -368,11 +367,9 @@ export const useAddSales = () => {
       cost: number;
       name: string;
     }) => {
-      // const { data } = await axios.get(
-      //   `https://247api.netpro.software/api.aspx?api=makepharmacysale&cidx=${storeId}&qty=${qty}&productid=${productId}&salesref=${salesReference}&paymenttype=${paymentType}&transactioninfo=${transactionInfo}&salesrepid=${salesRepId}`
-      // );
-
       let ref = '';
+      console.log('after break point');
+      console.log({ productId, qty, cost, name });
 
       const activeSalesRef = await saleReferences
         .query(Q.where('is_active', true), Q.take(1))
@@ -390,6 +387,7 @@ export const useAddSales = () => {
 
         ref = salesRef.saleReference;
       }
+      console.log({ ref });
 
       SecureStore.setItem('salesRef', ref);
       await database.write(async () => {
@@ -403,7 +401,9 @@ export const useAddSales = () => {
       });
     },
 
-    onError: () => {
+    onError: (error) => {
+      console.log(error);
+
       Toast.show({
         text1: 'Something went wrong',
         text2: 'Failed to add sales',

@@ -8,6 +8,8 @@ import { Empty } from '../ui/empty';
 import { CustomSubHeading } from '../ui/typography';
 
 import SupplyProduct from '~/db/model/SupplyProduct';
+import { useGetProductName } from '~/hooks/useGetProductName';
+import { trimText } from '~/lib/helper';
 
 type Props = {
   data: SupplyProduct[];
@@ -34,11 +36,11 @@ export const ProductSupply = ({ data, scroll = true }: Props): JSX.Element => {
 
 const SupplyCard = ({ item, index }: { item: SupplyProduct; index: number }) => {
   const totalPrice = Number(item.unitCost) * Number(item?.qty);
-  console.log(item.unitCost);
+  const name = useGetProductName(item.productId);
 
   return (
     <AnimatedCard index={index}>
-      <FlexText text="Product" text2={item?.name} />
+      <FlexText text="Product" text2={trimText(name, 20)} />
       <FlexText text="Date" text2={item?.dateX!} />
       <FlexText text="Quantity" text2={item?.qty.toString()} />
       <FlexText text="Cost" text2={'₦' + totalPrice.toString()} />

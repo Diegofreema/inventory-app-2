@@ -102,6 +102,7 @@ export const Offline = (): JSX.Element => {
     <AnimatedContainer width={containerWidth}>
       <StoreActions
         hide
+        showButton
         placeholder="by name of product"
         title="sales"
         setVal={onSetValue}

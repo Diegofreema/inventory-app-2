@@ -86,6 +86,7 @@ const Trading = ({ disposal, expense, onlineSales, productSupply, storeSales }: 
             onOpenCalender={onOpenCalender}
             dateValue={dateValue}
             resetDates={resetDates}
+            showButton={false}
           />
         </View>
 

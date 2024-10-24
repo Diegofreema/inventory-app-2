@@ -180,7 +180,7 @@ export default appSchema({
       name: 'cart_items',
       columns: [
         { name: 'product_id', type: 'string' },
-
+        { name: 'name', type: 'string' },
         { name: 'qty', type: 'number' },
         { name: 'cart_id', type: 'number' },
         { name: 'unit_cost', type: 'number' },

@@ -65,6 +65,7 @@ const Report = ({ disposal, expense, productSupply, storeSale }: Props): JSX.Ele
     setEndDate('');
     setStartDate('');
   }, []);
+  console.log(filterSupply.length);
 
   return (
     <Container>
@@ -74,6 +75,7 @@ const Report = ({ disposal, expense, productSupply, storeSale }: Props): JSX.Ele
         style={{ flex: 1, width: containerWidth, marginHorizontal: 'auto' }}>
         <StoreActions
           hide
+          showButton={false}
           date
           onOpenCalender={onOpenCalender}
           dateValue={dateValue}

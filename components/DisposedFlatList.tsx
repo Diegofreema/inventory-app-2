@@ -1,7 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Q } from '@nozbe/watermelondb';
 import { FlashList } from '@shopify/flash-list';
-import { useEffect, useState } from 'react';
 import { useWindowDimensions } from 'react-native';
 import { View } from 'tamagui';
 
@@ -9,8 +7,8 @@ import { AnimatedCard } from './ui/AnimatedCard';
 import { FlexText } from './ui/FlexText';
 import { Empty } from './ui/empty';
 
-import { products } from '~/db';
 import DisposedProducts from '~/db/model/DisposedProducts';
+import { useGetProductName } from '~/hooks/useGetProductName';
 import { trimText } from '~/lib/helper';
 
 type Props = {
@@ -22,16 +20,18 @@ export const DisposedFlatList = ({ disposedProduct }: Props): JSX.Element => {
   const isSmallTablet = width >= 500;
 
   return (
-    <FlashList
-      data={disposedProduct}
-      renderItem={({ item, index }) => <DisPosedCard disposedProduct={item} index={index} />}
-      estimatedItemSize={200}
-      showsVerticalScrollIndicator={false}
-      ListEmptyComponent={() => <Empty text="No disposed product found" />}
-      contentContainerStyle={{ paddingBottom: 20 }}
-      numColumns={isSmallTablet ? 2 : undefined}
-      ItemSeparatorComponent={() => <View style={{ height: 20, width: 20 }} />}
-    />
+    <View flex={1} marginTop={10}>
+      <FlashList
+        data={disposedProduct}
+        renderItem={({ item, index }) => <DisPosedCard disposedProduct={item} index={index} />}
+        estimatedItemSize={200}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={() => <Empty text="No disposed product found" />}
+        contentContainerStyle={{ paddingBottom: 20 }}
+        numColumns={isSmallTablet ? 2 : undefined}
+        ItemSeparatorComponent={() => <View style={{ height: 20, width: 20 }} />}
+      />
+    </View>
   );
 };
 
@@ -42,17 +42,7 @@ const DisPosedCard = ({
   disposedProduct: DisposedProducts;
   index: number;
 }): JSX.Element => {
-  const [productName, setProductName] = useState('');
-  useEffect(() => {
-    const fetchData = async () => {
-      const product = await products
-        .query(Q.where('product_id', disposedProduct.productId), Q.take(1))
-        .fetch();
-      const singleProductName = product[0]?.product;
-      setProductName(singleProductName);
-    };
-    fetchData();
-  }, []);
+  const productName = useGetProductName(disposedProduct.productId);
 
   const gap = 15;
   return (

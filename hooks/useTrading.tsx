@@ -66,11 +66,11 @@ export const useTrading = ({
     console.log(dataToFilter.length, 'dataToFilter length');
 
     const groupedProducts = dataToFilter.reduce((acc: any, product) => {
-      const { name, qty, unitCost, dateX } = product;
-      if (!acc[name]) {
-        acc[name] = []; // Create a new array for the product name if it doesn't exist
+      const { productId, qty, unitCost, dateX } = product;
+      if (!acc[productId]) {
+        acc[productId] = []; // Create a new array for the product productId if it doesn't exist
       }
-      acc[name].push({ qty, unitCost, name, dateX }); // Add the current product to the array
+      acc[productId].push({ qty, unitCost, dateX }); // Add the current product to the array
       return acc;
     }, {});
     const groupProductSupply = [];
@@ -85,7 +85,6 @@ export const useTrading = ({
         );
 
         return {
-          name: item.name,
           qty: item.qty,
           unitCost: recentDate?.unitCost,
           dateX: item.dateX,
@@ -98,11 +97,11 @@ export const useTrading = ({
 
     // ? start of offline sales
     const groupStore = store.reduce((acc: any, product) => {
-      const { name, qty, unitPrice, dateX } = product;
-      if (!acc[name]) {
-        acc[name] = []; // Create a new array for the product name if it doesn't exist
+      const { productId, qty, unitPrice, dateX } = product;
+      if (!acc[productId]) {
+        acc[productId] = []; // Create a new array for the product productId if it doesn't exist
       }
-      acc[name].push({ qty, unitPrice, name, dateX }); // Add the current product to the array
+      acc[productId].push({ qty, unitPrice, productId, dateX }); // Add the current product to the array
       return acc;
     }, {});
 
@@ -118,7 +117,6 @@ export const useTrading = ({
         );
 
         return {
-          name: item.name,
           qty: item.qty,
           unitPrice: recentDate?.unitPrice,
           dateX: item.dateX,
@@ -131,11 +129,11 @@ export const useTrading = ({
 
     // ? end of offline sales
     const onlineStore = online.reduce((acc: any, product) => {
-      const { name, qty, unitPrice, dateX } = product;
-      if (!acc[name]) {
-        acc[name] = []; // Create a new array for the product name if it doesn't exist
+      const { productId, qty, unitPrice, dateX } = product;
+      if (!acc[productId]) {
+        acc[productId] = []; // Create a new array for the product productId if it doesn't exist
       }
-      acc[name].push({ qty, unitPrice, name, dateX }); // Add the current product to the array
+      acc[productId].push({ qty, unitPrice, productId, dateX }); // Add the current product to the array
       return acc;
     }, {});
     const onlineProductStore = [];
@@ -150,7 +148,6 @@ export const useTrading = ({
         );
 
         return {
-          name: item.name,
           qty: item.qty,
           unitPrice: recentDate?.unitPrice,
           dateX: item.dateX,
@@ -165,11 +162,11 @@ export const useTrading = ({
 
     // ? start of disposal
     const groupDisposed = disposed.reduce((acc: any, product) => {
-      const { name, qty, unitCost, dateX } = product;
-      if (!acc[name]) {
-        acc[name] = []; // Create a new array for the product name if it doesn't exist
+      const { productId, qty, unitCost, dateX } = product;
+      if (!acc[productId]) {
+        acc[productId] = []; // Create a new array for the product productId if it doesn't exist
       }
-      acc[name].push({ qty, unitCost, name, dateX }); // Add the current product to the array
+      acc[productId].push({ qty, unitCost, productId, dateX }); // Add the current product to the array
       return acc;
     }, {});
 
@@ -185,7 +182,6 @@ export const useTrading = ({
         );
 
         return {
-          name: item.name,
           qty: item.qty,
           unitCost: recentDate?.unitCost,
           dateX: item.dateX,
@@ -304,11 +300,11 @@ export const useTrading = ({
     });
 
     const groupedProducts = dataToFilter.reduce((acc: any, product) => {
-      const { name, qty, unitCost, dateX } = product;
-      if (!acc[name]) {
-        acc[name] = []; // Create a new array for the product name if it doesn't exist
+      const { productId, qty, unitCost, dateX } = product;
+      if (!acc[productId]) {
+        acc[productId] = []; // Create a new array for the product productId if it doesn't exist
       }
-      acc[name].push({ qty, unitCost, name, dateX }); // Add the current product to the array
+      acc[productId].push({ qty, unitCost, productId, dateX }); // Add the current product to the array
       return acc;
     }, {});
     const groupProductSupply = [];
@@ -323,7 +319,6 @@ export const useTrading = ({
         );
 
         return {
-          name: item.name,
           qty: item.qty,
           unitCost: recentDate?.unitCost,
           dateX: item.dateX,
@@ -334,11 +329,11 @@ export const useTrading = ({
     const arrayOfSupplies = groupProductSupply.map((d) => Number(d.unitCost) * Number(d.qty));
 
     const groupStore = store.reduce((acc: any, product) => {
-      const { name, qty, unitPrice, dateX } = product;
-      if (!acc[name]) {
-        acc[name] = []; // Create a new array for the product name if it doesn't exist
+      const { productId, qty, unitPrice, dateX } = product;
+      if (!acc[productId]) {
+        acc[productId] = []; // Create a new array for the product productId if it doesn't exist
       }
-      acc[name].push({ qty, unitPrice, name, dateX }); // Add the current product to the array
+      acc[productId].push({ qty, unitPrice, productId, dateX }); // Add the current product to the array
       return acc;
     }, {});
 
@@ -354,7 +349,6 @@ export const useTrading = ({
         );
 
         return {
-          name: item.name,
           qty: item.qty,
           unitPrice: recentDate?.unitPrice,
           dateX: item.dateX,
@@ -366,11 +360,11 @@ export const useTrading = ({
     const p = groupProductStore.map((d) => Number(d.unitPrice) * Number(d.qty));
 
     const onlineStore = online.reduce((acc: any, product) => {
-      const { name, qty, unitPrice, dateX } = product;
-      if (!acc[name]) {
-        acc[name] = []; // Create a new array for the product name if it doesn't exist
+      const { productId, qty, unitPrice, dateX } = product;
+      if (!acc[productId]) {
+        acc[productId] = []; // Create a new array for the product productId if it doesn't exist
       }
-      acc[name].push({ qty, unitPrice, name, dateX }); // Add the current product to the array
+      acc[productId].push({ qty, unitPrice, productId, dateX }); // Add the current product to the array
       return acc;
     }, {});
     const onlineProductStore = [];
@@ -385,7 +379,6 @@ export const useTrading = ({
         );
 
         return {
-          name: item.name,
           qty: item.qty,
           unitPrice: recentDate?.unitPrice,
           dateX: item.dateX,
@@ -397,11 +390,11 @@ export const useTrading = ({
     const onlineArrayNumbers = onlineProductStore.map((d) => Number(d.unitPrice) * Number(d.qty));
     // ? disposed
     const groupDisposed = disposed.reduce((acc: any, product) => {
-      const { name, qty, unitCost, dateX } = product;
-      if (!acc[name]) {
-        acc[name] = []; // Create a new array for the product name if it doesn't exist
+      const { productId, qty, unitCost, dateX } = product;
+      if (!acc[productId]) {
+        acc[productId] = []; // Create a new array for the product productId if it doesn't exist
       }
-      acc[name].push({ qty, unitCost, name, dateX }); // Add the current product to the array
+      acc[productId].push({ qty, unitCost, productId, dateX }); // Add the current product to the array
       return acc;
     }, {});
 
@@ -417,7 +410,6 @@ export const useTrading = ({
         );
 
         return {
-          name: item.name,
           qty: item.qty,
           unitCost: recentDate?.unitCost,
           dateX: item.dateX,

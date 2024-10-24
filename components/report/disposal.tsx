@@ -7,6 +7,7 @@ import { AnimatedCard } from '~/components/ui/AnimatedCard';
 import { FlexText } from '~/components/ui/FlexText';
 import { Empty } from '~/components/ui/empty';
 import DisposedProducts from '~/db/model/DisposedProducts';
+import { useGetProductName } from '~/hooks/useGetProductName';
 
 type Props = {
   data: DisposedProducts[];
@@ -32,9 +33,10 @@ export const Disposal = ({ data, scroll = true }: Props) => {
 
 const DisposalCard = ({ index, item }: { item: DisposedProducts; index: number }) => {
   const cost = Number(item?.unitCost) * Number(item?.qty);
+  const name = useGetProductName(item.productId);
   return (
     <AnimatedCard index={index}>
-      <FlexText text="Product" text2={item?.name} />
+      <FlexText text="Product" text2={name} />
       <FlexText text="Date" text2={item?.dateX} />
       <FlexText text="Quantity" text2={item?.qty.toString()} />
       <FlexText text="Cost" text2={`₦${cost.toString()}`} />

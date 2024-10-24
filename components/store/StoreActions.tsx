@@ -122,7 +122,7 @@ export const StoreActions = ({
           />
         )}
 
-        {!hide && showButton && (
+        {showButton && (
           <Button
             backgroundColor={colors.green}
             alignSelf="flex-end"

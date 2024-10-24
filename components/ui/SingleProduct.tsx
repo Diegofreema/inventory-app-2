@@ -21,7 +21,6 @@ const SingleProduct = ({ product }: { product: Product }): JSX.Element => {
   const { width } = useWindowDimensions();
   const { data } = useInfo();
   const isLow = product?.qty <= 10;
-  console.log(product.productId);
 
   const onClose = useCallback(() => setShowMenu(false), []);
   const onOpen = useCallback(() => setShowMenu(true), []);

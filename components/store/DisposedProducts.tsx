@@ -47,6 +47,7 @@ export const DisposedProduct = (): JSX.Element => {
         onOpenCalender={onOpenCalender}
         dateValue={dateValue}
         resetDates={resetDates}
+        title="Disposed Products"
       />
       <EnhancedComponent value={value} startDate={startDate} endDate={endDate} />
       <CalenderSheet

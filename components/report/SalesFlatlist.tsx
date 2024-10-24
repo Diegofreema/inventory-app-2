@@ -12,6 +12,7 @@ import { CustomSubHeading } from '../ui/typography';
 
 import StoreSales from '~/db/model/StoreSale';
 import { useGet } from '~/hooks/useGet';
+import { useGetProductName } from '~/hooks/useGetProductName';
 import { calculateTotalsByPaymentType } from '~/lib/helper';
 
 type Props = {
@@ -43,6 +44,7 @@ export const SalesFlatList = ({ data, scroll = true }: Props): JSX.Element => {
 
 const SalesCard = ({ item, index }: { item: StoreSales; index: number }) => {
   const { worker } = useGet(item?.productId, item.userId!);
+  const name = useGetProductName(item.productId);
   const [printing, setPrinting] = useState(false);
 
   const price = +item?.qty * +item?.unitPrice;
@@ -67,7 +69,7 @@ const SalesCard = ({ item, index }: { item: StoreSales; index: number }) => {
         Product
       </h1>
       <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
-        ${item?.name}
+        ${name}
       </h1>
     </div>
     
@@ -113,7 +115,7 @@ const SalesCard = ({ item, index }: { item: StoreSales; index: number }) => {
   };
   return (
     <AnimatedCard index={index}>
-      <FlexText text="Product" text2={item?.name} />
+      <FlexText text="Product" text2={name} />
       <FlexText text="Quantity" text2={item?.qty.toString()} />
       <FlexText text="Date" text2={item?.dateX} />
       <FlexText text="Mode" text2={item?.paymentType} />
