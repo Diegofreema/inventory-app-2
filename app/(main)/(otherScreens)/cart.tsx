@@ -11,6 +11,7 @@ import { useCartItemsWithRef } from '~/lib/tanstack/queries';
 const Cart = () => {
   const salesRef = SecureStore.getItem('salesRef');
   const { data, isPending, isError, refetch } = useCartItemsWithRef(salesRef!);
+  console.log(data?.[0]?.productId, 'cart');
 
   if (isError) return <Error onRetry={refetch} />;
   if (isPending) return <ProductLoader />;

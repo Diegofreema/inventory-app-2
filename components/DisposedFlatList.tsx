@@ -18,6 +18,7 @@ type Props = {
 export const DisposedFlatList = ({ disposedProduct }: Props): JSX.Element => {
   const { width } = useWindowDimensions();
   const isSmallTablet = width >= 500;
+  console.log(disposedProduct.reduce((a, b) => a + b.unitCost, 0));
 
   return (
     <View flex={1} marginTop={10}>

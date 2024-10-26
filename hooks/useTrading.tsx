@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 
-import { format, isBefore, isWithinInterval, max } from 'date-fns';
+import { format, isBefore, isWithinInterval } from 'date-fns';
 import { useMemo } from 'react';
 
 import DisposedProducts from '~/db/model/DisposedProducts';
@@ -8,7 +8,13 @@ import Expenses from '~/db/model/Expenses';
 import OnlineSale from '~/db/model/OnlineSale';
 import StoreSales from '~/db/model/StoreSale';
 import SupplyProduct from '~/db/model/SupplyProduct';
-import { rearrangeDateString, totalAmount } from '~/lib/helper';
+import {
+  calculateActualInventory,
+  mergeProducts,
+  mergeProducts2,
+  rearrangeDateString,
+  totalAmount,
+} from '~/lib/helper';
 
 type Props = {
   startDate: string;
@@ -35,168 +41,62 @@ export const useTrading = ({
     if (!productSupply || emptyDates || !disposal || !storeSales || !onlineSales) return 0;
     const start = format(startDate, 'yyyy-MM-dd');
 
-    const store = storeSales.filter((d) => {
-      const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
+    const store = storeSales
+      .filter((d) => {
+        const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
 
-      return isBefore(salesDate, start);
-    });
+        return isBefore(salesDate, start);
+      })
+      .map((d) => ({
+        qty: d.qty,
+        productId: d.productId,
+      }));
 
     console.log(store.length, 'store length');
 
-    const online = onlineSales.filter((d) => {
-      const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
+    const online = onlineSales
+      .filter((d) => {
+        const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
 
-      return isBefore(salesDate, start);
-    });
-    console.log(online.length, 'online length');
+        return isBefore(salesDate, start);
+      })
+      .map((d) => ({
+        qty: d.qty,
+        productId: d.productId,
+      }));
 
-    const disposed = disposal.filter((d) => {
-      const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
+    const disposed = disposal
+      .filter((d) => {
+        const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
 
-      return isBefore(salesDate, start);
-    });
-    console.log(disposed.length, 'disposed length');
+        return isBefore(salesDate, start);
+      })
+      .map((d) => ({
+        qty: d.qty,
+        productId: d.productId,
+      }));
 
     // ? start of  supply product
-    const dataToFilter = productSupply.filter((d) => {
-      const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
+    const dataSupply = productSupply
+      .filter((d) => {
+        const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
 
-      return isBefore(salesDate, start);
-    });
-    console.log(dataToFilter.length, 'dataToFilter length');
+        return isBefore(salesDate, start);
+      })
+      .map((d) => ({
+        qty: d.qty,
+        productId: d.productId,
+        unitCost: d.unitCost,
+        dateX: d.dateX,
+      }));
+    const dt = mergeProducts(dataSupply);
+    const productSales = mergeProducts2(store);
+    const pharmacySales = mergeProducts2(online);
+    const disposedProducts = mergeProducts2(disposed);
+    const finalData = calculateActualInventory(dt, disposedProducts, pharmacySales, productSales);
+    const singleData = totalAmount(finalData);
 
-    const groupedProducts = dataToFilter.reduce((acc: any, product) => {
-      const { productId, qty, unitCost, dateX } = product;
-      if (!acc[productId]) {
-        acc[productId] = []; // Create a new array for the product productId if it doesn't exist
-      }
-      acc[productId].push({ qty, unitCost, dateX }); // Add the current product to the array
-      return acc;
-    }, {});
-    const groupProductSupply = [];
-    for (const key in groupedProducts) {
-      const arrays: SupplyProduct[] = groupedProducts[key];
-
-      const formattedArray = arrays.map((item) => {
-        const maxDate = max(arrays.map((d) => rearrangeDateString(d.dateX.split(' ')[0])));
-
-        const recentDate = arrays.find(
-          (d) => rearrangeDateString(d.dateX.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
-        );
-
-        return {
-          qty: item.qty,
-          unitCost: recentDate?.unitCost,
-          dateX: item.dateX,
-        };
-      });
-      groupProductSupply.push(...formattedArray);
-    }
-    const arrayOfSupplies = groupProductSupply.map((d) => Number(d.unitCost) * Number(d.qty));
-    // ? end of product supply
-
-    // ? start of offline sales
-    const groupStore = store.reduce((acc: any, product) => {
-      const { productId, qty, unitPrice, dateX } = product;
-      if (!acc[productId]) {
-        acc[productId] = []; // Create a new array for the product productId if it doesn't exist
-      }
-      acc[productId].push({ qty, unitPrice, productId, dateX }); // Add the current product to the array
-      return acc;
-    }, {});
-
-    const groupProductStore = [];
-    for (const key in groupStore) {
-      const arrays: StoreSales[] = groupStore[key];
-
-      const formattedArray = arrays.map((item) => {
-        const maxDate = max(arrays.map((d) => rearrangeDateString(d.dateX.split(' ')[0])));
-
-        const recentDate = arrays.find(
-          (d) => rearrangeDateString(d.dateX.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
-        );
-
-        return {
-          qty: item.qty,
-          unitPrice: recentDate?.unitPrice,
-          dateX: item.dateX,
-        };
-      });
-
-      groupProductStore.push(...formattedArray);
-    }
-    const p = groupProductStore.map((d) => Number(d.unitPrice) * Number(d.qty));
-
-    // ? end of offline sales
-    const onlineStore = online.reduce((acc: any, product) => {
-      const { productId, qty, unitPrice, dateX } = product;
-      if (!acc[productId]) {
-        acc[productId] = []; // Create a new array for the product productId if it doesn't exist
-      }
-      acc[productId].push({ qty, unitPrice, productId, dateX }); // Add the current product to the array
-      return acc;
-    }, {});
-    const onlineProductStore = [];
-    for (const key in onlineStore) {
-      const arrays: OnlineSale[] = onlineStore[key];
-
-      const formattedArray = arrays.map((item) => {
-        const maxDate = max(arrays.map((d) => rearrangeDateString(d.dateX.split(' ')[0])));
-
-        const recentDate = arrays.find(
-          (d) => rearrangeDateString(d.dateX.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
-        );
-
-        return {
-          qty: item.qty,
-          unitPrice: recentDate?.unitPrice,
-          dateX: item.dateX,
-        };
-      });
-
-      onlineProductStore.push(...formattedArray);
-    }
-    const onlineArrayNumbers = onlineProductStore.map((d) => Number(d.unitPrice) * Number(d.qty));
-
-    // ? end of online sales
-
-    // ? start of disposal
-    const groupDisposed = disposed.reduce((acc: any, product) => {
-      const { productId, qty, unitCost, dateX } = product;
-      if (!acc[productId]) {
-        acc[productId] = []; // Create a new array for the product productId if it doesn't exist
-      }
-      acc[productId].push({ qty, unitCost, productId, dateX }); // Add the current product to the array
-      return acc;
-    }, {});
-
-    const groupDisposedStore = [];
-    for (const key in groupDisposed) {
-      const arrays: DisposedProducts[] = groupDisposed[key];
-
-      const formattedArray = arrays.map((item) => {
-        const maxDate = max(arrays.map((d) => rearrangeDateString(d.dateX.split(' ')[0])));
-
-        const recentDate = arrays.find(
-          (d) => rearrangeDateString(d.dateX.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
-        );
-
-        return {
-          qty: item.qty,
-          unitCost: recentDate?.unitCost,
-          dateX: item.dateX,
-        };
-      });
-
-      groupDisposedStore.push(...formattedArray);
-    }
-    const disposedProductNumber = groupDisposedStore.map((d) => Number(d.unitCost) * Number(d.qty));
-
-    const total =
-      totalAmount(arrayOfSupplies) -
-      totalAmount(disposedProductNumber) -
-      totalAmount(p) -
-      totalAmount(onlineArrayNumbers);
+    const total = singleData;
 
     return total <= 0 ? 0 : total;
   }, [productSupply, emptyDates, disposal, storeSales, onlineSales, startDate]);
@@ -278,153 +178,57 @@ export const useTrading = ({
     if (!expense || !disposal || !productSupply || emptyDates) return 0;
     const start = format(startDate, 'yyyy-MM-dd');
     const end = format(endDate, 'yyyy-MM-dd');
-    const store = storeSales.filter((d) => {
-      const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
-      return isBefore(salesDate, start) || isWithinInterval(salesDate, { start, end });
-    });
+    const store = storeSales
+      .filter((d) => {
+        const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
+        return isBefore(salesDate, start) || isWithinInterval(salesDate, { start, end });
+      })
+      .map((d) => ({
+        qty: d.qty,
+        productId: d.productId,
+      }));
 
-    const online = onlineSales.filter((d) => {
-      const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
-      return isBefore(salesDate, start) || isWithinInterval(salesDate, { start, end });
-    });
+    const online = onlineSales
+      .filter((d) => {
+        const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
+        return isBefore(salesDate, start) || isWithinInterval(salesDate, { start, end });
+      })
+      .map((d) => ({
+        qty: d.qty,
+        productId: d.productId,
+      }));
 
-    const disposed = disposal.filter((d) => {
-      const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
+    const disposed = disposal
+      .filter((d) => {
+        const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
 
-      return isBefore(salesDate, start) || isWithinInterval(salesDate, { start, end });
-    });
+        return isBefore(salesDate, start) || isWithinInterval(salesDate, { start, end });
+      })
+      .map((d) => ({
+        qty: d.qty,
+        productId: d.productId,
+      }));
 
-    const dataToFilter = productSupply.filter((d) => {
-      const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
-      return isBefore(salesDate, start) || isWithinInterval(salesDate, { start, end });
-    });
+    const dataSupply = productSupply
+      .filter((d) => {
+        const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
+        return isBefore(salesDate, start) || isWithinInterval(salesDate, { start, end });
+      })
+      .map((d) => ({
+        qty: d.qty,
+        productId: d.productId,
+        unitCost: d.unitCost,
+        dateX: d.dateX,
+      }));
 
-    const groupedProducts = dataToFilter.reduce((acc: any, product) => {
-      const { productId, qty, unitCost, dateX } = product;
-      if (!acc[productId]) {
-        acc[productId] = []; // Create a new array for the product productId if it doesn't exist
-      }
-      acc[productId].push({ qty, unitCost, productId, dateX }); // Add the current product to the array
-      return acc;
-    }, {});
-    const groupProductSupply = [];
-    for (const key in groupedProducts) {
-      const arrays: SupplyProduct[] = groupedProducts[key];
+    const dt = mergeProducts(dataSupply);
+    const productSales = mergeProducts2(store);
+    const pharmacySales = mergeProducts2(online);
+    const disposedProducts = mergeProducts2(disposed);
+    const finalData = calculateActualInventory(dt, disposedProducts, pharmacySales, productSales);
+    const singleData = totalAmount(finalData);
 
-      const formattedArray = arrays.map((item) => {
-        const maxDate = max(arrays.map((d) => rearrangeDateString(d.dateX.split(' ')[0])));
-
-        const recentDate = arrays.find(
-          (d) => rearrangeDateString(d.dateX.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
-        );
-
-        return {
-          qty: item.qty,
-          unitCost: recentDate?.unitCost,
-          dateX: item.dateX,
-        };
-      });
-      groupProductSupply.push(...formattedArray);
-    }
-    const arrayOfSupplies = groupProductSupply.map((d) => Number(d.unitCost) * Number(d.qty));
-
-    const groupStore = store.reduce((acc: any, product) => {
-      const { productId, qty, unitPrice, dateX } = product;
-      if (!acc[productId]) {
-        acc[productId] = []; // Create a new array for the product productId if it doesn't exist
-      }
-      acc[productId].push({ qty, unitPrice, productId, dateX }); // Add the current product to the array
-      return acc;
-    }, {});
-
-    const groupProductStore = [];
-    for (const key in groupStore) {
-      const arrays: StoreSales[] = groupStore[key];
-
-      const formattedArray = arrays.map((item) => {
-        const maxDate = max(arrays.map((d) => rearrangeDateString(d.dateX.split(' ')[0])));
-
-        const recentDate = arrays.find(
-          (d) => rearrangeDateString(d.dateX.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
-        );
-
-        return {
-          qty: item.qty,
-          unitPrice: recentDate?.unitPrice,
-          dateX: item.dateX,
-        };
-      });
-
-      groupProductStore.push(...formattedArray);
-    }
-    const p = groupProductStore.map((d) => Number(d.unitPrice) * Number(d.qty));
-
-    const onlineStore = online.reduce((acc: any, product) => {
-      const { productId, qty, unitPrice, dateX } = product;
-      if (!acc[productId]) {
-        acc[productId] = []; // Create a new array for the product productId if it doesn't exist
-      }
-      acc[productId].push({ qty, unitPrice, productId, dateX }); // Add the current product to the array
-      return acc;
-    }, {});
-    const onlineProductStore = [];
-    for (const key in onlineStore) {
-      const arrays: OnlineSale[] = onlineStore[key];
-
-      const formattedArray = arrays.map((item) => {
-        const maxDate = max(arrays.map((d) => rearrangeDateString(d.dateX.split(' ')[0])));
-
-        const recentDate = arrays.find(
-          (d) => rearrangeDateString(d.dateX.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
-        );
-
-        return {
-          qty: item.qty,
-          unitPrice: recentDate?.unitPrice,
-          dateX: item.dateX,
-        };
-      });
-
-      onlineProductStore.push(...formattedArray);
-    }
-    const onlineArrayNumbers = onlineProductStore.map((d) => Number(d.unitPrice) * Number(d.qty));
-    // ? disposed
-    const groupDisposed = disposed.reduce((acc: any, product) => {
-      const { productId, qty, unitCost, dateX } = product;
-      if (!acc[productId]) {
-        acc[productId] = []; // Create a new array for the product productId if it doesn't exist
-      }
-      acc[productId].push({ qty, unitCost, productId, dateX }); // Add the current product to the array
-      return acc;
-    }, {});
-
-    const groupDisposedStore = [];
-    for (const key in groupDisposed) {
-      const arrays: DisposedProducts[] = groupDisposed[key];
-
-      const formattedArray = arrays.map((item) => {
-        const maxDate = max(arrays.map((d) => rearrangeDateString(d.dateX.split(' ')[0])));
-
-        const recentDate = arrays.find(
-          (d) => rearrangeDateString(d.dateX.split(' ')[0]) === format(maxDate, 'yyyy-MM-dd')
-        );
-
-        return {
-          qty: item.qty,
-          unitCost: recentDate?.unitCost,
-          dateX: item.dateX,
-        };
-      });
-
-      groupDisposedStore.push(...formattedArray);
-    }
-    const disposedProductNumber = groupDisposedStore.map((d) => Number(d.unitCost) * Number(d.qty));
-
-    const total =
-      totalAmount(arrayOfSupplies) -
-      totalAmount(disposedProductNumber) -
-      totalAmount(p) -
-      totalAmount(onlineArrayNumbers);
+    const total = singleData;
 
     return total;
   }, [productSupply, emptyDates, disposal, storeSales, onlineSales, startDate, endDate]);

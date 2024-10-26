@@ -6,7 +6,7 @@ import { BarcodeScanningResult, CameraView, useCameraPermissions } from 'expo-ca
 import * as Haptics from 'expo-haptics';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Dimensions, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
+import { Dimensions, Pressable, StyleSheet } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { Stack, View } from 'tamagui';
 import { z } from 'zod';
@@ -27,7 +27,7 @@ const { height, width } = Dimensions.get('window');
 export const ProductForm = (): JSX.Element => {
   const { isPending, mutateAsync } = useAddNewProduct();
   const { data, isPending: infoPending, isError, refetch } = useInfo();
-  const { height, width } = useWindowDimensions();
+
   const cameraRef = useRef<CameraView>(null);
   const info = data?.[0];
   const [showCamera, setShowCamera] = useState(false);
@@ -134,13 +134,7 @@ export const ProductForm = (): JSX.Element => {
     setShowCamera(true);
   };
 
-  const onBarcodeScanner = async ({
-    data,
-    type,
-    bounds,
-    cornerPoints,
-    raw,
-  }: BarcodeScanningResult) => {
+  const onBarcodeScanner = async ({ data }: BarcodeScanningResult) => {
     // if (!scanning) return;
     if (data) {
       // Haptics.selectionAsync();
@@ -272,15 +266,7 @@ export const ProductForm = (): JSX.Element => {
         <X color="white" size={50} />
       </Pressable>
 
-      <View
-        position="absolute"
-        borderColor="white"
-        borderWidth={7}
-        height={300}
-        width={300}
-        top={height * 0.3}
-        left={width * 0.08}
-      />
+      <View borderColor="white" borderWidth={7} height={300} width={300} />
     </CameraView>
   );
 };
@@ -306,6 +292,8 @@ const styles = StyleSheet.create({
     height,
     zIndex: 10,
     width,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   cancel: { zIndex: 555555, position: 'absolute', top: 50, right: 20 },
 });

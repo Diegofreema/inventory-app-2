@@ -217,3 +217,14 @@ export type Receipt2Type = {
   qty: string;
   unitprice: string;
 };
+
+export type TradingType = {
+  qty: number;
+  productId: string;
+  unitCost: number;
+  dateX: string;
+}[];
+export type TradingType2 = {
+  qty: number;
+  productId: string;
+}[];

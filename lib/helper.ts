@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Q } from '@nozbe/watermelondb';
 import axios from 'axios';
-import { format } from 'date-fns';
+import { compareDesc, format, parse } from 'date-fns';
 import { z } from 'zod';
 
 import { newProductSchema } from './validators';
@@ -27,6 +27,8 @@ import {
   StoreSalesFromDb,
   SupplyFromDb,
   SupplyInsert,
+  TradingType,
+  TradingType2,
 } from '~/type';
 import SupplyProduct from '~/db/model/SupplyProduct';
 
@@ -645,3 +647,83 @@ export function addCommas(numberString: string) {
   // Reconstruct the number with commas
   return decimalPart ? `${integerPart}` : integerPart;
 }
+
+// calculate trading account
+
+export function calculateActualInventory(
+  supply: TradingType,
+  disposed: TradingType2,
+  onlineSale: TradingType2,
+  storeSales: TradingType2
+) {
+  // Create a map to store the total deductions for each product
+  const deductionsMap = new Map();
+
+  // Process disposed items
+  disposed.forEach((item) => {
+    deductionsMap.set(item.productId, (deductionsMap.get(item.productId) || 0) + item.qty);
+  });
+
+  // Process online sales
+  onlineSale.forEach((item) => {
+    deductionsMap.set(item.productId, (deductionsMap.get(item.productId) || 0) + item.qty);
+  });
+
+  // Process store sales
+  storeSales.forEach((item) => {
+    deductionsMap.set(item.productId, (deductionsMap.get(item.productId) || 0) + item.qty);
+  });
+
+  // Calculate final quantities and values
+  const result = supply.map((item) => {
+    const deductions = deductionsMap.get(item.productId) || 0;
+    const actualQty = item.qty - deductions;
+    const totalValue = actualQty * item.unitCost;
+
+    return totalValue;
+  });
+
+  return result;
+}
+
+export const mergeProducts2 = (products: TradingType2) => {
+  const productMap = new Map();
+
+  products.forEach((product) => {
+    if (productMap.has(product.productId)) {
+      const existingProduct = productMap.get(product.productId);
+      // Always sum up quantities
+      existingProduct.qty += product.qty;
+    } else {
+      productMap.set(product.productId, { ...product });
+    }
+  });
+
+  return Array.from(productMap.values());
+};
+
+export const mergeProducts = (products: TradingType) => {
+  const productMap = new Map();
+
+  products.forEach((product) => {
+    const currentDate = parse(product.dateX, 'dd/MM/yyyy HH:mm', new Date());
+
+    if (productMap.has(product.productId)) {
+      const existingProduct = productMap.get(product.productId);
+      const existingDate = parse(existingProduct.dateX, 'dd/MM/yyyy HH:mm', new Date());
+
+      // Compare dates and update unitCost if current product is more recent
+      if (compareDesc(currentDate, existingDate) >= 0) {
+        existingProduct.unitCost = product.unitCost;
+        existingProduct.dateX = product.dateX;
+      }
+
+      // Always sum up quantities
+      existingProduct.qty += product.qty;
+    } else {
+      productMap.set(product.productId, { ...product });
+    }
+  });
+
+  return Array.from(productMap.values());
+};

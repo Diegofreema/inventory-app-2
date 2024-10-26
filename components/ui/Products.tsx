@@ -52,7 +52,9 @@ export const Products = ({
       }
       scrollEnabled={scrollEnabled}
       data={data}
-      renderItem={({ item }) => <ProductCard nav={navigate} item={item} show={show} />}
+      renderItem={({ item, index }) => (
+        <ProductCard nav={navigate} item={item} show={show} index={index} />
+      )}
       contentContainerStyle={{
         paddingHorizontal: 5,
         paddingVertical: 15,
@@ -69,7 +71,17 @@ export const Products = ({
   );
 };
 
-const ProductCard = ({ item, show, nav }: { item: Product; show?: boolean; nav?: boolean }) => {
+const ProductCard = ({
+  item,
+  show,
+  nav,
+  index,
+}: {
+  item: Product;
+  show?: boolean;
+  nav?: boolean;
+  index: number;
+}) => {
   const [showMenu, setShowMenu] = useState(false);
   const isLow = +item?.qty <= 10;
   const router = useRouter();
@@ -94,8 +106,11 @@ const ProductCard = ({ item, show, nav }: { item: Product; show?: boolean; nav?:
   const isSmaller = width <= 400;
   const isBigScreen = width >= 500;
   const cardHeight = isSmaller ? 150 : isBigScreen ? 250 : 200;
+  const marginRight = index % 1 === 0 ? 15 : 0;
   return (
-    <CustomPressable onPress={onPress} style={{ marginBottom: 20 }}>
+    <CustomPressable
+      onPress={onPress}
+      style={{ marginBottom: 20, marginRight: isBigScreen ? marginRight : 0 }}>
       <Card
         backgroundColor="white"
         borderWidth={1}

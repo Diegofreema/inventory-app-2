@@ -8,6 +8,7 @@ import { FlexText } from '~/components/ui/FlexText';
 import { Empty } from '~/components/ui/empty';
 import DisposedProducts from '~/db/model/DisposedProducts';
 import { useGetProductName } from '~/hooks/useGetProductName';
+import { trimText } from '~/lib/helper';
 
 type Props = {
   data: DisposedProducts[];
@@ -36,7 +37,7 @@ const DisposalCard = ({ index, item }: { item: DisposedProducts; index: number }
   const name = useGetProductName(item.productId);
   return (
     <AnimatedCard index={index}>
-      <FlexText text="Product" text2={name} />
+      <FlexText text="Product" text2={trimText(name, 20)} />
       <FlexText text="Date" text2={item?.dateX} />
       <FlexText text="Quantity" text2={item?.qty.toString()} />
       <FlexText text="Cost" text2={`₦${cost.toString()}`} />

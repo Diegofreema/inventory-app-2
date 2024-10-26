@@ -3,13 +3,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Q } from '@nozbe/watermelondb';
 import { createId } from '@paralleldrive/cuid2';
+import { X } from '@tamagui/lucide-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import { BarcodeScanningResult, CameraView, useCameraPermissions } from 'expo-camera';
+import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { FlatList } from 'react-native';
+import { Dimensions, FlatList, Pressable, StyleSheet } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { Stack, Text, View } from 'tamagui';
 import { z } from 'zod';
@@ -19,6 +22,7 @@ import { Container } from '~/components/Container';
 import { CustomController } from '~/components/form/CustomController';
 import { CustomPressable } from '~/components/ui/CustomPressable';
 import { CustomScroll } from '~/components/ui/CustomScroll';
+import { FormLoader } from '~/components/ui/Loading';
 import { MyButton } from '~/components/ui/MyButton';
 import { NavHeader } from '~/components/ui/NavHeader';
 import { CustomSubHeading } from '~/components/ui/typography';
@@ -30,13 +34,17 @@ import { useGet } from '~/hooks/useGet';
 import { useAddSales } from '~/lib/tanstack/mutations';
 import { useSalesRef } from '~/lib/tanstack/queries';
 import { addToCart } from '~/lib/validators';
-
+const { height, width } = Dimensions.get('window');
 export default function AddOfflineScreen() {
   const { error, mutateAsync, isPending } = useAddSales();
+  const [customerProductId, setCustomerProductId] = useState('');
+  const cameraRef = useRef<CameraView>(null);
   const [query, setQuery] = useState('');
   const { data } = useSalesRef();
   const router = useRouter();
   const { storedProduct } = useGet();
+  const [showCamera, setShowCamera] = useState(false);
+  const [permission, requestPermission] = useCameraPermissions();
 
   const {
     control,
@@ -65,11 +73,15 @@ export default function AddOfflineScreen() {
   const { productId } = watch();
   const memoizedPrice = useMemo(() => {
     if (!productId) return null;
-    return storedProduct?.find((item) => item?.id === productId)?.marketPrice;
+    return storedProduct?.find((item) => item?.id === productId);
   }, [storedProduct, productId]);
 
   const onSubmit = async (value: z.infer<typeof addToCart>) => {
     if (!memoizedPrice) return;
+    console.log({
+      productId: value.productId,
+    });
+
     try {
       const product = await products?.find(value.productId);
       if (!product) throw Error('Product not found');
@@ -81,10 +93,10 @@ export default function AddOfflineScreen() {
         });
       }
       await mutateAsync({
-        productId: value.productId,
+        productId: memoizedPrice.productId,
         qty: +value.qty,
         name: product.product,
-        cost: memoizedPrice,
+        cost: memoizedPrice.marketPrice,
       });
       if (!error) {
         reset();
@@ -101,8 +113,72 @@ export default function AddOfflineScreen() {
   const onPress = useCallback(() => {
     router.push('/cart');
   }, []);
+  useEffect(() => {
+    if (!permission?.granted) {
+      requestPermission();
+    }
+  }, []);
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const product = await products
+        .query(Q.where('customer_product_id', Q.eq(customerProductId)), Q.take(1))
+        .fetch();
+      if (product.length) {
+        setValue('productId', product[0].id);
+      } else {
+        Toast.show({
+          text1: 'Sorry',
+          text2: 'Product not found',
+        });
+      }
+    };
+    if (customerProductId) {
+      fetchProduct();
+    }
+  }, [customerProductId]);
+  if (!permission) return <FormLoader />;
+  const onOpenCamera = () => {
+    setShowCamera(true);
+  };
 
-  return (
+  const onBarcodeScanner = async ({ data }: BarcodeScanningResult) => {
+    if (data) {
+      setCustomerProductId(data);
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      setShowCamera(false);
+    }
+  };
+  return showCamera ? (
+    <CameraView
+      style={styles.container}
+      facing="back"
+      ref={cameraRef}
+      barcodeScannerSettings={{
+        barcodeTypes: [
+          'codabar',
+          'aztec',
+          'code128',
+          'code39',
+          'code93',
+          'datamatrix',
+          'upc_e',
+          'upc_a',
+          'pdf417',
+          'itf14',
+          'ean8',
+          'ean13',
+        ],
+      }}
+      onBarcodeScanned={onBarcodeScanner}>
+      <Pressable
+        onPress={() => setShowCamera(false)}
+        style={({ pressed }) => [styles.cancel, { opacity: pressed ? 0.5 : 1 }]}>
+        <X color="white" size={50} />
+      </Pressable>
+
+      <View borderColor="white" borderWidth={7} height={300} width={300} />
+    </CameraView>
+  ) : (
     <Container>
       <NavHeader title="Add store sales" />
       <CustomScroll>
@@ -137,6 +213,14 @@ export default function AddOfflineScreen() {
           height={60}
           marginTop={20}
           onPress={handleSubmit(onSubmit)}
+        />
+        <MyButton
+          title="Scan product"
+          disabled={isPending}
+          loading={isPending}
+          height={60}
+          marginTop={20}
+          onPress={onOpenCamera}
         />
 
         <View marginTop={20}>
@@ -245,3 +329,30 @@ const SalesRefFlatList = ({ data }: { data: SaleReference[] }) => {
     />
   );
 };
+
+const styles = StyleSheet.create({
+  snap: {
+    marginTop: 'auto',
+    marginBottom: 50,
+    alignSelf: 'center',
+    height: 70,
+    width: 70,
+    backgroundColor: 'white',
+    zIndex: 1,
+    borderRadius: 50,
+  },
+  abs: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+  },
+  container: {
+    flex: 1,
+    height,
+    zIndex: 10,
+    width,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cancel: { zIndex: 555555, position: 'absolute', top: 20, right: 10 },
+});
