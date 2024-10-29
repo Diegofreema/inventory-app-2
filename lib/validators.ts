@@ -112,3 +112,11 @@ export const extraDataSchema = z.object({
   transferInfo: z.string().optional(),
   paymentType: z.enum(['Cash', 'Card', 'Transfer']),
 });
+export const updateProduct = z.object({
+  price: z.string().min(1, { message: 'Quantity is required' }),
+});
+export const updateQtySchema = z.object({
+  qty: z.string().min(1, { message: 'Quantity is required' }),
+});
+
+

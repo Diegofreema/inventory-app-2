@@ -200,16 +200,6 @@ const Receipt1 = () => {
         .fetch();
       const singleProduct = product[0];
       onAddOnline({ productId: singleProduct.id, qty: +d.qty, unitPrice: +d.unitprice });
-      // const product = await products
-      //   .query(Q.where('product_id', Q.eq(d.productid)), Q.take(1))
-      //   .fetch();
-      // const singleProduct = product[0];
-      // await database.write(async () => {
-      //   const pd = await products.find(singleProduct.id);
-      //   await pd.update((p) => {
-      //     p.qty = p.qty - Number(d.qty);
-      //   });
-      // });
     });
   };
 

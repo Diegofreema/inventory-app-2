@@ -14,6 +14,7 @@ import { NavHeader } from '~/components/ui/NavHeader';
 import { colors } from '~/constants';
 import { useAddAccount } from '~/lib/tanstack/mutations';
 import { expenditureSchema } from '~/lib/validators';
+import { router } from "expo-router";
 
 export default function AddExpenditure() {
   const { mutateAsync, isPending, error } = useAddAccount();
@@ -35,13 +36,14 @@ export default function AddExpenditure() {
     resolver: zodResolver(expenditureSchema),
   });
 
-  const onSubmit = (values: z.infer<typeof expenditureSchema>) => {
-    mutateAsync({
+  const onSubmit = async (values: z.infer<typeof expenditureSchema>) => {
+    await mutateAsync({
       name: values.accountName.charAt(0)?.toUpperCase() + values.accountName.slice(1),
     });
     console.log(error);
 
     if (!error) {
+      router.back()
       reset();
     }
   };

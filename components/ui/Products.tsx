@@ -12,8 +12,8 @@ import { CustomPressable } from './CustomPressable';
 import { FlexText } from './FlexText';
 import { Empty } from './empty';
 import { CustomSubHeading } from './typography';
-import { colors } from '../../constants';
 
+import { colors } from "~/constants";
 import Product from '~/db/model/Product';
 
 type Props = {

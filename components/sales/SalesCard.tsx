@@ -10,6 +10,7 @@ import OnlineSale from '~/db/model/OnlineSale';
 import StoreSales from '~/db/model/StoreSale';
 import { useGetProductName } from '~/hooks/useGetProductName';
 import { trimText } from '~/lib/helper';
+import { Separator } from "tamagui";
 
 type Props = {
   item: OnlineSale & StoreSales;
@@ -18,7 +19,8 @@ type Props = {
 
 export const SalesCard = ({ index, item }: Props): JSX.Element => {
   const price = item?.dealerShare ? item?.dealerShare : item?.unitPrice;
-  const productName = useGetProductName(item.productId);
+  console.log(item.productId, 'product');
+  const productName = useGetProductName(item?.productId);
   const [staff, setStaff] = useState('');
   console.log(item.productId, 'product');
 
@@ -33,18 +35,20 @@ export const SalesCard = ({ index, item }: Props): JSX.Element => {
     getStaff();
   }, [item?.userId, item.productId]);
   console.log(item.productId);
-
+const total = item?.qty * Math.round(price);
   return (
     <AnimatedCard index={index}>
-      <FlexText text="Product" text2={trimText(productName, 20)} />
+      <FlexText text="Product" text2={trimText(productName || '', 20)} />
       <FlexText text="Date" text2={item?.dateX} />
       <FlexText text="Quantity" text2={item?.qty.toString()} />
-      <FlexText text="Price" text2={`₦${price}`} />
+      <FlexText text="Unit Price" text2={`₦${Math.round(price)}`} />
       {item?.isPaid && <FlexText text="Paid" text2={item?.isPaid ? 'Yes' : 'No'} />}
       {item?.paymentType && <FlexText text="Payment type" text2={item?.paymentType} />}
 
       {item?.transferInfo && <FlexText text="Transaction info" text2={item?.transferInfo} />}
       {item?.userId && <FlexText text="Staff" text2={staff} />}
+      <Separator my={2} />
+      <FlexText text="Total" text2={`₦${total}`} />
     </AnimatedCard>
   );
 };

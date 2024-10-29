@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import * as SecureStore from 'expo-secure-store';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import { FlatList } from 'react-native';
+import { FlatList, Alert } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { XStack } from 'tamagui';
 import { z } from 'zod';
@@ -22,6 +22,7 @@ import { trimText } from '~/lib/helper';
 import { useCart } from '~/lib/tanstack/mutations';
 import { extraDataSchema } from '~/lib/validators';
 import { ExtraSalesType } from '~/type';
+
 
 type Props = {
   data: CartItem[];
@@ -134,29 +135,41 @@ export const CartFlatList = ({ data }: Props): JSX.Element => {
 
 const CartCard = ({ item, index }: { item: CartItem; index: number }) => {
   const queryClient = useQueryClient();
+  console.log({ productId: item.productId }, { id: item.id });
 
   const onAdd = async () => {
     if (!item?.productId) return Toast.show({ text1: 'Error', text2: 'Could not add item' });
-    const productQty = await products.find(item.productId);
-    if (productQty && productQty?.qty <= item.qty) {
+
+  try{
+    const productQty = await products.query(Q.where('product_id', item.productId), Q.take(1)).fetch()
+    const singleProduct = productQty[0]
+
+
+    if (singleProduct && singleProduct.qty <= item.qty) {
       return Toast.show({
         text1: 'Cannot update item',
-        text2: `Only ${productQty.qty} Item(s)  is left in stock`,
+        text2: `Only ${singleProduct.qty} Item(s)  is left in stock`,
       });
     }
     await database.write(async () => {
       const itemToUpdate = await cartItems.find(item.id);
+      if(!itemToUpdate) return Alert.alert('Product not found', item.id)
       itemToUpdate.update((i) => {
         i.qty = item.qty + 1;
       });
     });
 
     queryClient.invalidateQueries({ queryKey: ['cart_item_ref'] });
+  }catch (e) {
+    console.log(e);
+  }
   };
   const onReduce = async () => {
     if (item?.qty! > 1) {
       await database.write(async () => {
         const itemToUpdate = await cartItems.find(item.id);
+
+
         itemToUpdate.update((i) => {
           i.qty = item.qty - 1;
         });

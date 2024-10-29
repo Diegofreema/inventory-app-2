@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 
-import { CircleEllipsis, Repeat, RotateCcw, Trash2 } from '@tamagui/lucide-icons';
+import { CircleEllipsis, DollarSign, PlusCircle, Repeat, RotateCcw, Trash2 } from "@tamagui/lucide-icons";
 import { useRouter } from 'expo-router';
 import { Menu, MenuDivider, MenuItem } from 'react-native-material-menu';
 import { XStack } from 'tamagui';
@@ -45,6 +45,15 @@ export const ActionMenu = ({
     );
     onClose();
   };
+
+ const handleUpdatePrice = () => {
+   router.push(`/update-price?name=${details?.name}&id=${details?.id}`)
+   onClose();
+ }
+ const handleUpdateQuantity = () => {
+   router.push(`/update-quantity?name=${details?.name}&id=${details?.id}`)
+   onClose();
+ }
   return (
     <Menu
       visible={visible}
@@ -61,6 +70,19 @@ export const ActionMenu = ({
         </XStack>
       </MenuItem>
       <MenuDivider />
+
+      <MenuItem onPress={handleUpdatePrice}>
+        <XStack gap={5}>
+          <CustomBarIcon color="black" size={20} icon={DollarSign} />
+          <CustomSubHeading text="Update price" />
+        </XStack>
+      </MenuItem>
+      <MenuItem onPress={handleUpdateQuantity}>
+        <XStack gap={5}>
+          <CustomBarIcon color="black" size={20} icon={PlusCircle} />
+          <CustomSubHeading text="Update quantity" />
+        </XStack>
+      </MenuItem>
       <MenuItem onPress={handleDispose}>
         <XStack gap={5}>
           <CustomBarIcon color="black" size={20} icon={Trash2} />

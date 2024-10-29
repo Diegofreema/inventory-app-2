@@ -97,6 +97,9 @@ export const CustomSelect = ({
                     placeholder="Search product by name"
                     value={query}
                     onChangeText={setQuery}
+                    backgroundColor='white'
+                    color='black'
+                    height={55}
                   />
                 </View>
               ) : (

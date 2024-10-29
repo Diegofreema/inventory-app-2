@@ -94,9 +94,9 @@ export const useTrading = ({
     const pharmacySales = mergeProducts2(online);
     const disposedProducts = mergeProducts2(disposed);
     const finalData = calculateActualInventory(dt, disposedProducts, pharmacySales, productSales);
-    const singleData = totalAmount(finalData);
 
-    const total = singleData;
+
+    const total = totalAmount(finalData);
 
     return total <= 0 ? 0 : total;
   }, [productSupply, emptyDates, disposal, storeSales, onlineSales, startDate]);
@@ -113,7 +113,9 @@ export const useTrading = ({
       return isWithinInterval(salesDate, { start, end });
     });
 
-    const numbers = dataToFilter?.map((sale) => Number(sale?.dealerShare) * Number(sale?.qty));
+
+
+    const numbers = dataToFilter?.map((sale) => Math.round(sale?.dealerShare) * sale?.qty);
     return totalAmount(numbers);
   }, [onlineSales, emptyDates, startDate, endDate]);
 
@@ -127,7 +129,7 @@ export const useTrading = ({
       return isWithinInterval(salesDate, { start, end });
     });
     const numbers = filteredData?.map((sale) => {
-      return Number(sale?.unitPrice) * Number(sale?.qty);
+      return Math.round(sale?.unitPrice) * sale?.qty;
     });
     return totalAmount(numbers);
   }, [storeSales, emptyDates, startDate, endDate]);
@@ -158,7 +160,7 @@ export const useTrading = ({
     });
 
     const numbers = filteredData?.map(
-      (padding) => Number(padding?.unitCost) * Number(padding?.qty)
+      (padding) => Math.round(padding?.unitCost) * padding?.qty
     );
 
     return totalAmount(numbers);
@@ -166,12 +168,12 @@ export const useTrading = ({
 
   const memoizedExpense = useMemo(() => {
     if (!expense || emptyDates) return [];
-    const expenseDates = expense.filter((d) => {
+  return    expense.filter((d) => {
       const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
       return isWithinInterval(salesDate, { start: startDate, end: endDate });
     });
 
-    return expenseDates;
+
   }, [expense, emptyDates, startDate, endDate]);
 
   const closingStock = useMemo(() => {
@@ -226,11 +228,9 @@ export const useTrading = ({
     const pharmacySales = mergeProducts2(online);
     const disposedProducts = mergeProducts2(disposed);
     const finalData = calculateActualInventory(dt, disposedProducts, pharmacySales, productSales);
-    const singleData = totalAmount(finalData);
 
-    const total = singleData;
 
-    return total;
+    return totalAmount(finalData);
   }, [productSupply, emptyDates, disposal, storeSales, onlineSales, startDate, endDate]);
 
   return {

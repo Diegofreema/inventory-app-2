@@ -1,21 +1,21 @@
 /* eslint-disable prettier/prettier */
 
-import { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import { format, isWithinInterval } from 'date-fns';
-import { useRouter } from 'expo-router';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
+import { format, isWithinInterval } from "date-fns";
+import { useCallback, useMemo, useRef, useState } from "react";
 
-import { CalenderSheet } from './CalenderSheet';
-import { SalesFlatlist } from './SalesFlatlist';
-import { StoreActions } from '../store/StoreActions';
-import { AnimatedContainer } from '../ui/AniminatedContainer';
-import { Error } from '../ui/Error';
-import { ExpenseLoader } from '../ui/Loading';
-import { PaginationButton } from '../ui/PaginationButton';
+import { CalenderSheet } from "./CalenderSheet";
+import { SalesFlatlist } from "./SalesFlatlist";
+import { StoreActions } from "../store/StoreActions";
+import { AnimatedContainer } from "../ui/AniminatedContainer";
+import { Error } from "../ui/Error";
+import { ExpenseLoader } from "../ui/Loading";
+import { PaginationButton } from "../ui/PaginationButton";
 
-import { useRender } from '~/hooks/useRender';
-import { formattedDate } from '~/lib/helper';
-import { useSalesP } from '~/lib/tanstack/queries';
+import { useRender } from "~/hooks/useRender";
+import { formattedDate, totalAmount } from "~/lib/helper";
+import { useSalesP } from "~/lib/tanstack/queries";
+import { FlexText } from "~/components/ui/FlexText";
 
 export const OnlinePharmacy = (): JSX.Element => {
   const [page, setPage] = useState(1);
@@ -28,12 +28,11 @@ export const OnlinePharmacy = (): JSX.Element => {
   const handleRefetch = useCallback(() => refetch(), []);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const router = useRouter();
+
   const isLoading = useMemo(() => isRefetching, [isRefetching]);
-  const [value, setValue] = useState('');
+
   const bottomRef = useRef<BottomSheetMethods | null>(null);
-  const onSetValue = useCallback((val: string) => setValue(val), [value]);
-  const handleNav = useCallback(() => router.push('/addOnline'), [router]);
+
 
   const onOpenCalender = useCallback(() => {
     if (!bottomRef?.current) return;
@@ -61,13 +60,7 @@ export const OnlinePharmacy = (): JSX.Element => {
     });
   }, [data?.allData, startDate, endDate]);
 
-  const filterAccount = useMemo(() => {
-    if (!value.trim()) {
-      return filterByDate || [];
-    }
-    const lowerCaseValue = value.toLowerCase();
-    return filterByDate?.filter((d) => d.name?.toLowerCase().includes(lowerCaseValue)) || [];
-  }, [value, filterByDate]);
+
   const resetDates = useCallback(() => {
     setEndDate('');
     setStartDate('');
@@ -79,48 +72,50 @@ export const OnlinePharmacy = (): JSX.Element => {
   }, [data?.count, page]);
 
   const dataToRender = useMemo(() => {
-    if (!value) {
+    if (!dateValue) {
       return data?.data || [];
     } else {
-      return filterAccount || [];
+      return filterByDate || [];
     }
-  }, [value, data?.data, filterAccount]);
+  }, [dateValue, data?.data,filterByDate]);
   if (isError) return <Error onRetry={handleRefetch} />;
-
+  const arrayOfNumbers = dataToRender.map((dt) => Math.round(dt.dealerShare) * dt.qty)
+const totalCost = totalAmount(arrayOfNumbers)
   return (
     <AnimatedContainer>
       <StoreActions
-        placeholder="by name of product"
-        title="sales"
-        setVal={onSetValue}
-        val={value}
-        onPress={handleNav}
+        hide
+
         date
         onOpenCalender={onOpenCalender}
         dateValue={dateValue}
         resetDates={resetDates}
+        showButton={false}
       />
       {isPending ? (
         <ExpenseLoader />
       ) : (
-        <SalesFlatlist
-          // @ts-ignore
-          data={dataToRender}
-          isLoading={isLoading}
-          refetch={handleRefetch}
-          pagination={
-            filterAccount?.length && !value ? (
-              <PaginationButton
-                page={page}
-                handlePagination={handlePagination}
-                isLastPage={isLastPage}
-              />
-            ) : (
-              // @ts-ignore
-              <></>
-            )
-          }
-        />
+        <>
+          <FlexText text="Total" text2={`₦${totalCost}`} />
+          <SalesFlatlist
+            // @ts-ignore
+            data={dataToRender}
+            isLoading={isLoading}
+            refetch={handleRefetch}
+            pagination={
+              filterByDate?.length && !dateValue ? (
+                <PaginationButton
+                  page={page}
+                  handlePagination={handlePagination}
+                  isLastPage={isLastPage}
+                />
+              ) : (
+                // @ts-ignore
+                <></>
+              )
+            }
+          />
+        </>
       )}
       <CalenderSheet
         ref={bottomRef}

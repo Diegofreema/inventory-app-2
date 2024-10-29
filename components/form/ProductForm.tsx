@@ -56,7 +56,6 @@ export const ProductForm = (): JSX.Element => {
       online: true,
       product: '',
       qty: '',
-
       sharedealer: info?.shareSeller,
       sharenetpro: info?.shareNetpro,
       state: info?.stateName,
@@ -110,9 +109,9 @@ export const ProductForm = (): JSX.Element => {
   }
 
   if (infoPending || catPending) return <FormLoader />;
-  const onSubmit = (values: z.infer<typeof newProductSchema>) => {
+  const onSubmit = async (values: z.infer<typeof newProductSchema>) => {
     try {
-      mutateAsync({
+    await  mutateAsync({
         ...values,
         sharedealer: info?.shareSeller,
         sharenetpro: info?.shareNetpro,

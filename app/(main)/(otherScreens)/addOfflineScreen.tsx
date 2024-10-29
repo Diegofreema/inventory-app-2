@@ -216,8 +216,7 @@ export default function AddOfflineScreen() {
         />
         <MyButton
           title="Scan product"
-          disabled={isPending}
-          loading={isPending}
+
           height={60}
           marginTop={20}
           onPress={onOpenCamera}

@@ -5,11 +5,14 @@ import { useWindowDimensions } from 'react-native';
 import { View } from 'tamagui';
 
 import { Container } from './Container';
-// import { OnlinePharmacy } from './sales/247pharmacy';
 import { Offline } from './sales/Offline';
 import { ScrollHeader } from './store/ScrollHeader';
-const data = ['Pharmacy sales'];
-const COMPONENTS = [Offline];
+
+import { OnlinePharmacy } from "~/components/sales/247pharmacy";
+// import { OnlinePharmacy } from './sales/247pharmacy';
+
+const data = ['Online sales','Pharmacy sales'];
+const COMPONENTS = [OnlinePharmacy,Offline];
 export const Sales = () => {
   const [active, setActive] = useState(0);
   const ActiveComponent = COMPONENTS[active];

@@ -411,7 +411,7 @@ export const addExpenses = async ({
   const { data } = await axios.get(
     `https://247api.netpro.software/api.aspx?api=addexpenses&accountname=${name}&cidx=${storeId}&description=${description}&amount=${amount}`
   );
-
+  console.log({data});
   return data;
 };
 
@@ -675,15 +675,15 @@ export function calculateActualInventory(
   });
 
   // Calculate final quantities and values
-  const result = supply.map((item) => {
+
+
+  return supply.map((item) => {
     const deductions = deductionsMap.get(item.productId) || 0;
     const actualQty = item.qty - deductions;
-    const totalValue = actualQty * item.unitCost;
 
-    return totalValue;
+
+    return actualQty * Math.round(item.unitCost);
   });
-
-  return result;
 }
 
 export const mergeProducts2 = (products: TradingType2) => {
@@ -714,7 +714,7 @@ export const mergeProducts = (products: TradingType) => {
 
       // Compare dates and update unitCost if current product is more recent
       if (compareDesc(currentDate, existingDate) >= 0) {
-        existingProduct.unitCost = product.unitCost;
+        existingProduct.unitCost = Math.round(product.unitCost);
         existingProduct.dateX = product.dateX;
       }
 
