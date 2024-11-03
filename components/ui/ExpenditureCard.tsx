@@ -17,9 +17,9 @@ export const ExpenditureCard = ({ item, index }: Props): JSX.Element => {
   const handlePress = () => {
     router.push(`/addExpense?name=${item}`);
   };
-
+  const marginRight = index % 1 === 0 ? 15 : 0;
   return (
-    <AnimatedCard index={index} style={{ marginBottom: 20 }}>
+    <AnimatedCard index={index} style={{ marginBottom: 20, marginRight }}>
       <FlexText text="Account Name" text2={item} />
       <Separator marginVertical={5} />
       <FlexText text="Add Expenses" action icon={PlusCircle} onPress={handlePress} />

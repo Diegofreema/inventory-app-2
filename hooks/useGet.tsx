@@ -25,7 +25,7 @@ export const useGet = (id?: string, staffId?: string) => {
       setOnline(online);
       setStoreSale(store);
     };
-    console.log(id, 'id');
+
     const fetchStaff = async () => {
       if (!staffId) return;
       const s = await staffs.find(staffId.toString());

@@ -21,7 +21,7 @@ const DisposedProductsFlatList = ({
   startDate: Date;
   endDate: Date;
 }): JSX.Element => {
-  console.log(value);
+
   const filterByDate = useMemo(() => {
     if (!disposedProduct) return [];
     if (!startDate || !endDate) return disposedProduct;

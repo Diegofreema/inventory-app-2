@@ -8,8 +8,6 @@ export const useRender = () => {
   useFocusEffect(
     useCallback(() => {
       const render = () => {
-        console.log('render');
-
         setMounted((prev) => !prev);
       };
       render();

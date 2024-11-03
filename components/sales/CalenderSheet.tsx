@@ -63,9 +63,10 @@ export const CalenderSheet = forwardRef<BottomSheetMethods, Props>(
         snapPoints={snapPoints}>
         <BottomSheetView style={styles.contentContainer}>
           <CustomSubHeading
-            text="Select a start date and end date"
+            text="Click on a start date then click on an end date"
             textAlign="center"
-            fontSize={1.7}
+            fontSize={2}
+            color={colors.green}
           />
           <Calendar onDayPress={onDayPress} markedDates={markedDates} markingType="period" />
         </BottomSheetView>

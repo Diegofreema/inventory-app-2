@@ -1,14 +1,26 @@
 /* eslint-disable prettier/prettier */
 
 import { Check, ChevronDown, ChevronUp } from '@tamagui/lucide-icons';
-import { useMemo } from 'react';
-import type { FontSizeTokens, SelectProps } from 'tamagui';
-import { Adapt, Input, Select, Sheet, View, YStack, getFontSize } from 'tamagui';
+import React, { LegacyRef, useMemo, useRef } from "react";
+import {
+  Adapt,
+  Input,
+  Select,
+  Sheet,
+  View,
+  YStack,
+  getFontSize,
+  FontSizeTokens,
+  SelectProps,
+  Text, TamaguiTextElement
+} from "tamagui";
 import { LinearGradient } from 'tamagui/linear-gradient';
+
+import { colors } from '~/constants';
 
 type Props = SelectProps & {
   placeholder: string;
-  data?: { value: string; label: string }[];
+  data?: { value: string; label: string; quantity?: number }[];
   onValueChange?(value: string): void;
   value?: string | undefined;
   query?: string;
@@ -23,6 +35,8 @@ export const CustomSelect = ({
   query,
   ...props
 }: Props) => {
+
+
   return (
     // @ts-ignore
     <>
@@ -32,7 +46,7 @@ export const CustomSelect = ({
           iconAfter={<ChevronDown color="black" size={25} />}
           height={60}
           backgroundColor="$colorTransparent">
-          <Select.Value placeholder={placeholder} color="black" />
+          <Select.Value  placeholder={placeholder} color="black" />
         </Select.Trigger>
 
         {/* @ts-ignore */}
@@ -97,8 +111,8 @@ export const CustomSelect = ({
                     placeholder="Search product by name"
                     value={query}
                     onChangeText={setQuery}
-                    backgroundColor='white'
-                    color='black'
+                    backgroundColor="white"
+                    color="black"
                     height={55}
                   />
                 </View>
@@ -112,13 +126,27 @@ export const CustomSelect = ({
                 </Select.Label>
               )}
 
-              {/* for longer lists memoizing these is useful */}
               {useMemo(
                 () =>
                   data?.map((item, i) => {
+                    const colorToRender = () => {
+                      if (!item?.quantity) return '';
+                      return item?.quantity >= 10
+                        ? colors.green
+                        : item?.quantity < 5
+                          ? 'red'
+                          : item?.quantity < 10
+                            ? '#FFD700'
+                            : 'black';
+                    };
                     return (
-                      <Select.Item backgroundColor="white" index={i} key={i} value={item?.value}>
-                        <Select.ItemText color="black">{item?.label}</Select.ItemText>
+                      <Select.Item   backgroundColor="white" index={i} key={i} value={item?.value}>
+                        <YStack>
+                          <Select.ItemText   color="black" flexDirection="column">
+                            {item?.label}
+                          </Select.ItemText>
+                          <Text fontWeight='bold' color={colorToRender()} display={!item?.quantity ? 'none' : 'block'}>{item?.quantity && `${item.quantity} left in stock`}</Text>
+                        </YStack>
                         <Select.ItemIndicator marginLeft="auto">
                           <Check size={16} />
                         </Select.ItemIndicator>

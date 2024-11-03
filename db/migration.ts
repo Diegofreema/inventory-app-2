@@ -51,6 +51,7 @@ export default schemaMigrations({
         createTable({
           name: 'staffs',
           columns: [
+            { name: 'name', type: 'string' },
             { name: 'email', type: 'string' },
             { name: 'password', type: 'string' },
             { name: 'pharmacy_id', type: 'string' },

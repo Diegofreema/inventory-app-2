@@ -7,6 +7,8 @@ import { Input, Text, XStack, YStack } from 'tamagui';
 import { CustomSelect } from './CustomSelect';
 
 import { colors } from '~/constants';
+import React from 'react';
+import { CustomSelect2 } from '~/components/form/CustomSelect2';
 
 type Props = TextInputProps & {
   label: string;
@@ -15,11 +17,12 @@ type Props = TextInputProps & {
   handleSecure?: () => void;
   type?: KeyboardTypeOptions;
   variant?: 'text' | 'textarea' | 'select';
-  data?: { value: string; label: string }[];
+  data?: { value: string; label: string; quantity?: number }[];
   setValue?: UseFormSetValue<any>;
   name: string;
   query?: string;
   setQuery?: React.Dispatch<React.SetStateAction<string>>;
+  picker?: boolean;
 };
 
 export const CustomInput = ({
@@ -34,6 +37,7 @@ export const CustomInput = ({
   name,
   query,
   setQuery,
+  picker,
   ...props
 }: Props): JSX.Element => {
   const handleChange = (text: string) => {
@@ -97,17 +101,25 @@ export const CustomInput = ({
           }}
         />
       )}
-      {variant === 'select' && (
-        <CustomSelect
-          {...props}
-          data={data}
-          placeholder={props.placeholder!}
-          value={props.value}
-          onValueChange={handleChange}
-          query={query}
-          setQuery={setQuery}
-        />
-      )}
+      {variant === 'select' &&
+        (picker ? (
+          <CustomSelect2
+            data={data}
+            name='paymentType'
+            onValueChange={handleChange}
+            value={props.value}
+          />
+        ) : (
+          <CustomSelect
+            {...props}
+            data={data}
+            placeholder={props.placeholder!}
+            value={props.value}
+            onValueChange={handleChange}
+            query={query}
+            setQuery={setQuery}
+          />
+        ))}
     </YStack>
   );
 };

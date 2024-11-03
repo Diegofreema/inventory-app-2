@@ -31,7 +31,7 @@ export const DrawerHeader = (): JSX.Element => {
     router.push('/notification');
   };
   const { width } = useWindowDimensions();
-  console.log(width);
+
   const isSmaller = width < 400;
   const iconSize = isSmaller ? 20 : 25;
 

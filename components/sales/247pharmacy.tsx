@@ -3,6 +3,7 @@
 import { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
 import { format, isWithinInterval } from "date-fns";
 import { useCallback, useMemo, useRef, useState } from "react";
+import { useWindowDimensions } from "react-native";
 
 import { CalenderSheet } from "./CalenderSheet";
 import { SalesFlatlist } from "./SalesFlatlist";
@@ -12,10 +13,11 @@ import { Error } from "../ui/Error";
 import { ExpenseLoader } from "../ui/Loading";
 import { PaginationButton } from "../ui/PaginationButton";
 
+import { FlexText } from "~/components/ui/FlexText";
 import { useRender } from "~/hooks/useRender";
 import { formattedDate, totalAmount } from "~/lib/helper";
 import { useSalesP } from "~/lib/tanstack/queries";
-import { FlexText } from "~/components/ui/FlexText";
+import { View } from "tamagui";
 
 export const OnlinePharmacy = (): JSX.Element => {
   const [page, setPage] = useState(1);
@@ -24,6 +26,7 @@ export const OnlinePharmacy = (): JSX.Element => {
   const handlePagination = useCallback((direction: 'next' | 'prev') => {
     setPage((prev) => prev + (direction === 'next' ? 1 : -1));
   }, []);
+  const {width} = useWindowDimensions()
 
   const handleRefetch = useCallback(() => refetch(), []);
   const [startDate, setStartDate] = useState('');
@@ -81,42 +84,49 @@ export const OnlinePharmacy = (): JSX.Element => {
   if (isError) return <Error onRetry={handleRefetch} />;
   const arrayOfNumbers = dataToRender.map((dt) => Math.round(dt.dealerShare) * dt.qty)
 const totalCost = totalAmount(arrayOfNumbers)
+  const isBig = width > 768;
+  const isMid = width < 768;
+  const isSmall = width < 425;
+
+  const finalWidth = isBig ? '70%' : isMid ? '80%' : isSmall ? '100%' : '100%';
   return (
     <AnimatedContainer>
-      <StoreActions
-        hide
+     <View width={finalWidth} mx='auto'>
+       <StoreActions
+         hide
 
-        date
-        onOpenCalender={onOpenCalender}
-        dateValue={dateValue}
-        resetDates={resetDates}
-        showButton={false}
-      />
-      {isPending ? (
-        <ExpenseLoader />
-      ) : (
-        <>
-          <FlexText text="Total" text2={`₦${totalCost}`} />
-          <SalesFlatlist
-            // @ts-ignore
-            data={dataToRender}
-            isLoading={isLoading}
-            refetch={handleRefetch}
-            pagination={
-              filterByDate?.length && !dateValue ? (
-                <PaginationButton
-                  page={page}
-                  handlePagination={handlePagination}
-                  isLastPage={isLastPage}
-                />
-              ) : (
-                // @ts-ignore
-                <></>
-              )
-            }
-          />
-        </>
-      )}
+         date
+         onOpenCalender={onOpenCalender}
+         dateValue={dateValue}
+         resetDates={resetDates}
+         showButton={false}
+       />
+       {isPending ? (
+         <ExpenseLoader />
+       ) : (
+         <>
+           <FlexText text="Total" text2={`₦${totalCost}`} />
+           <SalesFlatlist
+             // @ts-ignore
+             data={dataToRender}
+             isLoading={isLoading}
+             refetch={handleRefetch}
+             pagination={
+               filterByDate?.length && !dateValue ? (
+                 <PaginationButton
+                   page={page}
+                   handlePagination={handlePagination}
+                   isLastPage={isLastPage}
+                 />
+               ) : (
+                 // @ts-ignore
+                 <></>
+               )
+             }
+           />
+         </>
+       )}
+     </View>
       <CalenderSheet
         ref={bottomRef}
         setEndDate={setEndDate}

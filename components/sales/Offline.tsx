@@ -53,22 +53,9 @@ export const Offline = (): JSX.Element => {
     });
   }, [data?.allData, startDate, endDate]);
 
-  const filterSales = useMemo(() => {
-    if (!value.trim()) {
-      return filterByDate || [];
-    }
-    const lowerCaseValue = value.toLowerCase();
 
-    return (
-      filterByDate?.filter((d) =>
-        // @ts-ignore
-        d?.name?.toString().toLowerCase().includes(lowerCaseValue)
-      ) || []
-    );
-  }, [value, filterByDate]);
   const onOpenCalender = useCallback(() => {
     if (!bottomRef?.current) return;
-
     bottomRef.current.expand();
   }, []);
   const dateValue = useMemo(() => {
@@ -89,13 +76,6 @@ export const Offline = (): JSX.Element => {
     return data?.count <= page * 10;
   }, [data?.count, page]);
 
-  const dataToRender = useMemo(() => {
-    if (!value) {
-      return data?.data || [];
-    } else {
-      return filterSales || [];
-    }
-  }, [value, filterSales, data?.data]);
   if (isError) return <Error onRetry={handleRefetch} />;
 
   return (
@@ -118,11 +98,11 @@ export const Offline = (): JSX.Element => {
       ) : (
         <SalesFlatlist
           // @ts-ignore
-          data={dataToRender}
+          data={filterByDate}
           isLoading={isLoading}
           refetch={handleRefetch}
           pagination={
-            filterSales?.length && !value ? (
+            filterByDate?.length && !value ? (
               <PaginationButton
                 isLastPage={isLastPage}
                 handlePagination={handlePagination}

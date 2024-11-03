@@ -29,7 +29,7 @@ export const StoreProducts = (): JSX.Element => {
     if (selectedValue === null || selectedValue === 'All') {
       return products?.allProducts || [];
     }
-
+if(selectedValue === 'all') return products?.allProducts || [];
     return products?.allProducts?.filter(
       (product) => product?.category?.toLowerCase() === selectedValue.toLowerCase()
     );

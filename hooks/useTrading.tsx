@@ -9,12 +9,12 @@ import OnlineSale from '~/db/model/OnlineSale';
 import StoreSales from '~/db/model/StoreSale';
 import SupplyProduct from '~/db/model/SupplyProduct';
 import {
-  calculateActualInventory,
+  calculateActualInventory, mergeProductOpening,
   mergeProducts,
   mergeProducts2,
   rearrangeDateString,
-  totalAmount,
-} from '~/lib/helper';
+  totalAmount
+} from "~/lib/helper";
 
 type Props = {
   startDate: string;
@@ -52,8 +52,6 @@ export const useTrading = ({
         productId: d.productId,
       }));
 
-    console.log(store.length, 'store length');
-
     const online = onlineSales
       .filter((d) => {
         const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
@@ -86,15 +84,15 @@ export const useTrading = ({
       .map((d) => ({
         qty: d.qty,
         productId: d.productId,
-        unitCost: d.unitCost,
+        unitCost: Math.round(d.unitCost),
         dateX: d.dateX,
       }));
-    const dt = mergeProducts(dataSupply);
+
+    const dt = mergeProductOpening(dataSupply);
     const productSales = mergeProducts2(store);
     const pharmacySales = mergeProducts2(online);
     const disposedProducts = mergeProducts2(disposed);
     const finalData = calculateActualInventory(dt, disposedProducts, pharmacySales, productSales);
-
 
     const total = totalAmount(finalData);
 
@@ -112,8 +110,6 @@ export const useTrading = ({
 
       return isWithinInterval(salesDate, { start, end });
     });
-
-
 
     const numbers = dataToFilter?.map((sale) => Math.round(sale?.dealerShare) * sale?.qty);
     return totalAmount(numbers);
@@ -159,21 +155,17 @@ export const useTrading = ({
       return isWithinInterval(salesDate, { start, end });
     });
 
-    const numbers = filteredData?.map(
-      (padding) => Math.round(padding?.unitCost) * padding?.qty
-    );
+    const numbers = filteredData?.map((padding) => Math.round(padding?.unitCost) * padding?.qty);
 
     return totalAmount(numbers);
   }, [productSupply, emptyDates]);
 
   const memoizedExpense = useMemo(() => {
     if (!expense || emptyDates) return [];
-  return    expense.filter((d) => {
+    return expense.filter((d) => {
       const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
       return isWithinInterval(salesDate, { start: startDate, end: endDate });
     });
-
-
   }, [expense, emptyDates, startDate, endDate]);
 
   const closingStock = useMemo(() => {
@@ -216,21 +208,25 @@ export const useTrading = ({
         const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
         return isBefore(salesDate, start) || isWithinInterval(salesDate, { start, end });
       })
-      .map((d) => ({
-        qty: d.qty,
-        productId: d.productId,
-        unitCost: d.unitCost,
-        dateX: d.dateX,
-      }));
+      .map((d) => {
+        return {
+          qty: d.qty,
+          productId: d.productId,
+          unitCost: d.unitCost,
+          dateX: d.dateX,
+        };
+      });
 
     const dt = mergeProducts(dataSupply);
     const productSales = mergeProducts2(store);
     const pharmacySales = mergeProducts2(online);
     const disposedProducts = mergeProducts2(disposed);
+
     const finalData = calculateActualInventory(dt, disposedProducts, pharmacySales, productSales);
 
+    const total = totalAmount(finalData);
 
-    return totalAmount(finalData);
+    return total <= 0 ? 0 : total;
   }, [productSupply, emptyDates, disposal, storeSales, onlineSales, startDate, endDate]);
 
   return {

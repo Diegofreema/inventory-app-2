@@ -1,20 +1,20 @@
 /* eslint-disable prettier/prettier */
-import { Q } from '@nozbe/watermelondb';
-import { withObservables } from '@nozbe/watermelondb/react';
-import { useWindowDimensions } from 'react-native';
-import { ScrollView, View, XStack } from 'tamagui';
+import { Q } from "@nozbe/watermelondb";
+import { withObservables } from "@nozbe/watermelondb/react";
+import { useWindowDimensions } from "react-native";
+import { ScrollView, View, XStack } from "tamagui";
 
-import { Container } from '~/components/Container';
-import { LogoutButton } from '~/components/LogoutButton';
-import { DashBoardCards } from '~/components/home/DashBoardCards';
-import { Products } from '~/components/ui/Products';
-import { CustomHeading } from '~/components/ui/typography';
-import { onlineSales, products, storeSales } from '~/db';
-import OnlineSale from '~/db/model/OnlineSale';
-import Product from '~/db/model/Product';
-import StoreSales from '~/db/model/StoreSale';
-import { useRender } from '~/hooks/useRender';
-import { useStore } from '~/lib/zustand/useStore';
+import { Container } from "~/components/Container";
+import { LogoutButton } from "~/components/LogoutButton";
+import { DashBoardCards } from "~/components/home/DashBoardCards";
+import { Products } from "~/components/ui/Products";
+import { CustomHeading } from "~/components/ui/typography";
+import { onlineSales, products, storeSales } from "~/db";
+import OnlineSale from "~/db/model/OnlineSale";
+import Product from "~/db/model/Product";
+import StoreSales from "~/db/model/StoreSale";
+import { useRender } from "~/hooks/useRender";
+import { useStore } from "~/lib/zustand/useStore";
 
 export const Main = ({
   onlineSales,
@@ -28,19 +28,23 @@ export const Main = ({
   useRender();
   const { width } = useWindowDimensions();
   const id = useStore((state) => state.id);
-  console.log({ id });
-  const isSmallTablet = width >= 500;
-  const isBigTablet = width >= 700;
-  const containerWidth = isBigTablet ? '60%' : isSmallTablet ? '80%' : '100%';
+
+  const isBig = width > 768;
+  const isMid = width < 768;
+  const isSmall = width < 425;
+
+  const finalWidth = isBig ? '70%' : isMid ? '80%' : isSmall ? '100%' : '100%';
 
   const limitedProducts = products?.slice(0, 10) || [];
+
   return (
     <Container>
-      <View width={containerWidth} mx="auto">
+      <View width={finalWidth} mx="auto">
         <XStack justifyContent="space-between" alignItems="center">
           <CustomHeading text="Dashboard" fontSize={1.7} />
           <LogoutButton />
         </XStack>
+
 
         <ScrollView
           showsVerticalScrollIndicator={false}

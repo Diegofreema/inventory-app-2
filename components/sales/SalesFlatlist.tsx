@@ -7,6 +7,7 @@ import { Empty } from '../ui/empty';
 
 import OnlineSale from '~/db/model/OnlineSale';
 import StoreSales from '~/db/model/StoreSale';
+import { View } from "tamagui";
 
 type Props = {
   data: OnlineSale[] & StoreSales[];
@@ -28,8 +29,8 @@ export const SalesFlatlist = ({
       onRefresh={refetch}
       refreshing={isLoading}
       data={data}
-      keyExtractor={(item, index) => item?.id}
-      renderItem={({ item, index }) => <SalesCard item={item} index={index} />}
+      keyExtractor={(item,) => item?.id}
+      renderItem={({ item, index }) =>  <SalesCard item={item} index={index} />}
       style={{ marginTop: 20 }}
       contentContainerStyle={{ paddingBottom: 20, gap: 20 }}
       ListEmptyComponent={() => <Empty text="No Sales yet" />}

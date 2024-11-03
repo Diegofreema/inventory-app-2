@@ -62,6 +62,7 @@ export const AddStaffForm = (): JSX.Element => {
     }
   }, [id]);
   const onCreate = async (value: z.infer<typeof addStaffSchema>) => {
+    if(!pharmacyId) return
     try {
       const emailExists = await staffs.query(Q.where('email', value.email), Q.take(1)).fetch();
       if (emailExists.length) {
@@ -71,13 +72,16 @@ export const AddStaffForm = (): JSX.Element => {
         });
         return;
       }
+
+
       await database.write(async () => {
-        await staffs.create((staff) => {
+      const data =  await staffs.create((staff) => {
           staff.name = value.name;
           staff.email = value.email;
           staff.password = value.password;
-          staff.pharmacyId = pharmacyId!;
+          staff.pharmacyId = pharmacyId;
         });
+
       });
       Toast.show({
         text1: 'Success',
@@ -87,7 +91,6 @@ export const AddStaffForm = (): JSX.Element => {
       router.back();
     } catch (error) {
       console.log(error);
-
       Toast.show({
         text1: 'Failed',
         text2: 'Staff was not added successfully',

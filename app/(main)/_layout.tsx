@@ -3,6 +3,7 @@
 import { Redirect, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
+import { useUpdateProduct } from "~/hooks/offline/useUpdateProduct";
 import { useCheckNotification } from '~/hooks/useCheckNotification';
 import { useUploadOffline } from '~/hooks/useUploadOffline';
 import { useNotify } from '~/lib/tanstack/queries';
@@ -12,6 +13,7 @@ export default function MainAppLayout() {
   const { data } = useNotify();
   useCheckNotification({ data });
   const id = useStore((state) => state.id);
+  useUpdateProduct()
   useUploadOffline();
   if (!id) return <Redirect href="/login" />;
   return (

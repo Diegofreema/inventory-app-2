@@ -19,10 +19,10 @@ type Props = {
 
 export const SalesCard = ({ index, item }: Props): JSX.Element => {
   const price = item?.dealerShare ? item?.dealerShare : item?.unitPrice;
-  console.log(item.productId, 'product');
+
   const productName = useGetProductName(item?.productId);
   const [staff, setStaff] = useState('');
-  console.log(item.productId, 'product');
+
 
   useEffect(() => {
     if (!item.userId) return;

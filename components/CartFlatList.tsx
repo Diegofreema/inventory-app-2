@@ -1,27 +1,27 @@
 /* eslint-disable prettier/prettier */
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Q } from '@nozbe/watermelondb';
-import { useQueryClient } from '@tanstack/react-query';
-import * as SecureStore from 'expo-secure-store';
-import { useMemo } from 'react';
-import { useForm } from 'react-hook-form';
-import { FlatList, Alert } from 'react-native';
-import Toast from 'react-native-toast-message';
-import { XStack } from 'tamagui';
-import { z } from 'zod';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Q } from "@nozbe/watermelondb";
+import { useQueryClient } from "@tanstack/react-query";
+import * as SecureStore from "expo-secure-store";
+import { useMemo } from "react";
+import { useForm } from "react-hook-form";
+import { Alert, FlatList, useWindowDimensions } from "react-native";
+import Toast from "react-native-toast-message";
+import { View, XStack } from "tamagui";
+import { z } from "zod";
 
-import { ExtraDataForm } from './ExtraDataForm';
-import { AnimatedCard } from './ui/AnimatedCard';
-import { FlexText } from './ui/FlexText';
-import { MyButton } from './ui/MyButton';
-import { Empty } from './ui/empty';
+import { ExtraDataForm } from "./ExtraDataForm";
+import { AnimatedCard } from "./ui/AnimatedCard";
+import { FlexText } from "./ui/FlexText";
+import { MyButton } from "./ui/MyButton";
+import { Empty } from "./ui/empty";
 
-import database, { cartItems, products, saleReferences } from '~/db';
-import CartItem from '~/db/model/CartItems';
-import { trimText } from '~/lib/helper';
-import { useCart } from '~/lib/tanstack/mutations';
-import { extraDataSchema } from '~/lib/validators';
-import { ExtraSalesType } from '~/type';
+import database, { cartItems, products, saleReferences } from "~/db";
+import CartItem from "~/db/model/CartItems";
+import { trimText } from "~/lib/helper";
+import { useCart } from "~/lib/tanstack/mutations";
+import { extraDataSchema } from "~/lib/validators";
+import { ExtraSalesType } from "~/type";
 
 
 type Props = {
@@ -31,6 +31,7 @@ type Props = {
 export const CartFlatList = ({ data }: Props): JSX.Element => {
   const { mutateAsync, isError } = useCart();
   const queryClient = useQueryClient();
+  const {width} = useWindowDimensions()
 
   const {
     formState: { errors, isSubmitting },
@@ -38,6 +39,7 @@ export const CartFlatList = ({ data }: Props): JSX.Element => {
     handleSubmit,
     control,
     setValue,
+    watch
   } = useForm<z.infer<typeof extraDataSchema>>({
     defaultValues: {
       paymentType: 'Cash',
@@ -47,7 +49,7 @@ export const CartFlatList = ({ data }: Props): JSX.Element => {
     resolver: zodResolver(extraDataSchema),
   });
   const salesRepId = SecureStore.getItem('staffId') || '';
-
+const {paymentType} = watch()
   const onSubmit = async (values: z.infer<typeof extraDataSchema>) => {
     const extraData: ExtraSalesType = {
       paymentType: values.paymentType,
@@ -90,52 +92,59 @@ export const CartFlatList = ({ data }: Props): JSX.Element => {
       console.log(error);
     }
   };
+const isCash = paymentType === 'Cash';
+const isBig = width > 768;
+const isMid = width < 768;
+const isSmall = width < 425;
 
+  const finalWidth = isBig ? '70%' : isMid ? '80%' : isSmall ? '100%' : '100%';
   return (
-    <FlatList
-      data={data}
-      ListHeaderComponent={() => <FlexText text="Total" text2={`₦${totalPrice}`} />}
-      renderItem={({ item, index }) => <CartCard item={item} index={index} />}
-      style={{ flex: 1 }}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ gap: 20, paddingBottom: 20, flexGrow: 1 }}
-      ListEmptyComponent={() => <Empty text="No item in cart" />}
-      keyExtractor={(item, index) => index.toString()}
-      ListFooterComponent={() => (
-        // @ts-ignore
-        <>
-          <ExtraDataForm control={control} errors={errors} setValue={setValue} />
+   <View width={finalWidth} mx='auto' flex={1}>
+     <FlatList
+       data={data}
+       ListHeaderComponent={() => <FlexText text="Total" text2={`₦${totalPrice}`} />}
+       renderItem={({ item, index }) => <CartCard item={item} index={index} />}
+       style={{ flex: 1 }}
+       showsVerticalScrollIndicator={false}
+       contentContainerStyle={{ gap: 20, paddingBottom: 20, flexGrow: 1 }}
+       ListEmptyComponent={() => <Empty text="No item in cart" />}
+       keyExtractor={(item, index) => index.toString()}
+       ListFooterComponent={() => (
+         // @ts-ignore
+         <>
+           <ExtraDataForm isCash={isCash} control={control} errors={errors} setValue={setValue} />
 
-          <XStack gap={10}>
-            <MyButton
-              backgroundColor="red"
-              title="Clear cart"
-              marginTop={30}
-              height={50}
-              onPress={onClearCart}
-              disabled={disable}
-              flex={1}
-            />
-            <MyButton
-              title="Checkout"
-              marginTop={30}
-              height={50}
-              onPress={handleSubmit(onSubmit)}
-              loading={isLoading}
-              disabled={isLoading || disable}
-              flex={1}
-            />
-          </XStack>
-        </>
-      )}
-      ListFooterComponentStyle={{ marginTop: 'auto', marginBottom: 30 }}
-    />
+           <XStack gap={10}>
+             <MyButton
+               backgroundColor="red"
+               title="Clear cart"
+               marginTop={30}
+               height={50}
+               onPress={onClearCart}
+               disabled={disable}
+               flex={1}
+             />
+             <MyButton
+               title="Checkout"
+               marginTop={30}
+               height={50}
+               onPress={handleSubmit(onSubmit)}
+               loading={isLoading}
+               disabled={isLoading || disable}
+               flex={1}
+             />
+           </XStack>
+         </>
+       )}
+       ListFooterComponentStyle={{ marginTop: 'auto', marginBottom: 30 }}
+     />
+   </View>
   );
 };
 
 const CartCard = ({ item, index }: { item: CartItem; index: number }) => {
   const queryClient = useQueryClient();
-  console.log({ productId: item.productId }, { id: item.id });
+
 
   const onAdd = async () => {
     if (!item?.productId) return Toast.show({ text1: 'Error', text2: 'Could not add item' });
@@ -191,7 +200,7 @@ const CartCard = ({ item, index }: { item: CartItem; index: number }) => {
       <FlexText text="Price" text2={`₦${item?.unitCost!}`} />
       <FlexText text="Quantity" text2={item?.qty.toString()} />
       <XStack marginTop={5} gap={10}>
-        <MyButton title="Remove" flex={1} onPress={onReduce} />
+        <MyButton title="Remove" flex={1} onPress={onReduce} backgroundColor='red' />
         <MyButton title="Add" flex={1} onPress={onAdd} />
       </XStack>
     </AnimatedCard>

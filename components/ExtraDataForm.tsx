@@ -12,9 +12,10 @@ type Props = {
   errors: FieldErrors<z.infer<typeof extraDataSchema>>;
   control: Control<z.infer<typeof extraDataSchema>>;
   setValue: UseFormSetValue<z.infer<typeof extraDataSchema>>;
+  isCash: boolean
 };
 
-export const ExtraDataForm = ({ control, errors, setValue }: Props): JSX.Element => {
+export const ExtraDataForm = ({ control, errors, setValue ,isCash}: Props): JSX.Element => {
   const data = [
     {
       value: 'Cash',
@@ -40,15 +41,18 @@ export const ExtraDataForm = ({ control, errors, setValue }: Props): JSX.Element
         variant="select"
         data={data}
         setValue={setValue}
+        picker
       />
-      <CustomController
-        control={control}
-        errors={errors}
-        label="Card info"
-        name="transferInfo"
-        placeholder="Card info"
-        variant="text"
-      />
+      {
+     !isCash &&   <CustomController
+          control={control}
+          errors={errors}
+          label="Card info"
+          name="transferInfo"
+          placeholder="Card info"
+          variant="text"
+        />
+      }
     </View>
   );
 };

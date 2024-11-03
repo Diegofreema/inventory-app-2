@@ -1,23 +1,29 @@
 /* eslint-disable prettier/prettier */
-import { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import { withObservables } from '@nozbe/watermelondb/react';
-import { useCallback, useMemo, useRef, useState } from 'react';
-import { useWindowDimensions } from 'react-native';
-import { ScrollView, View } from 'tamagui';
+import { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
+import { withObservables } from "@nozbe/watermelondb/react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { useWindowDimensions } from "react-native";
+import { ScrollView, View } from "tamagui";
 
-import { Container } from '~/components/Container';
-import { CalenderSheet } from '~/components/sales/CalenderSheet';
-import { StoreActions } from '~/components/store/StoreActions';
-import { TradingCards } from '~/components/trading/TradindCards';
-import { disposedProducts, expenses, onlineSales, storeSales, supplyProduct } from '~/db';
-import DisposedProducts from '~/db/model/DisposedProducts';
-import Expenses from '~/db/model/Expenses';
-import OnlineSale from '~/db/model/OnlineSale';
-import StoreSales from '~/db/model/StoreSale';
-import SupplyProduct from '~/db/model/SupplyProduct';
-import { useRender } from '~/hooks/useRender';
-import { useTrading } from '~/hooks/useTrading';
-import { formattedDate } from '~/lib/helper';
+import { Container } from "~/components/Container";
+import { CalenderSheet } from "~/components/sales/CalenderSheet";
+import { StoreActions } from "~/components/store/StoreActions";
+import { TradingCards } from "~/components/trading/TradindCards";
+import {
+  disposedProducts,
+  expenses,
+  onlineSales,
+  storeSales,
+  supplyProduct
+} from "~/db";
+import DisposedProducts from "~/db/model/DisposedProducts";
+import Expenses from "~/db/model/Expenses";
+import OnlineSale from "~/db/model/OnlineSale";
+import StoreSales from "~/db/model/StoreSale";
+import SupplyProduct from "~/db/model/SupplyProduct";
+import { useRender } from "~/hooks/useRender";
+import { useTrading } from "~/hooks/useTrading";
+import { formattedDate } from "~/lib/helper";
 
 type Props = {
   onlineSales: OnlineSale[];
@@ -74,8 +80,10 @@ const Trading = ({ disposal, expense, onlineSales, productSupply, storeSales }: 
     closingStock,
   };
   const emptyDates = !startDate || !endDate;
+
   return (
     <Container>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20 }}>

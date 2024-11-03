@@ -17,11 +17,7 @@ type Props = {
 };
 
 export const Supply = ({ suppliedProducts, startDate, endDate }: Props): JSX.Element => {
-  console.log(
-    suppliedProducts.map((s) => {
-      return s.productId;
-    })
-  );
+
 
   const filterByDate = useMemo(() => {
     if (!suppliedProducts) return [];

@@ -4,6 +4,7 @@ import { KeyboardTypeOptions } from 'react-native';
 import { Text } from 'tamagui';
 
 import { CustomInput } from './CustomInput';
+import React from "react";
 
 type Props = {
   errors: FieldErrors<any>;
@@ -18,11 +19,12 @@ type Props = {
   handleSecure?: () => void;
   type?: KeyboardTypeOptions;
   variant?: 'text' | 'textarea' | 'select';
-  data?: { value: any; label: string }[];
+  data?: { value: any; label: string,quantity?: number }[];
   query?: string;
   setQuery?: React.Dispatch<React.SetStateAction<string>>;
   multiline?: boolean;
   autoFocus?: boolean;
+  picker?: boolean;
 };
 
 export const CustomController = ({
@@ -43,6 +45,7 @@ export const CustomController = ({
   multiline,
   setQuery,
   autoFocus,
+  picker
 }: Props): JSX.Element => {
   return (
     // @ts-ignore
@@ -71,6 +74,7 @@ export const CustomController = ({
             setQuery={setQuery}
             multiline={multiline}
             autoFocus={autoFocus}
+            picker={picker}
           />
         )}
       />

@@ -10,11 +10,11 @@ import { BarcodeScanningResult, CameraView, useCameraPermissions } from 'expo-ca
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Dimensions, FlatList, Pressable, StyleSheet } from 'react-native';
+import { Dimensions, FlatList, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
 import Toast from 'react-native-toast-message';
-import { Stack, Text, View } from 'tamagui';
+import { Input, Stack, Text, View } from 'tamagui';
 import { z } from 'zod';
 
 import EnhancedCartButton from '~/components/CartButton';
@@ -39,12 +39,15 @@ export default function AddOfflineScreen() {
   const { error, mutateAsync, isPending } = useAddSales();
   const [customerProductId, setCustomerProductId] = useState('');
   const cameraRef = useRef<CameraView>(null);
+  const [scanned, setScanned] = useState(false);
+  const [scannedProductName, setScannedProductName] = useState('');
   const [query, setQuery] = useState('');
   const { data } = useSalesRef();
   const router = useRouter();
   const { storedProduct } = useGet();
   const [showCamera, setShowCamera] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
+  const { width } = useWindowDimensions();
 
   const {
     control,
@@ -65,6 +68,7 @@ export default function AddOfflineScreen() {
     storedProduct?.map((item) => ({
       value: item?.id,
       label: item?.product,
+      quantity: item?.qty,
     })) || [];
   const filteredData = useMemo(() => {
     if (!query) return formattedProducts;
@@ -78,13 +82,11 @@ export default function AddOfflineScreen() {
 
   const onSubmit = async (value: z.infer<typeof addToCart>) => {
     if (!memoizedPrice) return;
-    console.log({
-      productId: value.productId,
-    });
+
 
     try {
       const product = await products?.find(value.productId);
-      if (!product) throw Error('Product not found');
+      if (!product) Error('Product not found');
 
       if (product && product?.qty < +value.qty) {
         return Toast.show({
@@ -110,6 +112,11 @@ export default function AddOfflineScreen() {
       });
     }
   };
+  // useEffect(() => {
+  //   if(customerProductId){
+  //
+  //   }
+  // }, []);
   const onPress = useCallback(() => {
     router.push('/cart');
   }, []);
@@ -125,11 +132,13 @@ export default function AddOfflineScreen() {
         .fetch();
       if (product.length) {
         setValue('productId', product[0].id);
+        setScannedProductName(product[0].product);
       } else {
         Toast.show({
           text1: 'Sorry',
           text2: 'Product not found',
         });
+        setScanned(false);
       }
     };
     if (customerProductId) {
@@ -139,15 +148,20 @@ export default function AddOfflineScreen() {
   if (!permission) return <FormLoader />;
   const onOpenCamera = () => {
     setShowCamera(true);
+    setScanned(true);
   };
-
   const onBarcodeScanner = async ({ data }: BarcodeScanningResult) => {
     if (data) {
       setCustomerProductId(data);
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
       setShowCamera(false);
     }
   };
+  const isBig = width > 768;
+  const isMid = width < 768;
+  const isSmall = width < 425;
+
+  const finalWidth = isBig ? '70%' : isMid ? '80%' : isSmall ? '100%' : '100%';
   return showCamera ? (
     <CameraView
       style={styles.container}
@@ -171,7 +185,10 @@ export default function AddOfflineScreen() {
       }}
       onBarcodeScanned={onBarcodeScanner}>
       <Pressable
-        onPress={() => setShowCamera(false)}
+        onPress={() => {
+          setShowCamera(false);
+          setScanned(false);
+        }}
         style={({ pressed }) => [styles.cancel, { opacity: pressed ? 0.5 : 1 }]}>
         <X color="white" size={50} />
       </Pressable>
@@ -182,20 +199,38 @@ export default function AddOfflineScreen() {
     <Container>
       <NavHeader title="Add store sales" />
       <CustomScroll>
-        <Stack gap={10}>
-          <CustomController
-            name="productId"
-            control={control}
-            errors={errors}
-            placeholder="Product Name"
-            label="Product Name"
-            variant="select"
-            data={filteredData}
-            setValue={setValue}
-            query={query}
-            setQuery={setQuery}
-            autoFocus
-          />
+        <Stack gap={10} width={finalWidth} mx="auto">
+          {scanned ? (
+            <View flexDirection="row" alignItems="center">
+              <Input
+                placeholder="Product name"
+                value={scannedProductName}
+                onChangeText={setScannedProductName}
+                backgroundColor="white"
+                color="black"
+                height={55}
+                editable={false}
+                flex={1}
+                marginRight={4}
+              />
+              <X size={24} color={colors.black} onPress={() => setScanned(false)} />
+            </View>
+          ) : (
+            <CustomController
+              name="productId"
+              control={control}
+              errors={errors}
+              placeholder="Product Name"
+              label="Product Name"
+              variant="select"
+              data={filteredData}
+              setValue={setValue}
+              query={query}
+              setQuery={setQuery}
+              autoFocus
+            />
+          )}
+
           <CustomController
             name="qty"
             control={control}
@@ -204,35 +239,28 @@ export default function AddOfflineScreen() {
             label="Enter quantity"
             type="number-pad"
           />
+          <MyButton
+            title="Add to cart"
+            disabled={isPending}
+            loading={isPending}
+            height={60}
+            marginTop={20}
+            onPress={handleSubmit(onSubmit)}
+          />
+          <MyButton title="Scan product" height={60} marginTop={20} onPress={onOpenCamera} />
+
+          <View marginTop={20}>
+            {data?.length ? (
+              <SalesRefFlatList data={data} />
+            ) : (
+              <CustomSubHeading
+                text="Not attending to a customer"
+                color={colors.black}
+                fontSize={2}
+              />
+            )}
+          </View>
         </Stack>
-
-        <MyButton
-          title="Add to cart"
-          disabled={isPending}
-          loading={isPending}
-          height={60}
-          marginTop={20}
-          onPress={handleSubmit(onSubmit)}
-        />
-        <MyButton
-          title="Scan product"
-
-          height={60}
-          marginTop={20}
-          onPress={onOpenCamera}
-        />
-
-        <View marginTop={20}>
-          {data?.length ? (
-            <SalesRefFlatList data={data} />
-          ) : (
-            <CustomSubHeading
-              text="Not attending to a customer"
-              color={colors.black}
-              fontSize={2}
-            />
-          )}
-        </View>
       </CustomScroll>
       <EnhancedCartButton onPress={onPress} />
     </Container>

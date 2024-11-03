@@ -18,7 +18,7 @@ export const NavHeader = ({ title }: Props): JSX.Element => {
     router.back();
   };
   const { width } = useWindowDimensions();
-  console.log(width);
+
   const isSmaller = width < 400;
   const iconSize = isSmaller ? 20 : 30;
   return (

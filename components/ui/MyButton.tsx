@@ -26,7 +26,7 @@ export const MyButton = ({
   ...props
 }: Props): JSX.Element => {
   const bgColor = props.disabled ? '#ccc' : backgroundColor;
-  console.log(loading);
+
 
   return (
     <Button

@@ -65,7 +65,7 @@ const Report = ({ disposal, expense, productSupply, storeSale }: Props): JSX.Ele
     setEndDate('');
     setStartDate('');
   }, []);
-  console.log(filterSupply.length);
+
 
   return (
     <Container>

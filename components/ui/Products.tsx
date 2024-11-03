@@ -1,20 +1,20 @@
 /* eslint-disable prettier/prettier */
 
-import { FlashList } from '@shopify/flash-list';
-import { Href, Link, useRouter } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
-import { useWindowDimensions } from 'react-native';
-import { RFPercentage } from 'react-native-responsive-fontsize';
-import { Card, CardHeader, Stack, Text, XStack } from 'tamagui';
+import { FlashList } from "@shopify/flash-list";
+import { Href, Link, useRouter } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
+import { useWindowDimensions } from "react-native";
+import { RFPercentage } from "react-native-responsive-fontsize";
+import { Card, CardFooter, CardHeader, Stack, Text, XStack } from "tamagui";
 
-import { ActionMenu } from './ActionMenu';
-import { CustomPressable } from './CustomPressable';
-import { FlexText } from './FlexText';
-import { Empty } from './empty';
-import { CustomSubHeading } from './typography';
+import { ActionMenu } from "./ActionMenu";
+import { FlexText } from "./FlexText";
+import { Empty } from "./empty";
+import { CustomSubHeading } from "./typography";
 
+import { MyButton } from "~/components/ui/MyButton";
 import { colors } from "~/constants";
-import Product from '~/db/model/Product';
+import Product from "~/db/model/Product";
 
 type Props = {
   data: Product[] | undefined;
@@ -105,41 +105,42 @@ const ProductCard = ({
 
   const isSmaller = width <= 400;
   const isBigScreen = width >= 500;
-  const cardHeight = isSmaller ? 150 : isBigScreen ? 250 : 200;
+
   const marginRight = index % 1 === 0 ? 15 : 0;
   return (
-    <CustomPressable
-      onPress={onPress}
-      style={{ marginBottom: 20, marginRight: isBigScreen ? marginRight : 0 }}>
-      <Card
-        backgroundColor="white"
-        borderWidth={1}
-        height={show ? 'auto' : cardHeight}
-        borderColor={colors.lightGray}>
-        <CardHeader gap={10}>
-          <XStack gap={14} alignItems="center">
-            <CustomSubHeading text={item?.product} fontSize={1.9} />
-          </XStack>
-          <FlexText text="Category" text2={item?.category!} />
-          <FlexText text={`Stock ${isLow ? '(low stock)' : ''}`} text2={item?.qty.toString()} />
-          <FlexText text="Market price" text2={'₦' + item?.marketPrice} />
-          {show && (
-            <Stack gap={10}>
-              <FlexText text="Dealer share" text2={'₦' + item?.shareDealer} />
-              <FlexText text="Market price" text2={'₦' + item?.marketPrice} />
+    <Card
+      marginBottom={20}
+      marginRight={isBigScreen ? marginRight : 0}
+      backgroundColor="white"
+      borderWidth={1}
 
-              <FlexText text="Subcategory" text2={item?.subcategory!} />
-              <FlexText text="Online" text2={item?.online ? 'Yes' : 'No'} />
-            </Stack>
-          )}
+      borderColor={colors.lightGray}>
+      <CardHeader gap={10}>
+        <XStack gap={14} alignItems="center">
+          <CustomSubHeading text={item?.product} fontSize={1.4} numberOfLines={1} ellipse />
+        </XStack>
+        <FlexText text="Category" text2={item?.category!} />
+        <FlexText text={`Stock ${isLow ? '(low stock)' : ''}`} text2={item?.qty.toString()} />
+        <FlexText text="Market price" text2={'₦' + item?.marketPrice} />
+        {show && (
+          <Stack gap={10}>
+            <FlexText text="Dealer share" text2={'₦' + item?.shareDealer} />
+            <FlexText text="Market price" text2={'₦' + item?.marketPrice} />
 
-          <XStack justifyContent="space-between" alignItems="center">
-            <CustomSubHeading text="Actions" fontSize={1.7} />
-            <ActionMenu visible={showMenu} onClose={onClose} onOpen={onOpen} details={details} />
-          </XStack>
-        </CardHeader>
-      </Card>
-    </CustomPressable>
+            <FlexText text="Subcategory" text2={item?.subcategory!} />
+            <FlexText text="Online" text2={item?.online ? 'Yes' : 'No'} />
+          </Stack>
+        )}
+
+        <XStack justifyContent="space-between" alignItems="center">
+          <CustomSubHeading text="Actions" fontSize={1.4} />
+          <ActionMenu visible={showMenu} onClose={onClose} onOpen={onOpen} details={details} />
+        </XStack>
+      </CardHeader>
+      <CardFooter width='100%'>
+        <MyButton title='View details' onPress={onPress} width='80%' height={50} mb={10} mx='auto' />
+      </CardFooter>
+    </Card>
   );
 };
 

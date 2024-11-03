@@ -19,6 +19,8 @@ import {
   rearrangeDateString,
   sendDisposedProducts,
   supplyProducts,
+  updatePrice,
+  updateQty,
 } from '../helper';
 import { newProductSchema } from '../validators';
 import { useStore } from '../zustand/useStore';
@@ -38,7 +40,9 @@ import database, {
 import CartItem from '~/db/model/CartItems';
 import { useNetwork } from '~/hooks/useNetwork';
 import { ExtraSalesType, SupplyInsert } from '~/type';
-import { useInfo } from "~/lib/tanstack/queries";
+import { useInfo } from '~/lib/tanstack/queries';
+import { useProductUpdatePrice } from '~/lib/zustand/useProductUpdatePrice';
+import { useProductUpdateQty } from '~/lib/zustand/updateProductQty';
 
 export const useAddNewProduct = () => {
   const storeId = useStore((state) => state.id);
@@ -69,7 +73,6 @@ export const useAddNewProduct = () => {
       const netProShare = (shareNetproToNumber * marketPriceToNumber) / 100;
       const sellingPrice = (marketPriceToNumber * sharePriceToNumber) / 100;
       const productId = createId() + Math.random().toString(36).slice(2);
-
 
       const createdProduct = await createProduct({
         category,
@@ -102,7 +105,6 @@ export const useAddNewProduct = () => {
           customerproductid,
           id: storeId!,
         });
-
 
         if (data?.result) {
           await database.write(async () => {
@@ -239,12 +241,11 @@ export const useCart = () => {
         id: item.id,
       }));
 
-
       const arrayOfAddedSales: { id: string; qty: number; storeId: string }[] = [];
 
       try {
         await database.write(async () => {
-         productsToAdd.forEach(async (item) => {
+          productsToAdd.forEach(async (item) => {
             const data = await storeSales.create((sale) => {
               sale.productId = item.productId;
               sale.qty = item.qty;
@@ -303,7 +304,9 @@ export const useCart = () => {
         if (isConnected) {
           try {
             productsToAdd.forEach(async ({ productId, ...rest }) => {
-              const product = await products.query(Q.where('product_id', productId), Q.take(1)).fetch();
+              const product = await products
+                .query(Q.where('product_id', productId), Q.take(1))
+                .fetch();
               const singleProduct = product[0];
               await addOfflineSales({
                 ...rest,
@@ -372,7 +375,6 @@ export const useAddSales = () => {
     }) => {
       let ref = '';
 
-
       const activeSalesRef = await saleReferences
         .query(Q.where('is_active', true), Q.take(1))
         .fetch();
@@ -389,7 +391,6 @@ export const useAddSales = () => {
 
         ref = salesRef.saleReference;
       }
-
 
       SecureStore.setItem('salesRef', ref);
       await database.write(async () => {
@@ -439,7 +440,6 @@ export const useSupply = () => {
       const checkIfProductExists = await products.find(id);
       if (!checkIfProductExists) throw Error('Product does not exist');
 
-
       const addedProduct = await database.write(async () => {
         return await supplyProduct.create((supply) => {
           supply.productId = checkIfProductExists.productId;
@@ -470,8 +470,7 @@ export const useSupply = () => {
       if (!updatedProduct) throw Error('Failed to update product');
 
       if (isConnected) {
-
-         await supplyProducts({
+        await supplyProducts({
           productId,
           qty,
           dealerShare,
@@ -481,8 +480,6 @@ export const useSupply = () => {
           unitCost,
           id: storeId!,
         });
-
-
       } else if (!isConnected) {
         return await database.write(async () => {
           return await addedProduct.update((supply) => {
@@ -552,9 +549,8 @@ export const useDisposal = () => {
           })
           .map((product) => product.unitCost)[0];
 
-
-        if (!productInStore)  Error('Product does not exist');
-        if (qty > productInStore.qty)  Error('Not enough stock to dispose');
+        if (!productInStore) Error('Product does not exist');
+        if (qty > productInStore.qty) Error('Not enough stock to dispose');
 
         const disposedProduct = await database.write(async () => {
           return await disposedProducts.create((disposedProduct) => {
@@ -686,7 +682,7 @@ export const useAddExp = () => {
           });
         });
 
-        if (!newExpense)  Error('Failed to create expenses');
+        if (!newExpense) Error('Failed to create expenses');
         if (isConnected) {
           try {
             await addExpenses({ amount: amount.toString(), description, name, storeId: storeId! });
@@ -720,7 +716,6 @@ export const useAddExp = () => {
       });
     },
     onSuccess: (data) => {
-
       Toast.show({
         text1: 'Success',
         text2: 'Expense has been added',
@@ -787,37 +782,50 @@ export const useEdit = () => {
     }: {
       qty: string;
       customerProductId: string;
-      online: string;
+      online: boolean;
       price: string;
       sellingPrice: string;
       dealerShare: string;
       netProShare: string;
       productId: string;
     }) => {
+
       if (isConnected) {
         await axios.get(
-          `https://247api.netpro.software/api.aspx?api=updateproductpricenqty&qty=${qty}&customerproductid=${customerProductId}&online=${online}&price=${price}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}&productid=${productId}`
+          `https://247api.netpro.software/api.aspx?api=updateproductpricenqty&qty=${qty}&customerproductid=${customerProductId}&online=${online ? '1': '0'}&price=${price}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}&productid=${productId}`
         );
-      } else {
+      }
+
+      if (!isConnected) {
         await database.write(async () => {
           const product = await products
             .query(Q.where('product_id', Q.eq(productId)), Q.take(1))
             .fetch();
           const singleProduct = product[0];
-          await updateProducts.create((p) => {
-            p.product = singleProduct.product;
-            p.productId = singleProduct.productId;
-            p.customerProductId = customerProductId;
-            p.marketPrice = +price;
-            p.qty = +qty;
-            p.sellingPrice = +sellingPrice;
-            p.shareDealer = +dealerShare;
-            p.shareNetpro = +netProShare;
-          });
+          const isInOffline = await updateProducts
+            .query(Q.where('product_id', Q.eq(singleProduct.productId)), Q.take(1))
+            .fetch();
+          if (isInOffline.length > 0) {
+            const singleOffline = isInOffline[0];
+            await singleOffline.update((p) => {
+              p.online = singleProduct.online;
+            });
+          } else {
+            await updateProducts.create((p) => {
+              p.product = singleProduct.product;
+              p.productId = singleProduct.productId;
+              p.customerProductId = customerProductId;
+              p.marketPrice = +price;
+              p.qty = +qty;
+              p.sellingPrice = +sellingPrice;
+              p.shareDealer = +dealerShare;
+              p.shareNetpro = +netProShare;
+            });
+          }
         });
       }
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       Toast.show({
         text1: 'Success',
         text2: 'Product updated',
@@ -836,31 +844,39 @@ export const useEdit = () => {
 export const useUpdateQty = () => {
   const isConnected = useNetwork();
   const storeId = useStore((state) => state.id);
+  const storeOffline = useProductUpdateQty((state) => state.addProduct);
+
   return useMutation({
-    mutationFn: async ({
-   id,
-      qty,
+    mutationFn: async ({ id, qty }: { qty: number; id: string }) => {
+      if (!storeId) return;
+      const productToUpdate = await products.find(id);
+      if (!productToUpdate) throw new Error('Product not found');
 
-    }: {
-     qty: number;
-     id: string
-    }) => {
-
-      const productToUpdate = await products.find(id)
-      if(!productToUpdate) throw new Error('Product not found');
-
-     await database.write(async () => {
-      await productToUpdate.update((p) => {
-        p.qty = qty
-      })
-     })
+      await database.write(async () => {
+        await productToUpdate.update((p) => {
+          p.qty = qty;
+        });
+      });
 
       if (isConnected) {
-        await axios.get(
-          `https://247api.netpro.software/api.aspx?api=changestockwithproductname&pharmacyid=${storeId}&productname=${productToUpdate.product}&qty=${qty}`
-        );
+        try {
+          await updateQty({ qty, name: productToUpdate.product, storeId });
+        } catch (error) {
+          console.log(error);
+          storeOffline({
+            storeId,
+            name: productToUpdate.product,
+            qty,
+            id: id + Math.random().toString(36),
+          });
+        }
       } else {
-        // todo local db
+        storeOffline({
+          storeId,
+          name: productToUpdate.product,
+          qty,
+          id: id + Math.random().toString(36),
+        });
       }
     },
     onSuccess: () => {
@@ -882,19 +898,14 @@ export const useUpdateQty = () => {
 export const useUpdatePrice = () => {
   const isConnected = useNetwork();
   const storeId = useStore((state) => state.id);
-  const { data} = useInfo()
+  const storePriceUpdateOffline = useProductUpdatePrice((state) => state.addProduct);
+  const { data } = useInfo();
   return useMutation({
-    mutationFn: async ({
-     id,
-      price,
-
-    }: {
-      id: string;
-     price: number
-    }) => {
-      const productToUpdate = await products.find(id)
-      if(!productToUpdate) throw new Error('Product not found');
-const info = data?.[0]
+    mutationFn: async ({ id, price }: { id: string; price: number }) => {
+      if (!storeId) return;
+      const productToUpdate = await products.find(id);
+      if (!productToUpdate) throw new Error('Product not found');
+      const info = data?.[0];
 
       const shareNetproToNumber = Number(info?.shareNetpro);
       const marketPriceToNumber = Number(price);
@@ -906,18 +917,31 @@ const info = data?.[0]
 
       await database.write(async () => {
         await productToUpdate.update((p) => {
-          p.marketPrice = price
-          p.sellingPrice = sellingPrice
-          p.shareDealer = dealer
-          p.shareNetpro = netPro
-        })
-      })
+          p.marketPrice = price;
+          p.sellingPrice = sellingPrice;
+          p.shareDealer = dealer;
+          p.shareNetpro = netPro;
+        });
+      });
       if (isConnected) {
-        await axios.get(
-          `https://247api.netpro.software/api.aspx?api=changepricewithproductname&pharmacyid=${storeId}&productname=${productToUpdate.product}&price=${price}`
-        );
+        try {
+          await updatePrice({ storeId, name: productToUpdate.product, price });
+        } catch (error) {
+          console.log(error);
+          storePriceUpdateOffline({
+            name: productToUpdate.product,
+            price,
+            id: id + Math.random().toString(36),
+            storeId,
+          });
+        }
       } else {
-
+        storePriceUpdateOffline({
+          name: productToUpdate.product,
+          price,
+          id: id + Math.random().toString(36),
+          storeId,
+        });
       }
     },
     onSuccess: () => {

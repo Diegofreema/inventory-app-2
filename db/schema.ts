@@ -49,6 +49,7 @@ export default appSchema({
     tableSchema({
       name: 'staffs',
       columns: [
+        { name: 'name', type: 'string' },
         { name: 'email', type: 'string' },
         { name: 'password', type: 'string' },
         { name: 'pharmacy_id', type: 'string' },

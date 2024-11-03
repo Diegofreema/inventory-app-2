@@ -31,6 +31,8 @@ import {
   TradingType2,
 } from '~/type';
 import SupplyProduct from '~/db/model/SupplyProduct';
+import { ProductUpdateQty } from '~/lib/zustand/updateProductQty';
+import { ProductUpdatePrice } from "~/lib/zustand/useProductUpdatePrice";
 
 export const api = process.env.EXPO_PUBLIC_API;
 
@@ -320,7 +322,7 @@ export const supplyProducts = async ({
   unitCost,
   id,
 }: SupplyInsert & { id: string }) => {
-  console.log({ dealerShare, netProShare, newPrice, productId, qty, sellingPrice, unitCost, id });
+
   try {
     const { data } = await axios.get(
       `https://247api.netpro.software/api.aspx?api=addsupply&cidx=${id}&productid=${productId}&qty=${qty}&unitcost=${unitCost}&newprice=${newPrice}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}`
@@ -339,15 +341,13 @@ export const sendDisposedProducts = async ({
   qty: number;
   productId: string;
 }) => {
-  console.log({ disposed: qty, productId });
+
 
   try {
     const { data } = await axios.get(
       `https://247api.netpro.software/api.aspx?api=adddisposal&qty=${qty}&productid=${productId}`
     );
-    console.log(
-      `https://247api.netpro.software/api.aspx?api=adddisposal&qty=${qty}&productid=${productId}`
-    );
+
 
     return data;
   } catch (error) {
@@ -411,7 +411,7 @@ export const addExpenses = async ({
   const { data } = await axios.get(
     `https://247api.netpro.software/api.aspx?api=addexpenses&accountname=${name}&cidx=${storeId}&description=${description}&amount=${amount}`
   );
-  console.log({data});
+
   return data;
 };
 
@@ -435,9 +435,7 @@ export const addOfflineSales = async ({
   const { data } = await axios.get(
     `https://247api.netpro.software/api.aspx?api=makepharmacysale&cidx=${storeId}&qty=${qty}&productid=${productId}&salesref=${encodeURIComponent(salesReference)}&paymenttype=${paymentType}&transactioninfo=${transactionInfo ?? ''}&salesrepid=${salesRepId}`
   );
-  console.log(
-    `https://247api.netpro.software/api.aspx?api=makepharmacysale&cidx=${storeId}&qty=${qty}&productid=${productId}&salesref=${encodeURIComponent(salesReference)}&paymenttype=${paymentType}&transactioninfo=${transactionInfo}&salesrepid=${salesRepId}`
-  );
+
 
   return data;
 };
@@ -676,16 +674,13 @@ export function calculateActualInventory(
 
   // Calculate final quantities and values
 
-
   return supply.map((item) => {
     const deductions = deductionsMap.get(item.productId) || 0;
     const actualQty = item.qty - deductions;
 
-
     return actualQty * Math.round(item.unitCost);
   });
 }
-
 export const mergeProducts2 = (products: TradingType2) => {
   const productMap = new Map();
 
@@ -701,8 +696,7 @@ export const mergeProducts2 = (products: TradingType2) => {
 
   return Array.from(productMap.values());
 };
-
-export const mergeProducts = (products: TradingType) => {
+export const mergeProductOpening = (products: TradingType) => {
   const productMap = new Map();
 
   products.forEach((product) => {
@@ -714,7 +708,7 @@ export const mergeProducts = (products: TradingType) => {
 
       // Compare dates and update unitCost if current product is more recent
       if (compareDesc(currentDate, existingDate) >= 0) {
-        existingProduct.unitCost = Math.round(product.unitCost);
+        existingProduct.unitCost = product.unitCost;
         existingProduct.dateX = product.dateX;
       }
 
@@ -726,4 +720,160 @@ export const mergeProducts = (products: TradingType) => {
   });
 
   return Array.from(productMap.values());
+}
+export const mergeProducts = (products: TradingType) => {
+
+
+  const productMap = new Map();
+
+  products.forEach((product) => {
+    const currentDate = new Date(
+      parseInt(product.dateX.split('/')[2]), // year
+      parseInt(product.dateX.split('/')[1]) - 1, // month (0-based)
+      parseInt(product.dateX.split('/')[0]), // day
+      0, // hours
+      0, // minutes
+      0  // seconds
+    );
+
+    if (productMap.has(product.productId)) {
+      const existingProduct = productMap.get(product.productId);
+      const existingDate = new Date(
+        parseInt(existingProduct.dateX.split('/')[2]),
+        parseInt(existingProduct.dateX.split('/')[1]) - 1,
+        parseInt(existingProduct.dateX.split('/')[0]),
+        0,
+        0,
+        0
+      );
+
+      // Compare dates and update unitCost if current product is more recent
+      if (currentDate > existingDate) {
+        existingProduct.unitCost = product.unitCost;
+        existingProduct.dateX = product.dateX;
+      }
+
+      // Always sum up quantities
+      existingProduct.qty += product.qty;
+    } else {
+      productMap.set(product.productId, { ...product });
+    }
+  });
+
+  return Array.from(productMap.values())
 };
+
+export const updateQty = async ({
+  storeId,
+  name,
+  qty,
+}: {
+  storeId: string;
+  name: string;
+  qty: number;
+}) => {
+  return await axios.get(
+    `https://247api.netpro.software/api.aspx?api=changestockwithproductname&pharmacyid=${storeId}&productname=${name}&qty=${qty}`
+  );
+};
+
+export const updatePrice = async ({
+  storeId,
+  name,
+  price,
+}: {
+  storeId: string;
+  name: string;
+  price: number;
+}) => {
+  return await axios.get(
+    `https://247api.netpro.software/api.aspx?api=changepricewithproductname&pharmacyid=${storeId}&productname=${name}&price=${price}`
+  );
+};
+
+export const uploadQty = (
+  product: ProductUpdateQty[],
+  deleteOffline: (id: string) => void
+) => {
+  if (product.length > 0) {
+    product.forEach((item) => {
+      updateQty({ name: item.name, qty: item.qty, storeId: item.storeId }).then(() => {
+        deleteOffline(item.id);
+      });
+    });
+  }
+};
+
+export const uploadPrice = (
+  product: ProductUpdatePrice[],
+  deleteOffline: (id: string) => void
+) => {
+  if (product.length > 0) {
+    product.forEach((item) => {
+      updatePrice({ name: item.name, price: item.price, storeId: item.storeId }).then(() => {
+        deleteOffline(item.id);
+      });
+    });
+  }
+};
+
+
+
+// const mergeProducts = (data) => {
+//   // Create a map to store merged products
+//   const productMap = new Map();
+//
+//   // Process each item in the array
+//   data.forEach(item => {
+//     const { productId } = item;
+//
+//     // Get existing product or create new one
+//     const existingProduct = productMap.get(productId) || {
+//       productId,
+//       disposedQty: 0,
+//       onlineQty: 0,
+//       storeQty: 0,
+//       supplyQty: 0,
+//       dateX: null,
+//       unitCost: null
+//     };
+//
+//     // Update properties based on what exists in the current item
+//     if (item.disposedQty) {
+//       existingProduct.disposedQty += item.disposedQty;
+//     }
+//     if (item.onlineQty) {
+//       existingProduct.onlineQty += item.onlineQty;
+//     }
+//     if (item.storeQty) {
+//       existingProduct.storeQty += item.storeQty;
+//     }
+//     if (item.supplyQty !== undefined) {
+//       existingProduct.supplyQty += item.supplyQty;
+//
+//       // Update dateX and unitCost if this is a more recent entry
+//       const currentDate = new Date(item.dateX.split(' ')[0].split('/').reverse().join('-'));
+//       const existingDate = existingProduct.dateX ?
+//         new Date(existingProduct.dateX.split(' ')[0].split('/').reverse().join('-')) :
+//         new Date(0);
+//
+//       if (currentDate >= existingDate) {
+//         existingProduct.dateX = item.dateX;
+//         existingProduct.unitCost = item.unitCost;
+//       }
+//     }
+//
+//     productMap.set(productId, existingProduct);
+//   });
+//
+//   // Convert map to array and remove null unitCost and dateX if they were never set
+//   return Array.from(productMap.values()).map(product => {
+//     if (product.unitCost === null) delete product.unitCost;
+//     if (product.dateX === null) delete product.dateX;
+//     return product;
+//   });
+// };
+//
+// // Example usage:
+// const mergedProducts = mergeProducts(allStocks);
+// console.log(mergedProducts);

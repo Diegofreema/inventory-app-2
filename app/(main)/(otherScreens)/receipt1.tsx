@@ -30,7 +30,7 @@ const Receipt1 = () => {
     isError: isError2,
     refetch: refetch2,
   } = useReceipt2(ref);
-  console.log({ data, data2 });
+
 
   const [printing, setPrinting] = useState(false);
   const html = `
@@ -187,7 +187,7 @@ const Receipt1 = () => {
   }
 
   const handlePickUp = async () => {
-    console.log(data2);
+
     await mutateAsync({
       ref,
       communityId: data?.community,
