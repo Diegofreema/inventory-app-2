@@ -14,7 +14,6 @@ import OnlineSale from "~/db/model/OnlineSale";
 import Product from "~/db/model/Product";
 import StoreSales from "~/db/model/StoreSale";
 import { useRender } from "~/hooks/useRender";
-import { useStore } from "~/lib/zustand/useStore";
 
 export const Main = ({
   onlineSales,
@@ -27,13 +26,12 @@ export const Main = ({
 }) => {
   useRender();
   const { width } = useWindowDimensions();
-  const id = useStore((state) => state.id);
 
-  const isBig = width > 768;
+
   const isMid = width < 768;
   const isSmall = width < 425;
 
-  const finalWidth = isBig ? '70%' : isMid ? '80%' : isSmall ? '100%' : '100%';
+  const finalWidth = isSmall ? '100%' : isMid ? '100%' : '80%';
 
   const limitedProducts = products?.slice(0, 10) || [];
 
@@ -44,8 +42,6 @@ export const Main = ({
           <CustomHeading text="Dashboard" fontSize={1.7} />
           <LogoutButton />
         </XStack>
-
-
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 50 }}>

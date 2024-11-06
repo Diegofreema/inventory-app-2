@@ -43,6 +43,7 @@ export const Products = ({
 }: Props): JSX.Element => {
   const { width } = useWindowDimensions();
   const isLargeScreen = width >= 500;
+
   return (
     <FlashList
       onRefresh={onRefetch}

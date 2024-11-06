@@ -101,7 +101,15 @@ export const useFetchAll = () => {
 
   return { isConnected, fetching, error, fetchAll };
 };
-
+export const useFetchLowStock = () => {
+  return useQuery({
+    queryKey: ['lowStock'],
+    queryFn: async () => {
+      return await products.query(Q.where('qty', Q.lt(10))).fetch()
+    },
+    structuralSharing: false,
+  })
+}
 export const useProducts = (page?: number) => {
   const offset = page ? (page - 1) * 10 : 0;
   const getProducts = async () => {

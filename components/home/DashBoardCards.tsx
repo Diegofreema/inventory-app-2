@@ -15,6 +15,8 @@ import StoreSales from '~/db/model/StoreSale';
 import { useRender } from '~/hooks/useRender';
 import { calculateTotalSales } from '~/lib/helper';
 import { PreviewType } from '~/type';
+import { CustomPressable } from '~/components/ui/CustomPressable';
+import { Link, router } from 'expo-router';
 
 type DashboardType = {
   products: Product[] | undefined;
@@ -54,6 +56,7 @@ export const DashBoardCards = ({ products, salesP, salesS }: DashboardType): JSX
     {
       title: 'Low Stock',
       amount: lowProducts?.length || 0,
+      link: '/lowStock',
     },
   ];
 
@@ -61,7 +64,10 @@ export const DashBoardCards = ({ products, salesP, salesS }: DashboardType): JSX
     <FlatList
       data={data}
       scrollEnabled={false}
-      renderItem={({ item, index }) => <DashBoardCard {...item} index={index} />}
+      renderItem={({ item, index }) => (
+        // @ts-ignore
+        <DashBoardCard link={item?.link} title={item.title} amount={item.amount} index={index} />
+      )}
       numColumns={numColumns}
       contentContainerStyle={{ gap: 10, padding: 5 }}
       columnWrapperStyle={isSmallScreen ? null : { gap: 10 }}
@@ -69,7 +75,7 @@ export const DashBoardCards = ({ products, salesP, salesS }: DashboardType): JSX
   );
 };
 
-const DashBoardCard = ({ amount, title, index }: PreviewType & { index: number }) => {
+const DashBoardCard = ({ amount, title, index, link }: PreviewType & { index: number }) => {
   const colorArray = [
     { color1: '#1A5F7A', color2: '#86C8BC' }, // Deep blue and soft teal
     { color1: '#FF6B6B', color2: '#FFD93D' }, // Coral red and warm yellow
@@ -77,12 +83,43 @@ const DashBoardCard = ({ amount, title, index }: PreviewType & { index: number }
     { color1: '#2A9D8F', color2: '#E9C46A' }, // Teal green and golden yellow
   ];
   const { width } = useWindowDimensions();
-
+  const onPress = () => {
+    if (link) {
+      router.push(link);
+    }
+  };
   const isSmallScreen = width < 411;
   const IconArray = [DollarSign, JapaneseYen, ShoppingBag, ArrowBigDownDash];
   const Icon = IconArray[index];
   const color = colorArray[index];
-  return (
+  return link ? (
+    <Link href={link} asChild style={{ flex: 1 }}>
+      <Card
+        flex={1}
+        backgroundColor={colors.white}
+        borderRadius={10}
+        borderWidth={1}
+        borderColor={colors.lightGray}
+        width={isSmallScreen ? '100%' : '45%'}>
+        <CardHeader>
+          <XStack alignItems="center" justifyContent="space-between" gap={5}>
+            <Stack>
+              <CustomSubHeading
+                maxWidth={isSmallScreen ? '100%' : '90%'}
+                text={title!}
+                fontSize={1.5}
+                color={colors.grey}
+              />
+              <CustomSubHeading text={amount!} fontSize={2} color={colors.black} />
+            </Stack>
+            <Circle backgroundColor={color.color1} padding={5}>
+              <CustomBarIcon icon={Icon} size={20} color={color.color2} />
+            </Circle>
+          </XStack>
+        </CardHeader>
+      </Card>
+    </Link>
+  ) : (
     <Card
       flex={1}
       backgroundColor={colors.white}

@@ -14,17 +14,16 @@ type Props = {
 
 export const LogoutModal = ({ onClose, visible, logOut }: Props): JSX.Element => {
   const {width} = useWindowDimensions();
-  const isBig = width > 768;
   const isMid = width < 768;
   const isSmall = width < 425;
 
-  const finalWidth = isBig ? '50%' : isMid ? '60%' : isSmall ? '100%' : '100%';
+  const finalWidth = isSmall ? '100%' : isMid ? '100%' : '80%';
   return (
     <Modal
       onBackdropPress={onClose}
       onBackButtonPress={onClose}
       isVisible={visible}
-      backdropColor="white"
+      backdropColor="transparent"
       style={{}}>
       <View
         backgroundColor="white"

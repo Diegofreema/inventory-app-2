@@ -1,9 +1,11 @@
 import Product from './db/model/Product';
+import { Href } from "expo-router";
 
 /* eslint-disable prettier/prettier */
 export type PreviewType = {
   title?: string;
   amount?: string | number;
+  link?: Href<string | object>;
 };
 
 export type ProductFromServer = {

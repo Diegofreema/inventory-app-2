@@ -93,11 +93,10 @@ const {paymentType} = watch()
     }
   };
 const isCash = paymentType === 'Cash';
-const isBig = width > 768;
-const isMid = width < 768;
-const isSmall = width < 425;
+  const isMid = width < 768;
+  const isSmall = width < 425;
 
-  const finalWidth = isBig ? '70%' : isMid ? '80%' : isSmall ? '100%' : '100%';
+  const finalWidth = isSmall ? '100%' : isMid ? '100%' : '80%';
   return (
    <View width={finalWidth} mx='auto' flex={1}>
      <FlatList
