@@ -11,13 +11,16 @@ import StoreSales from '~/db/model/StoreSale';
 import { useGetProductName } from '~/hooks/useGetProductName';
 import { trimText } from '~/lib/helper';
 import { Separator } from "tamagui";
+import { MyButton } from "~/components/ui/MyButton";
+import { router } from "expo-router";
 
 type Props = {
   item: OnlineSale & StoreSales;
   index: number;
+  print?: boolean;
 };
 
-export const SalesCard = ({ index, item }: Props): JSX.Element => {
+export const SalesCard = ({ index, item , print}: Props): JSX.Element => {
   const price = item?.dealerShare ? item?.dealerShare : item?.unitPrice;
 
   const productName = useGetProductName(item?.productId);
@@ -49,6 +52,14 @@ const total = item?.qty * Math.round(price);
       {item?.userId && <FlexText text="Staff" text2={staff} />}
       <Separator my={2} />
       <FlexText text="Total" text2={`₦${total}`} />
+      {print && <Separator my={2} />}
+      {
+       print && <MyButton
+          title="Print"
+          height={50}
+          onPress={() => router.push(`/print?ref=${item.salesReference}`)}
+        />
+      }
     </AnimatedCard>
   );
 };

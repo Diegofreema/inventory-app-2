@@ -8,7 +8,7 @@ import { CustomBarIcon } from '../TabBarIcon';
 
 type Props = {
   text: string;
-  text2?: string;
+  text2?: string | number;
   action?: boolean;
   onPress?: () => void;
   icon?: React.NamedExoticComponent<IconProps>;

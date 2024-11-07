@@ -14,6 +14,7 @@ type Props = {
   isLoading: boolean;
   refetch: () => void;
   pagination?: JSX.Element;
+  print?: boolean;
 };
 
 export const SalesFlatlist = ({
@@ -21,6 +22,7 @@ export const SalesFlatlist = ({
   isLoading,
   refetch,
   pagination: Pagination,
+  print
 }: Props): JSX.Element => {
   const { width } = useWindowDimensions();
   const isSmallTablet = width >= 500;
@@ -30,7 +32,7 @@ export const SalesFlatlist = ({
       refreshing={isLoading}
       data={data}
       keyExtractor={(item,) => item?.id}
-      renderItem={({ item, index }) =>  <SalesCard item={item} index={index} />}
+      renderItem={({ item, index }) =>  <SalesCard print={print} item={item} index={index} />}
       style={{ marginTop: 20 }}
       contentContainerStyle={{ paddingBottom: 20, gap: 20 }}
       ListEmptyComponent={() => <Empty text="No Sales yet" />}

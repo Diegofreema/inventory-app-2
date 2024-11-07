@@ -105,11 +105,11 @@ export const useFetchLowStock = () => {
   return useQuery({
     queryKey: ['lowStock'],
     queryFn: async () => {
-      return await products.query(Q.where('qty', Q.lt(10))).fetch()
+      return await products.query(Q.where('qty', Q.lt(10))).fetch();
     },
     structuralSharing: false,
-  })
-}
+  });
+};
 export const useProducts = (page?: number) => {
   const offset = page ? (page - 1) * 10 : 0;
   const getProducts = async () => {
@@ -158,6 +158,18 @@ export const useSalesS = (page: number = 1) => {
       const allData = await storeSales.query(Q.sortBy('created_at', Q.desc)).fetch();
       const count = await storeSales.query().fetchCount();
       return { data, count, allData };
+    },
+    structuralSharing: false,
+    placeholderData: (TData) => TData,
+  });
+};
+export const useSalesToPrint = (ref: string) => {
+  return useQuery({
+    queryKey: ['salesToPrint', ref],
+    queryFn: async () => {
+      const data = await storeSales.query(Q.where('sales_reference', Q.eq(ref))).fetch();
+
+      return data;
     },
     structuralSharing: false,
     placeholderData: (TData) => TData,

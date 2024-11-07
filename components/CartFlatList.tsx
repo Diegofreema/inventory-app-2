@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Q } from "@nozbe/watermelondb";
 import { useQueryClient } from "@tanstack/react-query";
 import * as SecureStore from "expo-secure-store";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Alert, FlatList, useWindowDimensions } from "react-native";
 import Toast from "react-native-toast-message";
@@ -22,6 +22,8 @@ import { trimText } from "~/lib/helper";
 import { useCart } from "~/lib/tanstack/mutations";
 import { extraDataSchema } from "~/lib/validators";
 import { ExtraSalesType } from "~/type";
+import { useSalesRef } from "~/hooks/useSalesRef";
+import { router } from "expo-router";
 
 
 type Props = {
@@ -30,9 +32,11 @@ type Props = {
 
 export const CartFlatList = ({ data }: Props): JSX.Element => {
   const { mutateAsync, isError } = useCart();
+  const [ref, setRef] = useState('');
   const queryClient = useQueryClient();
   const {width} = useWindowDimensions()
-
+const salesRefs = useSalesRef(state => state.saleRefs)
+  const refToPrint = salesRefs.find((r) => r === ref)
   const {
     formState: { errors, isSubmitting },
     reset,
@@ -57,6 +61,7 @@ const {paymentType} = watch()
       transactionInfo: values.transferInfo,
     };
     await mutateAsync({ data, extraData });
+    setRef(data[0].salesReference)
     if (!isError) {
       reset();
     }
@@ -74,15 +79,15 @@ const {paymentType} = watch()
         .query(Q.where('sale_reference', Q.eq(data[0].salesReference)))
         .fetch();
       await database.write(async () => {
-        refs.forEach(async (ref) => {
-          await ref.destroyPermanently();
-        });
+        for (const ref1 of refs) {
+          await ref1.destroyPermanently();
+        }
       });
 
       await database.write(async () => {
-        items.forEach(async (item) => {
+        for (const item of items) {
           await item.destroyPermanently();
-        });
+        }
       });
 
       queryClient.invalidateQueries({ queryKey: ['cart_item_ref'] });
@@ -98,46 +103,47 @@ const isCash = paymentType === 'Cash';
 
   const finalWidth = isSmall ? '100%' : isMid ? '100%' : '80%';
   return (
-   <View width={finalWidth} mx='auto' flex={1}>
-     <FlatList
-       data={data}
-       ListHeaderComponent={() => <FlexText text="Total" text2={`₦${totalPrice}`} />}
-       renderItem={({ item, index }) => <CartCard item={item} index={index} />}
-       style={{ flex: 1 }}
-       showsVerticalScrollIndicator={false}
-       contentContainerStyle={{ gap: 20, paddingBottom: 20, flexGrow: 1 }}
-       ListEmptyComponent={() => <Empty text="No item in cart" />}
-       keyExtractor={(item, index) => index.toString()}
-       ListFooterComponent={() => (
-         // @ts-ignore
-         <>
-           <ExtraDataForm isCash={isCash} control={control} errors={errors} setValue={setValue} />
+    <View width={finalWidth} mx="auto" flex={1}>
+      <FlatList
+        data={data}
+        ListHeaderComponent={() => <FlexText text="Total" text2={`₦${totalPrice}`} />}
+        renderItem={({ item, index }) => <CartCard item={item} index={index} />}
+        style={{ flex: 1 }}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ gap: 20, paddingBottom: 20, flexGrow: 1 }}
+        ListEmptyComponent={() => <Empty text="No item in cart" />}
+        keyExtractor={(item, index) => index.toString()}
+        ListFooterComponent={() => (
+          // @ts-ignore
+          <>
+            <ExtraDataForm isCash={isCash} control={control} errors={errors} setValue={setValue} />
 
-           <XStack gap={10}>
-             <MyButton
-               backgroundColor="red"
-               title="Clear cart"
-               marginTop={30}
-               height={50}
-               onPress={onClearCart}
-               disabled={disable}
-               flex={1}
-             />
-             <MyButton
-               title="Checkout"
-               marginTop={30}
-               height={50}
-               onPress={handleSubmit(onSubmit)}
-               loading={isLoading}
-               disabled={isLoading || disable}
-               flex={1}
-             />
-           </XStack>
-         </>
-       )}
-       ListFooterComponentStyle={{ marginTop: 'auto', marginBottom: 30 }}
-     />
-   </View>
+            <XStack gap={10} mb={15}>
+              <MyButton
+                backgroundColor="red"
+                title="Clear cart"
+                marginTop={30}
+                height={50}
+                onPress={onClearCart}
+                disabled={disable}
+                flex={1}
+              />
+              <MyButton
+                title="Checkout"
+                marginTop={30}
+                height={50}
+                onPress={handleSubmit(onSubmit)}
+                loading={isLoading}
+                disabled={isLoading || disable}
+                flex={1}
+              />
+            </XStack>
+            {refToPrint &&<MyButton title='Print' height={60} onPress={() => router.push(`/print?ref=${refToPrint}`)} />}
+          </>
+        )}
+        ListFooterComponentStyle={{ marginTop: 'auto', marginBottom: 30 }}
+      />
+    </View>
   );
 };
 

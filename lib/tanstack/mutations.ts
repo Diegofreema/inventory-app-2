@@ -43,6 +43,7 @@ import { ExtraSalesType, SupplyInsert } from '~/type';
 import { useInfo } from '~/lib/tanstack/queries';
 import { useProductUpdatePrice } from '~/lib/zustand/useProductUpdatePrice';
 import { useProductUpdateQty } from '~/lib/zustand/updateProductQty';
+import { useSalesRef } from '~/hooks/useSalesRef';
 
 export const useAddNewProduct = () => {
   const storeId = useStore((state) => state.id);
@@ -224,6 +225,7 @@ export const useCart = () => {
   const storeId = useStore((state) => state.id);
   const queryClient = useQueryClient();
   const isConnected = useNetwork();
+  const addRef = useSalesRef((state) => state.addSaleRef);
   return useMutation({
     mutationFn: async ({ data, extraData }: { data: CartItem[]; extraData: ExtraSalesType }) => {
       const productsToAdd = data.map((item) => ({
@@ -244,8 +246,9 @@ export const useCart = () => {
       const arrayOfAddedSales: { id: string; qty: number; storeId: string }[] = [];
 
       try {
+        addRef(productsToAdd[0].salesReference);
         await database.write(async () => {
-          productsToAdd.forEach(async (item) => {
+          for (const item of productsToAdd) {
             const data = await storeSales.create((sale) => {
               sale.productId = item.productId;
               sale.qty = item.qty;
@@ -261,7 +264,7 @@ export const useCart = () => {
             });
 
             arrayOfAddedSales.push({ id: item.name, qty: item.qty, storeId: data.id });
-          });
+          }
         });
 
         queryClient.invalidateQueries({ queryKey: ['salesStore'] });
@@ -270,17 +273,17 @@ export const useCart = () => {
           const itemsInCart = await cartItems
             .query(Q.where('sales_reference', Q.eq(data[0].salesReference)))
             .fetch();
-          itemsInCart.forEach(async (item) => {
+          for (const item of itemsInCart) {
             await database.batch(item.prepareDestroyPermanently());
-          });
+          }
         });
         await database.write(async () => {
           const ref = await saleReferences
             .query(Q.where('sale_reference', Q.eq(data[0].salesReference)))
             .fetch();
-          ref.forEach(async (item) => {
+          for (const item of ref) {
             await database.batch(item.prepareDestroyPermanently());
-          });
+          }
         });
         queryClient.invalidateQueries({ queryKey: ['cart_item_ref'] });
         queryClient.invalidateQueries({ queryKey: ['cart_item'] });
@@ -789,10 +792,9 @@ export const useEdit = () => {
       netProShare: string;
       productId: string;
     }) => {
-
       if (isConnected) {
         await axios.get(
-          `https://247api.netpro.software/api.aspx?api=updateproductpricenqty&qty=${qty}&customerproductid=${customerProductId}&online=${online ? '1': '0'}&price=${price}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}&productid=${productId}`
+          `https://247api.netpro.software/api.aspx?api=updateproductpricenqty&qty=${qty}&customerproductid=${customerProductId}&online=${online ? '1' : '0'}&price=${price}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}&productid=${productId}`
         );
       }
 

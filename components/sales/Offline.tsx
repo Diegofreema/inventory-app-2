@@ -97,6 +97,7 @@ export const Offline = (): JSX.Element => {
         <ExpenseLoader />
       ) : (
         <SalesFlatlist
+          print
           // @ts-ignore
           data={filterByDate}
           isLoading={isLoading}
