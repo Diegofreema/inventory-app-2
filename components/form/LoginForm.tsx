@@ -7,7 +7,7 @@ import * as SecureStore from 'expo-secure-store';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { StyleSheet } from 'react-native';
-import Toast from 'react-native-toast-message';
+import { toast } from "sonner-native";
 import { Stack, Text, XStack } from 'tamagui';
 import { z } from 'zod';
 
@@ -48,49 +48,29 @@ export const LoginForm = (): JSX.Element => {
         `https://247api.netpro.software/api.aspx?api=adminlogin&email=${values.email}&pasword=${values.password}`
       );
       if (data?.result === 'incorrect password') {
-        Toast.show({
-          type: 'green',
-          autoHide: true,
-          swipeable: true,
-          position: 'top',
-          text1: 'Error',
-          text2: 'Incorrect credentials',
+        toast.error('Error',{
+          description: 'Incorrect credentials',
         });
 
         return;
       }
       if (data?.result === 'failed') {
-        Toast.show({
-          type: 'green',
-          autoHide: true,
-          swipeable: true,
-          position: 'top',
-          text1: 'Error',
-          text2: 'Something went wrong, please try again',
+        toast.error('Error',{
+          description: 'Something went wrong, please try again',
         });
         return;
       }
 
-      Toast.show({
-        type: 'green',
-        autoHide: true,
-        swipeable: true,
-        position: 'top',
-        text1: 'Success',
-        text2: 'Welcome back',
+      toast.success('Success',{
+        description: 'Welcome back',
       });
       getId(data?.result);
       onSetAdmin(true);
       reset();
     } catch (error: any) {
       console.log(JSON.stringify(error));
-      Toast.show({
-        type: 'green',
-        autoHide: true,
-        swipeable: true,
-        position: 'top',
-        text1: 'Error',
-        text2: 'Something went wrong, please try again',
+      toast.error('Error',{
+        description: 'Something went wrong, please try again',
       });
     } finally {
       setLoading(false);
@@ -102,26 +82,20 @@ export const LoginForm = (): JSX.Element => {
     try {
       const staffExists = await staffs.query(Q.where('email', values.email), Q.take(1)).fetch();
       if (!staffExists.length) {
-        Toast.show({
-          position: 'top',
-          text1: 'Error',
-          text2: 'Staff does not exist',
+        toast.error('Error',{
+          description: 'Staff does not exist',
         });
         return;
       }
       const passwordMatch = staffExists[0].password === values.password;
       if (!passwordMatch) {
-        Toast.show({
-          position: 'top',
-          text1: 'Error',
-          text2: 'Incorrect password',
+        toast.error('Error',{
+          description: 'Incorrect password',
         });
         return;
       }
-      Toast.show({
-        position: 'top',
-        text1: 'Success',
-        text2: 'Welcome back',
+      toast.success('Success',{
+        description: 'Welcome back',
       });
       SecureStore.setItem('staffId', staffExists[0].id.toString());
       getId(staffExists[0].pharmacyId!);
@@ -130,9 +104,8 @@ export const LoginForm = (): JSX.Element => {
     } catch (error) {
       console.log(error);
 
-      Toast.show({
-        text1: 'Error',
-        text2: 'Something went wrong, please try again',
+      toast.error('Error',{
+        description: 'Something went wrong, please try again',
       });
     } finally {
       setLoading(false);

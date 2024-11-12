@@ -15,6 +15,7 @@ import { CustomSubHeading } from "./typography";
 import { MyButton } from "~/components/ui/MyButton";
 import { colors } from "~/constants";
 import Product from "~/db/model/Product";
+import { trimText } from "~/lib/helper";
 
 type Props = {
   data: Product[] | undefined;
@@ -27,6 +28,7 @@ type Props = {
   onRefetch?: () => void;
   navigate?: boolean;
   pagination?: JSX.Element;
+  full?: boolean;
 };
 
 export const Products = ({
@@ -40,6 +42,7 @@ export const Products = ({
   onRefetch,
   navigate,
   pagination: Pagination,
+  full = false,
 }: Props): JSX.Element => {
   const { width } = useWindowDimensions();
   const isLargeScreen = width >= 500;
@@ -54,7 +57,7 @@ export const Products = ({
       scrollEnabled={scrollEnabled}
       data={data}
       renderItem={({ item, index }) => (
-        <ProductCard nav={navigate} item={item} show={show} index={index} />
+        <ProductCard nav={navigate} item={item} show={show} index={index} full={full} />
       )}
       contentContainerStyle={{
         paddingHorizontal: 5,
@@ -77,11 +80,13 @@ const ProductCard = ({
   show,
   nav,
   index,
+  full
 }: {
   item: Product;
   show?: boolean;
   nav?: boolean;
   index: number;
+  full?: boolean;
 }) => {
   const [showMenu, setShowMenu] = useState(false);
   const isLow = +item?.qty <= 10;
@@ -104,10 +109,11 @@ const ProductCard = ({
   };
   const { width } = useWindowDimensions();
 
-  const isSmaller = width <= 400;
+ 
   const isBigScreen = width >= 500;
 
   const marginRight = index % 1 === 0 ? 15 : 0;
+  const trimNumber = full ? 100 : 30
   return (
     <Card
       marginBottom={20}
@@ -118,7 +124,7 @@ const ProductCard = ({
       borderColor={colors.lightGray}>
       <CardHeader gap={10}>
         <XStack gap={14} alignItems="center">
-          <CustomSubHeading text={item?.product} fontSize={1.4} numberOfLines={1} ellipse />
+          <CustomSubHeading text={trimText(item?.product, trimNumber)} fontSize={1.8} numberOfLines={1} ellipse />
         </XStack>
         <FlexText text="Category" text2={item?.category!} />
         <FlexText text={`Stock ${isLow ? '(low stock)' : ''}`} text2={item?.qty.toString()} />
@@ -134,8 +140,8 @@ const ProductCard = ({
         )}
 
         <XStack justifyContent="space-between" alignItems="center">
-          <CustomSubHeading text="Actions" fontSize={1.4} />
-          <ActionMenu visible={showMenu} onClose={onClose} onOpen={onOpen} details={details} />
+          <CustomSubHeading text="Actions" fontSize={1.7} />
+          <ActionMenu  visible={showMenu} onClose={onClose} onOpen={onOpen} details={details} />
         </XStack>
       </CardHeader>
       <CardFooter width='100%'>

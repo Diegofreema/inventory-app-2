@@ -33,7 +33,7 @@ export const MyButton = ({
       {...props}
       backgroundColor={bgColor}
       color={color}
-      fontSize={RFPercentage(1.5)}
+      fontSize={RFPercentage(1.8)}
       fontWeight="bold">
       {loading ? <Spinner size="large" color="white" /> : title}
     </Button>

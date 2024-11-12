@@ -1,16 +1,34 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+// import * as Sentry from '@sentry/react-native';
 import { useFonts } from 'expo-font';
-import { SplashScreen, Stack } from 'expo-router';
+import { SplashScreen, Stack,  } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as Updates from 'expo-updates';
 import React, { useEffect } from 'react';
-import { Text } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import Toast, { BaseToast, ErrorToast, ToastConfigParams } from 'react-native-toast-message';
-import { TamaguiProvider, View } from 'tamagui';
+import { Toaster } from 'sonner-native';
+import { TamaguiProvider } from 'tamagui';
 
-import { colors } from '~/constants';
 import config from '~/tamagui.config';
+
+// const routingInstrumentation = new Sentry.ReactNavigationInstrumentation();
+//
+// Sentry.init({
+//   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+//   attachScreenshot: true,
+//   integrations: [
+//     new Sentry.ReactNativeTracing({
+//       routingInstrumentation,
+//       enableNativeFramesTracking: true,
+//     }),
+//   ],
+//   tracesSampleRate: 1.0,
+//   _experiments: {
+//     profilesSampleRate: 1.0,
+//     replaysSessionSampleRate: 1.0,
+//     replaysOnErrorSampleRate: 1.0,
+//   },
+// });
 
 SplashScreen.preventAutoHideAsync();
 
@@ -19,49 +37,19 @@ export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: '(drawer)',
 };
-const toastConfig = {
-  success: (props: any) => (
-    <BaseToast
-      {...props}
-      style={{ borderLeftColor: 'pink' }}
-      contentContainerStyle={{ paddingHorizontal: 15 }}
-      text1Style={{
-        fontSize: 15,
-        fontWeight: '400',
-      }}
-    />
-  ),
 
-  error: (props: any) => (
-    <ErrorToast
-      {...props}
-      text1Style={{
-        fontSize: 17,
-      }}
-      text2Style={{
-        fontSize: 15,
-      }}
-    />
-  ),
-
-  green: ({ text1, text2 }: ToastConfigParams<any>) => (
-    <View
-      backgroundColor={colors.green}
-      borderRadius={10}
-      padding={10}
-      width="95%"
-      marginHorizontal="auto">
-      <Text style={{ fontFamily: 'Inter', color: 'white', fontSize: 13 }}>{text1}</Text>
-      <Text style={{ fontFamily: 'InterBold', color: 'white', fontSize: 15 }}>{text2}</Text>
-    </View>
-  ),
-};
-export default function RootLayout() {
+function RootLayout() {
   const [loaded, err] = useFonts({
     Inter: require('@tamagui/font-inter/otf/Inter-Medium.otf'),
     InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
   });
-
+  // const ref = useNavigationContainerRef();
+  //
+  // useEffect(() => {
+  //   if (ref?.current) {
+  //     routingInstrumentation.registerNavigationContainer(ref);
+  //   }
+  // }, [ref]);
   useEffect(() => {
     async function onFetchUpdateAsync() {
       try {
@@ -95,8 +83,10 @@ export default function RootLayout() {
           <StatusBar style="dark" backgroundColor="white" />
           <Stack screenOptions={{ headerShown: false }} />
         </QueryClientProvider>
-        <Toast config={toastConfig} position="top" type="green" visibilityTime={4000} />
+        <Toaster position="top-center" />
       </GestureHandlerRootView>
     </TamaguiProvider>
   );
 }
+
+export default RootLayout;

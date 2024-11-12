@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { Plus, Search, X } from '@tamagui/lucide-icons';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Button, Input, Stack, XStack } from 'tamagui';
 

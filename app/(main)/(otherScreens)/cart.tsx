@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 
 import * as SecureStore from 'expo-secure-store';
+import { ScrollView } from "react-native";
 
 import { CartFlatList } from '~/components/CartFlatList';
 import { Container } from '~/components/Container';
@@ -19,7 +20,9 @@ const Cart = () => {
   return (
     <Container>
       <NavHeader title="Cart" />
-      <CartFlatList data={data} />
+      <ScrollView contentContainerStyle={{flexGrow: 1}} showsVerticalScrollIndicator={false}>
+        <CartFlatList data={data} />
+      </ScrollView>
     </Container>
   );
 };

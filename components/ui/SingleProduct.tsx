@@ -65,7 +65,7 @@ const SingleProduct = ({ product }: { product: Product }): JSX.Element => {
   const isSmallTablet = width >= 500;
   const isBigTablet = width >= 700;
   const containerWidth = isSmallTablet ? '80%' : isBigTablet ? '60%' : '100%';
-  console.log({width});
+
   return (
     <Card
       backgroundColor="white"

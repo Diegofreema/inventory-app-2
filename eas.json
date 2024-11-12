@@ -12,7 +12,9 @@
     "preview": {
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API": "https://247api.netpro.software/api.aspx?"
+        "EXPO_PUBLIC_API": "https://247api.netpro.software/api.aspx?",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://3309f876b2a32501367ff526d4b77ca7@o4506898363318273.ingest.us.sentry.io/4507879223066624",
+        "SENTRY_AUTH_TOKEN": "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"
       },
       "channel": "preview"
     },

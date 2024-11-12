@@ -7,6 +7,7 @@ export default class SupplyProduct extends Model {
   @text('product_id') productId!: string;
   @field('qty') qty!: number;
   @field('unit_cost') unitCost!: number;
+  @field('new_price') newPrice!: number;
   @text('date') dateX!: string;
   @field('is_uploaded') isUploaded!: boolean;
   @readonly @date('created_at') createdAt!: number;

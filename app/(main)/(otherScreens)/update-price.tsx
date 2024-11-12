@@ -2,9 +2,8 @@ import { useWindowDimensions } from 'react-native';
 import { View } from 'tamagui';
 
 import { Container } from '~/components/Container';
-import { ProductForm } from '~/components/form/ProductForm';
+import { UpdatePriceForm } from '~/components/form/UpdatePriceForm';
 import { CustomScroll } from '~/components/ui/CustomScroll';
-import { UpdatePriceForm } from "~/components/form/UpdatePriceForm";
 
 export default function UpdatePrice() {
   const { width } = useWindowDimensions();

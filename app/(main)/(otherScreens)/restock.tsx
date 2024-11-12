@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useForm } from 'react-hook-form';
 import { useWindowDimensions } from 'react-native';
-import Toast from 'react-native-toast-message';
+import { toast } from "sonner-native";
 import { Stack, View } from 'tamagui';
 import { z } from 'zod';
 
@@ -55,6 +55,7 @@ const Restock = (): JSX.Element => {
   const onSubmit = async (value: z.infer<typeof productSupplySchema>) => {
     if (!info?.shareNetpro || !info?.sharePrice || !info?.shareSeller) return;
 
+
     try {
       await mutateAsync({
         dealerShare: info?.shareSeller!,
@@ -69,9 +70,8 @@ const Restock = (): JSX.Element => {
       reset();
       router.back();
     } catch (error: any) {
-      Toast.show({
-        text1: 'Something went wrong',
-        text2: error.message,
+      toast.error('Something went wrong',{
+        description: error.message,
       });
     }
   };

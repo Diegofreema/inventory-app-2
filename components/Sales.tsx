@@ -17,12 +17,13 @@ export const Sales = () => {
   const [active, setActive] = useState(0);
   const ActiveComponent = COMPONENTS[active];
   const { width } = useWindowDimensions();
-  const isSmallTablet = width >= 500;
-  const isBigTablet = width >= 700;
-  const containerWidth = isBigTablet ? '60%' : isSmallTablet ? '80%' : '100%';
+  const isMid = width < 768;
+  const isSmall = width < 425;
+
+  const finalWidth = isSmall ? '100%' : isMid ? '100%' : '80%';
   return (
     <Container paddingHorizontal={0}>
-      <View width={containerWidth} mx="auto">
+      <View width={finalWidth} mx="auto">
         <ScrollHeader screens={data} active={active} setActive={setActive} />
       </View>
       <ActiveComponent />

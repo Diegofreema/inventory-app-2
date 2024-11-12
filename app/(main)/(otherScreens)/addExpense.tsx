@@ -21,6 +21,7 @@ import { useAddExp } from '~/lib/tanstack/mutations';
 import { useExpAcc } from '~/lib/tanstack/queries';
 import { expenseSchema } from '~/lib/validators';
 import Toast from "react-native-toast-message";
+import { toast } from "sonner-native";
 
 export default function AddExpense() {
   const { name } = useLocalSearchParams<{ name: string }>();
@@ -51,9 +52,9 @@ export default function AddExpense() {
   }, [exp]);
   const { width } = useWindowDimensions();
   if(exp?.data && exp?.data.length < 1 ){
-    Toast.show({
-      text1: "No expenses found",
-      text2: "Please add an expense first",
+
+    toast.info('No expense found', {
+      description: 'Please add an expense first'
     })
 
     return <Redirect href='/addExpenditure'  />

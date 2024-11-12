@@ -327,11 +327,11 @@ export const supplyProducts = async ({
     const { data } = await axios.get(
       `https://247api.netpro.software/api.aspx?api=addsupply&cidx=${id}&productid=${productId}&qty=${qty}&unitcost=${unitCost}&newprice=${newPrice}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}`
     );
+    console.log(`https://247api.netpro.software/api.aspx?api=addsupply&cidx=${id}&productid=${productId}&qty=${qty}&unitcost=${unitCost}&newprice=${newPrice}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}`);
 
     return data;
   } catch (error) {
-    console.log(JSON.stringify(error, null, 1));
-  }
+    console.log(JSON.stringify(error, null, 1));}
 };
 
 export const sendDisposedProducts = async ({

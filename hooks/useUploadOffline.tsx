@@ -1,37 +1,37 @@
 /* eslint-disable prettier/prettier */
 
-import { Q } from '@nozbe/watermelondb';
-import axios from 'axios';
-import { useCallback, useEffect } from 'react';
+import { Q } from "@nozbe/watermelondb";
+import { useCallback, useEffect } from "react";
 
-import { useNetwork } from './useNetwork';
+import { useNetwork } from "./useNetwork";
 
 import database, {
   disposedProducts,
-  supplyProduct,
-  products as productsDb,
   expenseAccounts,
   expenses as expensesDb,
-  storeSales,
   onlineSales,
-  updateProducts,
-} from '~/db';
+  products as productsDb,
+  storeSales,
+  supplyProduct
+} from "~/db";
 import {
   addAccountName,
   addExpenses,
   addOfflineSales,
   addOnlineSales,
   addProduct,
-  supplyProducts as supplyProductsOffline,
   sendDisposedProducts,
+  supplyProducts as supplyProductsOffline,
   uploadPrice,
-  uploadQty,
-} from '~/lib/helper';
-import { useInfo } from '~/lib/tanstack/queries';
-import { useProductUpdateQty } from '~/lib/zustand/updateProductQty';
-import { useProductUpdatePrice } from '~/lib/zustand/useProductUpdatePrice';
-import { useStore } from '~/lib/zustand/useStore';
-import Toast from 'react-native-toast-message';
+  uploadQty
+} from "~/lib/helper";
+import { useInfo } from "~/lib/tanstack/queries";
+import { useProductUpdateQty } from "~/lib/zustand/updateProductQty";
+import { useProductUpdatePrice } from "~/lib/zustand/useProductUpdatePrice";
+import { useStore } from "~/lib/zustand/useStore";
+
+
+
 
 /* eslint-disable prettier/prettier */
 export const useUploadOffline = () => {
@@ -59,41 +59,41 @@ export const useUploadOffline = () => {
     if (!id || !data) return;
 
     if (supply.length) {
-      supply.forEach(async (item) => {
+      for (const item of supply) {
         await supplyProductsOffline({
           productId: item.productId,
           qty: item.qty,
           dealerShare: info?.shareSeller!,
           netProShare: info?.shareNetpro!,
           unitCost: item.unitCost?.toString(),
-          newPrice: item?.unitCost?.toString()!,
+          newPrice: item?.newPrice?.toString()!,
           sellingPrice: item.unitCost?.toString()!,
           id,
         }).then(async () => {
           await database.write(async () => {
-            supply.forEach(async (item) => {
-              await database.batch(item.prepareUpdate((item) => (item.isUploaded = true)));
-            });
+            for (const item1 of supply) {
+              await database.batch(item1.prepareUpdate((item) => (item.isUploaded = true)));
+            }
           });
         });
-      });
+      }
     }
     if (dispose.length) {
-      dispose.forEach(async (item) => {
+      for (const item of dispose) {
         sendDisposedProducts({
           productId: item.productId,
           qty: item.qty,
         }).then(async () => {
           await database.write(async () => {
-            dispose.forEach(async (item) => {
-              await database.batch(item.prepareUpdate((item) => (item.isUploaded = true)));
-            });
+            for (const item1 of dispose) {
+              await database.batch(item1.prepareUpdate((item) => (item.isUploaded = true)));
+            }
           });
         });
-      });
+      }
     }
     if (products.length) {
-      products.forEach(async (item) => {
+      for (const item of products) {
         addProduct({
           product: item.product,
           category: item.category!,
@@ -110,32 +110,32 @@ export const useUploadOffline = () => {
           customerproductid: item.customerProductId!,
         }).then(async (data) => {
           await database.write(async () => {
-            products.forEach(async (item) => {
+            for (const item1 of products) {
               await database.batch(
-                item.prepareUpdate((item) => {
+                item1.prepareUpdate((item) => {
                   item.isUploaded = true;
                   item.productId = data?.result;
                 })
               );
-            });
+            }
           });
         });
-      });
+      }
     }
 
     if (accounts.length) {
-      accounts.forEach(async (item) => {
+      for (const item of accounts) {
         addAccountName({ storeId: id!, account: item.accountName }).then(async () => {
           await database.write(async () => {
-            accounts.forEach(async (item) => {
-              await database.batch(item.prepareUpdate((item) => (item.isUploaded = true)));
-            });
+            for (const item1 of accounts) {
+              await database.batch(item1.prepareUpdate((item) => (item.isUploaded = true)));
+            }
           });
         });
-      });
+      }
     }
     if (expenses.length) {
-      expenses.forEach(async (item) => {
+      for (const item of expenses) {
         addExpenses({
           storeId: id!,
           name: item.accountName,
@@ -143,31 +143,31 @@ export const useUploadOffline = () => {
           description: item.description!,
         }).then(async () => {
           await database.write(async () => {
-            expenses.forEach(async (item) => {
-              await database.batch(item.prepareUpdate((item) => (item.isUploaded = true)));
-            });
+            for (const item1 of expenses) {
+              await database.batch(item1.prepareUpdate((item) => (item.isUploaded = true)));
+            }
           });
         });
-      });
+      }
     }
 
     if (online.length) {
-      online.forEach(async ({ id: d, ...item }) => {
+      for (const { id: d, ...item } of online) {
         addOnlineSales({
           ...item,
           storeId: id!,
         }).then(async () => {
           await database.write(async () => {
-            online.forEach(async (o) => {
+            for (const o of online) {
               await database.batch(o.prepareUpdate((item) => (item.isUploaded = true)));
-            });
+            }
           });
         });
-      });
+      }
     }
 
     if (store.length) {
-      store.forEach(async ({ id: d, ...item }) => {
+      for (const { id: d, ...item } of store) {
         addOfflineSales({
           ...item,
           storeId: id!,
@@ -175,12 +175,12 @@ export const useUploadOffline = () => {
           salesRepId: +item.userId,
         }).then(async () => {
           await database.write(async () => {
-            store.forEach(async (s) => {
+            for (const s of store) {
               await database.batch(s.prepareUpdate((item) => (item.isUploaded = true)));
-            });
+            }
           });
         });
-      });
+      }
     }
     uploadPrice(storeOfflinePrice, deleteOfflinePrice);
     uploadQty(storeOfflineQty, deleteOfflineQty);

@@ -160,6 +160,7 @@ export default appSchema({
         { name: 'product_id', type: 'string' },
         { name: 'qty', type: 'number' },
         { name: 'unit_cost', type: 'number' },
+        { name: 'new_price', type: 'number' },
         { name: 'date', type: 'string' },
         { name: 'is_uploaded', type: 'boolean', isOptional: true },
         { name: 'created_at', type: 'number' },

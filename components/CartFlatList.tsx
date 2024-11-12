@@ -2,11 +2,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Q } from "@nozbe/watermelondb";
 import { useQueryClient } from "@tanstack/react-query";
+import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Alert, FlatList, useWindowDimensions } from "react-native";
-import Toast from "react-native-toast-message";
+import { toast } from "sonner-native";
 import { View, XStack } from "tamagui";
 import { z } from "zod";
 
@@ -18,12 +19,11 @@ import { Empty } from "./ui/empty";
 
 import database, { cartItems, products, saleReferences } from "~/db";
 import CartItem from "~/db/model/CartItems";
+import { useSalesRef } from "~/hooks/useSalesRef";
 import { trimText } from "~/lib/helper";
 import { useCart } from "~/lib/tanstack/mutations";
 import { extraDataSchema } from "~/lib/validators";
 import { ExtraSalesType } from "~/type";
-import { useSalesRef } from "~/hooks/useSalesRef";
-import { router } from "expo-router";
 
 
 type Props = {
@@ -40,8 +40,7 @@ const salesRefs = useSalesRef(state => state.saleRefs)
   const {
     formState: { errors, isSubmitting },
     reset,
-    handleSubmit,
-    control,
+    handleSubmit, control,
     setValue,
     watch
   } = useForm<z.infer<typeof extraDataSchema>>({
@@ -113,36 +112,32 @@ const isCash = paymentType === 'Cash';
         contentContainerStyle={{ gap: 20, paddingBottom: 20, flexGrow: 1 }}
         ListEmptyComponent={() => <Empty text="No item in cart" />}
         keyExtractor={(item, index) => index.toString()}
-        ListFooterComponent={() => (
-          // @ts-ignore
-          <>
-            <ExtraDataForm isCash={isCash} control={control} errors={errors} setValue={setValue} />
-
-            <XStack gap={10} mb={15}>
-              <MyButton
-                backgroundColor="red"
-                title="Clear cart"
-                marginTop={30}
-                height={50}
-                onPress={onClearCart}
-                disabled={disable}
-                flex={1}
-              />
-              <MyButton
-                title="Checkout"
-                marginTop={30}
-                height={50}
-                onPress={handleSubmit(onSubmit)}
-                loading={isLoading}
-                disabled={isLoading || disable}
-                flex={1}
-              />
-            </XStack>
-            {refToPrint &&<MyButton title='Print' height={60} onPress={() => router.push(`/print?ref=${refToPrint}`)} />}
-          </>
-        )}
-        ListFooterComponentStyle={{ marginTop: 'auto', marginBottom: 30 }}
+        scrollEnabled={false}
       />
+      <View gap={10} mb={10}>
+        <ExtraDataForm isCash={isCash} control={control} errors={errors} setValue={setValue} />
+        <XStack gap={10} mb={15}>
+          <MyButton
+            backgroundColor="red"
+            title="Clear cart"
+            marginTop={30}
+            height={50}
+            onPress={onClearCart}
+            disabled={disable}
+            flex={1}
+          />
+          <MyButton
+            title="Checkout"
+            marginTop={30}
+            height={50}
+            onPress={handleSubmit(onSubmit)}
+            loading={isLoading}
+            disabled={isLoading || disable}
+            flex={1}
+          />
+        </XStack>
+        {refToPrint &&<MyButton title='Print' height={60} onPress={() => router.push(`/print?ref=${refToPrint}`)} />}
+      </View>
     </View>
   );
 };
@@ -152,7 +147,8 @@ const CartCard = ({ item, index }: { item: CartItem; index: number }) => {
 
 
   const onAdd = async () => {
-    if (!item?.productId) return Toast.show({ text1: 'Error', text2: 'Could not add item' });
+    if (!item?.productId) return toast.error('Error',{ description: 'Could' +
+        ' not add item' });
 
   try{
     const productQty = await products.query(Q.where('product_id', item.productId), Q.take(1)).fetch()
@@ -160,9 +156,8 @@ const CartCard = ({ item, index }: { item: CartItem; index: number }) => {
 
 
     if (singleProduct && singleProduct.qty <= item.qty) {
-      return Toast.show({
-        text1: 'Cannot update item',
-        text2: `Only ${singleProduct.qty} Item(s)  is left in stock`,
+      return toast.info('Cannot update item',{
+        description: `Only ${singleProduct.qty} Item(s)  is left in stock`,
       });
     }
     await database.write(async () => {

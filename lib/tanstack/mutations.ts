@@ -6,7 +6,7 @@ import axios from 'axios';
 import { format, isSameDay, max } from 'date-fns';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import Toast from 'react-native-toast-message';
+import { toast } from "sonner-native";
 import { z } from 'zod';
 
 import {
@@ -39,11 +39,11 @@ import database, {
 } from '~/db';
 import CartItem from '~/db/model/CartItems';
 import { useNetwork } from '~/hooks/useNetwork';
-import { ExtraSalesType, SupplyInsert } from '~/type';
-import { useInfo } from '~/lib/tanstack/queries';
-import { useProductUpdatePrice } from '~/lib/zustand/useProductUpdatePrice';
-import { useProductUpdateQty } from '~/lib/zustand/updateProductQty';
 import { useSalesRef } from '~/hooks/useSalesRef';
+import { useInfo } from '~/lib/tanstack/queries';
+import { useProductUpdateQty } from '~/lib/zustand/updateProductQty';
+import { useProductUpdatePrice } from '~/lib/zustand/useProductUpdatePrice';
+import { ExtraSalesType, SupplyInsert } from '~/type';
 
 export const useAddNewProduct = () => {
   const storeId = useStore((state) => state.id);
@@ -130,16 +130,14 @@ export const useAddNewProduct = () => {
       }
     },
     onError: (err) => {
-      Toast.show({
-        text1: 'Failed to add product',
-        text2: err.message,
+      toast.error('Failed to add product',{
+        description: err.message,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product'] });
-      Toast.show({
-        text1: 'Success',
-        text2: 'Product has been added successfully',
+      toast.success( 'Success',{
+        description: 'Product has been added successfully',
       });
     },
   });
@@ -205,15 +203,13 @@ export const useAdd247 = () => {
     onError: (error) => {
       console.log(error);
 
-      Toast.show({
-        text1: 'Something went wrong',
-        text2: error.message,
+      toast.error('Something went wrong',{
+        description: error.message,
       });
     },
     onSuccess: (data) => {
-      Toast.show({
-        text1: 'Success',
-        text2: 'Sales has been added successfully',
+      toast.success( 'Success',{
+        description: 'Sales has been added successfully',
       });
       queryClient.invalidateQueries({ queryKey: ['salesPharmacy'] });
       queryClient.invalidateQueries({ queryKey: ['product'] });
@@ -348,15 +344,14 @@ export const useCart = () => {
       }
     },
     onError: () => {
-      Toast.show({
-        text1: 'Something went wrong',
-        text2: 'Failed to add sales',
+      toast.error('Something went wrong!',{
+        description: 'Failed to add sales',
       });
     },
     onSuccess: (data) => {
-      Toast.show({
-        text1: 'Success',
-        text2: 'Sales has been made',
+      toast.success('Success',{
+
+        description: 'Sales has been made',
       });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
     },
@@ -410,15 +405,15 @@ export const useAddSales = () => {
     onError: (error) => {
       console.log(error);
 
-      Toast.show({
-        text1: 'Something went wrong',
-        text2: 'Failed to add sales',
+      toast.error('Something went wrong',{
+
+        description: 'Failed to add sales',
       });
     },
     onSuccess: (data) => {
-      Toast.show({
-        text1: 'Success',
-        text2: 'item has been added to cart',
+      toast.success('Success',{
+
+        description: 'item has been added to cart',
       });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
@@ -449,6 +444,7 @@ export const useSupply = () => {
           supply.qty = qty;
           supply.dateX = format(Date.now(), 'dd/MM/yyyy HH:mm');
           supply.unitCost = Number(unitCost);
+          supply.newPrice = Number(newPrice)
           supply.isUploaded = true;
         });
       });
@@ -497,15 +493,15 @@ export const useSupply = () => {
     onError: (error: Error) => {
       console.log(error?.message);
 
-      Toast.show({
-        text1: 'Something went wrong',
-        text2: error.message,
+      toast.error('Something went wrong',{
+
+        description: error.message,
       });
     },
     onSuccess: (data) => {
-      Toast.show({
-        text1: 'Success',
-        text2: 'Product has been restocked',
+      toast.success('Success',{
+
+        description: 'Product has been restocked',
       });
       queryClient.invalidateQueries({ queryKey: ['product'] });
       queryClient.invalidateQueries({ queryKey: ['supply'] });
@@ -593,15 +589,15 @@ export const useDisposal = () => {
     },
 
     onError: (error) => {
-      Toast.show({
-        text1: 'Something went wrong',
-        text2: error.message,
+      toast.error('Something went wrong',{
+
+        description: error.message,
       });
     },
     onSuccess: () => {
-      Toast.show({
-        text1: 'Success',
-        text2: 'Product has been disposed',
+      toast.success('Success',{
+
+        description: 'Product has been disposed',
       });
       queryClient.invalidateQueries({ queryKey: ['product'] });
     },
@@ -621,7 +617,7 @@ export const useAddAccount = () => {
           });
         });
 
-        if (!newAccount) throw Error('Failed to create expenditure account');
+        if (!newAccount) Error('Failed to create expenditure account');
         if (isConnected) {
           try {
             await addAccountName({ storeId: storeId!, account: name });
@@ -646,15 +642,15 @@ export const useAddAccount = () => {
     },
 
     onError: (error) => {
-      Toast.show({
-        text1: 'Something went wrong',
-        text2: error.message,
+      toast.error('Something went wrong',{
+
+        description: error.message,
       });
     },
     onSuccess: (data) => {
-      Toast.show({
-        text1: 'Success',
-        text2: 'Expenditure account has been created',
+      toast.success('Success',{
+
+        description: 'Expenditure account has been created',
       });
       queryClient.invalidateQueries({ queryKey: ['exp_name'] });
     },
@@ -713,15 +709,13 @@ export const useAddExp = () => {
     onError: (error) => {
       console.log(error.message, 'error');
 
-      Toast.show({
-        text1: 'Something went wrong',
-        text2: error.message,
+      toast.error('Something went wrong',{
+        description: error.message,
       });
     },
     onSuccess: (data) => {
-      Toast.show({
-        text1: 'Success',
-        text2: 'Expense has been added',
+      toast.success('Success',{
+        description: 'Expense has been added',
       });
       queryClient.invalidateQueries({ queryKey: ['expenditure'] });
     },
@@ -748,24 +742,21 @@ export const usePickUp = () => {
     },
     onSuccess: (data) => {
       if (data.result === 'done') {
-        Toast.show({
-          text1: 'Success',
-          text2: 'Pickup call has been made',
+        toast.success("Success",{
+          description: 'Pickup call has been made',
         });
         router.back();
       } else {
-        Toast.show({
-          text1: 'Error',
-          text2: 'Failed to make pickup call',
+        toast.error('Error',{
+          description: 'Failed to make pickup call',
         });
       }
     },
     onError: (error) => {
       console.log(error, 'error');
 
-      Toast.show({
-        text1: 'Error',
-        text2: 'Failed to make pickup call',
+      toast.error('Error',{
+        description: 'Failed to make pickup call',
       });
     },
   });
@@ -793,9 +784,10 @@ export const useEdit = () => {
       productId: string;
     }) => {
       if (isConnected) {
-        await axios.get(
-          `https://247api.netpro.software/api.aspx?api=updateproductpricenqty&qty=${qty}&customerproductid=${customerProductId}&online=${online ? '1' : '0'}&price=${price}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}&productid=${productId}`
-        );
+      const { data } = await axios.get(
+        `https://247api.netpro.software/api.aspx?api=updateproductpricenqty&qty=${qty}&customerproductid=${customerProductId}&online=${online ? 1 : 0}&price=${price}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}&productid=${productId}`
+      );
+        console.log(data, productId);
       }
 
       if (!isConnected) {
@@ -828,17 +820,15 @@ export const useEdit = () => {
       }
     },
     onSuccess: async () => {
-      Toast.show({
-        text1: 'Success',
-        text2: 'Product updated',
+      toast.success('Success',{
+        description: 'Product updated',
       });
     },
     onError: (error) => {
       console.log(error, 'error');
 
-      Toast.show({
-        text1: 'Error',
-        text2: 'Failed to update product',
+      toast.error('Error',{
+        description: 'Failed to update product',
       });
     },
   });
@@ -882,17 +872,15 @@ export const useUpdateQty = () => {
       }
     },
     onSuccess: () => {
-      Toast.show({
-        text1: 'Success',
-        text2: 'Product updated',
+      toast.success('Success',{
+        description: 'Product updated',
       });
     },
     onError: (error) => {
       console.log(error, 'error');
 
-      Toast.show({
-        text1: 'Error',
-        text2: 'Failed to update product',
+      toast.error('Error',{
+        description: 'Failed to update product',
       });
     },
   });
@@ -947,17 +935,15 @@ export const useUpdatePrice = () => {
       }
     },
     onSuccess: () => {
-      Toast.show({
-        text1: 'Success',
-        text2: 'Product updated',
+      toast.success('Success',{
+        description: 'Product updated',
       });
     },
     onError: (error) => {
       console.log(error, 'error');
 
-      Toast.show({
-        text1: 'Error',
-        text2: 'Failed to update product',
+      toast.error('Error',{
+        description: 'Failed to update product',
       });
     },
   });

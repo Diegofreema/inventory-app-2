@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useForm } from 'react-hook-form';
-import Toast from 'react-native-toast-message';
+import { toast } from 'sonner-native';
 import { Stack, View } from 'tamagui';
 import { z } from 'zod';
 
@@ -34,9 +34,8 @@ export const UpdatePriceForm = () => {
       router.back();
     } catch (e: any) {
       console.log(e);
-      Toast.show({
-        text1: 'Error',
-        text2: e.message,
+      toast.error('Error', {
+        description: e.message,
       });
     }
   };

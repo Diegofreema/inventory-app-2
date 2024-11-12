@@ -5,7 +5,7 @@ import { Q } from '@nozbe/watermelondb';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import Toast from 'react-native-toast-message';
+import {toast} from 'sonner-native'
 import { View } from 'tamagui';
 import { z } from 'zod';
 
@@ -66,9 +66,8 @@ export const AddStaffForm = (): JSX.Element => {
     try {
       const emailExists = await staffs.query(Q.where('email', value.email), Q.take(1)).fetch();
       if (emailExists.length) {
-        Toast.show({
-          text1: 'Error',
-          text2: 'Email already exists',
+        toast.error('Error',{
+          description: 'Email already exists',
         });
         return;
       }
@@ -83,17 +82,15 @@ export const AddStaffForm = (): JSX.Element => {
         });
 
       });
-      Toast.show({
-        text1: 'Success',
-        text2: 'Staff added successfully',
+      toast.success('Success',{
+        description: 'Staff added successfully',
       });
       reset();
       router.back();
     } catch (error) {
       console.log(error);
-      Toast.show({
-        text1: 'Failed',
-        text2: 'Staff was not added successfully',
+      toast.error('Failed',{
+        description: 'Staff was not added successfully',
       });
     }
   };
@@ -108,9 +105,8 @@ export const AddStaffForm = (): JSX.Element => {
           staff.password = value.password;
         });
       });
-      Toast.show({
-        text1: 'Success',
-        text2: 'Staff updated successfully',
+      toast.success('Success',{
+        description: 'Staff updated successfully',
       });
       reset();
       setEdit(false);
@@ -118,9 +114,8 @@ export const AddStaffForm = (): JSX.Element => {
     } catch (error) {
       console.log(error);
 
-      Toast.show({
-        text1: 'Failed',
-        text2: 'Staff was not updated successfully',
+      toast.error('Failed',{
+        description: 'Staff was not updated successfully',
       });
     }
   };

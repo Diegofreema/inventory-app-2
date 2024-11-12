@@ -20,8 +20,8 @@ export const FlexText = ({ text, text2, icon: Icon, action, onPress }: Props): J
   };
   return (
     <XStack justifyContent="space-between" alignItems="center" marginTop="auto">
-      <CustomSubHeading text={text} fontSize={1.4} />
-      {text2 && <CustomSubHeading text={text2} fontSize={1.5} />}
+      <CustomSubHeading text={text} fontSize={1.6} />
+      {text2 && <CustomSubHeading text={text2} fontSize={1.6} />}
       {action && (
         <CustomPressable onPress={handleClick} style={{ flex: 0 }}>
           <CustomBarIcon color="black" size={25} icon={Icon!} />

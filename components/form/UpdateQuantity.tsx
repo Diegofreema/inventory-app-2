@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useForm } from 'react-hook-form';
-import Toast from 'react-native-toast-message';
+
 import { Stack, View } from 'tamagui';
 import { z } from 'zod';
 
@@ -11,6 +11,7 @@ import { NavHeader } from '~/components/ui/NavHeader';
 import { colors } from '~/constants';
 import { useUpdateQty } from '~/lib/tanstack/mutations';
 import { updateQtySchema } from '~/lib/validators';
+import { toast } from 'sonner-native';
 
 export const UpdateQuantityForm = () => {
   const { name, id } = useLocalSearchParams<{ name: string; id: string }>();
@@ -34,9 +35,8 @@ export const UpdateQuantityForm = () => {
       router.back();
     } catch (e: any) {
       console.log(e);
-      Toast.show({
-        text1: 'Error',
-        text2: e.message,
+      toast.error('Error', {
+        description: e.message,
       });
     }
   };

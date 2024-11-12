@@ -9,7 +9,7 @@ export const useUpdateProduct = () => {
   useEffect(() => {
     const fetchDataAndUpload = async () => {
       const data = await updateProducts.query().fetch();
-      console.log(data.length);
+
       if (data.length > 0) {
         for (const item of data) {
           axios

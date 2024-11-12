@@ -11,7 +11,7 @@ import { useFetchAll } from '~/lib/tanstack/queries';
 
 export default function LoadingDataScreen() {
   const { error, fetchAll, fetching } = useFetchAll();
-  console.log('loading screen');
+
 
   const router = useRouter();
   const handleRefetch = () => {

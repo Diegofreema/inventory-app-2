@@ -8,7 +8,7 @@ import { CustomSelect } from './CustomSelect';
 
 import { colors } from '~/constants';
 import React from 'react';
-import { CustomSelect2 } from '~/components/form/CustomSelect2';
+import { CustomSelect2, MyCustomInput } from '~/components/form/CustomSelect2';
 
 type Props = TextInputProps & {
   label: string;
@@ -41,6 +41,7 @@ export const CustomInput = ({
   ...props
 }: Props): JSX.Element => {
   const handleChange = (text: string) => {
+
     setValue && setValue(name, text);
   };
 
@@ -101,25 +102,14 @@ export const CustomInput = ({
           }}
         />
       )}
-      {variant === 'select' &&
-        (picker ? (
-          <CustomSelect2
-            data={data}
-            name='paymentType'
-            onValueChange={handleChange}
-            value={props.value}
-          />
-        ) : (
-          <CustomSelect
-            {...props}
-            data={data}
-            placeholder={props.placeholder!}
-            value={props.value}
-            onValueChange={handleChange}
-            query={query}
-            setQuery={setQuery}
-          />
-        ))}
+      {variant === 'select' && (
+        <CustomSelect2
+          data={data}
+          name={name}
+          onValueChange={(text) => handleChange(text)}
+          value={props.value}
+        />
+      )}
     </YStack>
   );
 };

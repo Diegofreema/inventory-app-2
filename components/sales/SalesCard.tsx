@@ -37,7 +37,7 @@ export const SalesCard = ({ index, item , print}: Props): JSX.Element => {
 
     getStaff();
   }, [item?.userId, item.productId]);
-  console.log(item.productId);
+
 const total = item?.qty * Math.round(price);
   return (
     <AnimatedCard index={index}>

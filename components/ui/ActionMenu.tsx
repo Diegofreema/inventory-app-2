@@ -59,7 +59,7 @@ export const ActionMenu = ({
       visible={visible}
       onRequestClose={onClose}
       anchor={
-        <CustomPressable onPress={onOpen} style={{ flex: 0 }}>
+        <CustomPressable onPress={onOpen} style={{ flex: 0, padding: 5 }}>
           <CustomBarIcon size={25} color="black" icon={CircleEllipsis} />
         </CustomPressable>
       }>

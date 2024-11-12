@@ -1,40 +1,20 @@
 /* eslint-disable prettier/prettier */
 
-import { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useState } from "react";
 
-import EnhancedSupply from './EnhancedSupply';
-import { StoreActions } from './StoreActions';
-import { CalenderSheet } from '../sales/CalenderSheet';
-import { AnimatedContainer } from '../ui/AniminatedContainer';
+import EnhancedSupply from "./EnhancedSupply";
+import { StoreActions } from "./StoreActions";
+import { CalenderSheet } from "../sales/CalenderSheet";
+import { AnimatedContainer } from "../ui/AniminatedContainer";
 
-import { formattedDate } from '~/lib/helper';
+import { useCalendar } from "~/hooks/useCalendar";
 
 export const SupplyProducts = (): JSX.Element => {
   const [value, setValue] = useState('');
 
   const onSetValue = useCallback((val: string) => setValue(val), [value]);
 
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const bottomRef = useRef<BottomSheetMethods | null>(null);
-  const onOpenCalender = useCallback(() => {
-    if (!bottomRef?.current) return;
-
-    bottomRef.current.expand();
-  }, []);
-  const dateValue = useMemo(() => {
-    if (startDate && endDate) {
-      bottomRef?.current?.close();
-
-      return `${formattedDate(startDate)} to ${formattedDate(endDate)}`;
-    }
-    return '';
-  }, [startDate, endDate]);
-  const resetDates = useCallback(() => {
-    setEndDate('');
-    setStartDate('');
-  }, []);
+ const {endDate,setEndDate,setStartDate,startDate,resetDates,dateValue,onOpenCalender,bottomRef} = useCalendar()
   return (
     <AnimatedContainer>
       <StoreActions

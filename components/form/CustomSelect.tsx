@@ -1,22 +1,22 @@
 /* eslint-disable prettier/prettier */
 
-import { Check, ChevronDown, ChevronUp } from '@tamagui/lucide-icons';
-import React, { LegacyRef, useMemo, useRef } from "react";
+import { Check, ChevronDown, ChevronUp } from "@tamagui/lucide-icons";
+import React, { useMemo } from "react";
 import {
   Adapt,
+  FontSizeTokens,
+  getFontSize,
   Input,
   Select,
-  Sheet,
-  View,
-  YStack,
-  getFontSize,
-  FontSizeTokens,
   SelectProps,
-  Text, TamaguiTextElement
+  Sheet,
+  Text,
+  View,
+  YStack
 } from "tamagui";
-import { LinearGradient } from 'tamagui/linear-gradient';
+import { LinearGradient } from "tamagui/linear-gradient";
 
-import { colors } from '~/constants';
+import { colors } from "~/constants";
 
 type Props = SelectProps & {
   placeholder: string;
@@ -129,23 +129,14 @@ export const CustomSelect = ({
               {useMemo(
                 () =>
                   data?.map((item, i) => {
-                    const colorToRender = () => {
-                      if (!item?.quantity) return '';
-                      return item?.quantity >= 10
-                        ? colors.green
-                        : item?.quantity < 5
-                          ? 'red'
-                          : item?.quantity < 10
-                            ? '#FFD700'
-                            : 'black';
-                    };
+
                     return (
                       <Select.Item   backgroundColor="white" index={i} key={i} value={item?.value}>
                         <YStack>
                           <Select.ItemText   color="black" flexDirection="column">
                             {item?.label}
                           </Select.ItemText>
-                          <Text fontWeight='bold' color={colorToRender()} display={!item?.quantity ? 'none' : 'block'}>{item?.quantity && `${item.quantity} left in stock`}</Text>
+
                         </YStack>
                         <Select.ItemIndicator marginLeft="auto">
                           <Check size={16} />

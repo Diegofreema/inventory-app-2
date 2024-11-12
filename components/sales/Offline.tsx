@@ -23,9 +23,10 @@ export const Offline = (): JSX.Element => {
   const { data, isPending, isError, refetch, isRefetching } = useSalesS(page);
   const handleRefetch = useCallback(() => refetch(), []);
   const { width } = useWindowDimensions();
-  const isSmallTablet = width >= 500;
-  const isBigTablet = width >= 700;
-  const containerWidth = isBigTablet ? '70%' : isSmallTablet ? '80%' : '100%';
+  const isMid = width < 768;
+  const isSmall = width < 425;
+
+  const finalWidth = isSmall ? '100%' : isMid ? '100%' : '80%';
   useRender();
 
   const handlePagination = useCallback((direction: 'next' | 'prev') => {
@@ -79,7 +80,7 @@ export const Offline = (): JSX.Element => {
   if (isError) return <Error onRetry={handleRefetch} />;
 
   return (
-    <AnimatedContainer width={containerWidth}>
+    <AnimatedContainer width={finalWidth}>
       <StoreActions
         hide
         showButton

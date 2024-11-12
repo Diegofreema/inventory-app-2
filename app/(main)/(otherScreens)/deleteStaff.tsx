@@ -2,7 +2,8 @@
 
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
-import Toast from 'react-native-toast-message';
+import { toast } from "sonner-native";
+
 
 import { DeleteStaffModal } from '~/components/modals/DeleteStaffModal';
 import database, { staffs } from '~/db';
@@ -17,21 +18,21 @@ export default function DeleteStaff() {
     try {
       await database.write(async () => {
         const staff = await staffs.find(id);
-        staff.destroyPermanently();
+       await staff.destroyPermanently();
       });
 
-      Toast.show({
-        text1: 'Success',
-        text2: 'Staff removed successfully',
-      });
+
+      toast.success('Success', {
+        description: 'Staff removed successfully',
+      })
       setVisible(false);
       router.back();
     } catch (error) {
       console.log(error);
-      Toast.show({
-        text1: 'Failed',
-        text2: 'Staff could not be removed successfully',
-      });
+      toast.error('Failed', {
+        description: 'Staff could not be removed successfully',
+      })
+
       router.back();
     }
   };

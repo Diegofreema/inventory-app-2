@@ -42,6 +42,7 @@ export const Main = ({
           <CustomHeading text="Dashboard" fontSize={1.7} />
           <LogoutButton />
         </XStack>
+
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 50 }}>

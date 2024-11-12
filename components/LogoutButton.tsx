@@ -3,7 +3,8 @@
 import { LogOut } from '@tamagui/lucide-icons';
 import { useRouter } from 'expo-router';
 import { useState } from "react";
-import Toast from "react-native-toast-message";
+import { toast } from "sonner-native";
+
 
 import { CustomPressable } from './ui/CustomPressable';
 
@@ -19,9 +20,8 @@ export const LogoutButton = (): JSX.Element => {
     removeId();
     setIsAdmin(false);
     router.replace('/login');
-    Toast.show({
-      text1: 'Log out successfully',
-      text2: 'Hope to see you soon 😊'
+    toast.success('Logged out',{
+      description: 'Hope to see you soon 😊'
     })
   };
 

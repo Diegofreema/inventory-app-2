@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Q } from '@nozbe/watermelondb';
 import { X } from '@tamagui/lucide-icons';
 import { BarcodeScanningResult, CameraView, useCameraPermissions } from 'expo-camera';
 import * as Haptics from 'expo-haptics';
@@ -8,11 +9,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Dimensions, Pressable, StyleSheet } from 'react-native';
 import Toast from 'react-native-toast-message';
+import { toast } from 'sonner-native';
 import { Stack, View } from 'tamagui';
 import { z } from 'zod';
 
 import { CustomController } from './CustomController';
-import { newProductSchema } from '../../lib/validators';
 import { Error } from '../ui/Error';
 import { FormLoader } from '../ui/Loading';
 import { MyButton } from '../ui/MyButton';
@@ -20,9 +21,12 @@ import { NavHeader } from '../ui/NavHeader';
 
 import { colors } from '~/constants';
 import { online } from '~/data';
+import { products } from '~/db';
 import { useAddNewProduct } from '~/lib/tanstack/mutations';
 import { useCat, useInfo } from '~/lib/tanstack/queries';
+import { newProductSchema } from '~/lib/validators';
 import { Cats } from '~/type';
+
 const { height, width } = Dimensions.get('window');
 export const ProductForm = (): JSX.Element => {
   const { isPending, mutateAsync } = useAddNewProduct();
@@ -38,8 +42,18 @@ export const ProductForm = (): JSX.Element => {
     refetchCat();
   }, [refetch, refetchCat]);
 
-  const [categories, setCategories] = useState<{ value: string; label: string }[]>([]);
-  const [subCategories, setSubCategories] = useState<{ value: string; label: string }[]>([]);
+  const [categories, setCategories] = useState<
+    {
+      value: string;
+      label: string;
+    }[]
+  >([]);
+  const [subCategories, setSubCategories] = useState<
+    {
+      value: string;
+      label: string;
+    }[]
+  >([]);
   const {
     handleSubmit,
     formState: { errors },
@@ -49,11 +63,11 @@ export const ProductForm = (): JSX.Element => {
     setValue,
   } = useForm<z.infer<typeof newProductSchema>>({
     defaultValues: {
-      category: '',
+      category: 'Beauty',
       customerproductid: '',
       des: '',
       marketprice: '',
-      online: true,
+      online: false,
       product: '',
       qty: '',
       sharedealer: info?.shareSeller,
@@ -65,7 +79,8 @@ export const ProductForm = (): JSX.Element => {
     resolver: zodResolver(newProductSchema),
   });
 
-  const { category } = watch();
+  const { category, online: on } = watch();
+  console.log({ on });
   useEffect(() => {
     if (!cat) return;
     const formattedData: Cats[] = Object.values(
@@ -111,7 +126,7 @@ export const ProductForm = (): JSX.Element => {
   if (infoPending || catPending) return <FormLoader />;
   const onSubmit = async (values: z.infer<typeof newProductSchema>) => {
     try {
-    await  mutateAsync({
+      await mutateAsync({
         ...values,
         sharedealer: info?.shareSeller,
         sharenetpro: info?.shareNetpro,
@@ -122,9 +137,8 @@ export const ProductForm = (): JSX.Element => {
 
       reset();
     } catch (error: any) {
-      Toast.show({
-        text1: 'Failed',
-        text2: error?.message,
+      toast.error('Failed', {
+        description: error?.message,
       });
     }
   };
@@ -136,9 +150,17 @@ export const ProductForm = (): JSX.Element => {
   const onBarcodeScanner = async ({ data }: BarcodeScanningResult) => {
     // if (!scanning) return;
     if (data) {
-      // Haptics.selectionAsync();
+      const pd = await products
+        .query(Q.where('customer_product_id', Q.eq(data)), Q.take(1))
+        .fetch();
+      if (pd.length > 0) {
+        toast.error('Failed to scanned product', {
+          description: 'Another product already has this product id!',
+        });
+        return;
+      }
       setValue('customerproductid', data);
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
       setShowCamera(false);
     }
   };

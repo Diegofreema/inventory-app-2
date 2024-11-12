@@ -24,12 +24,13 @@ export default function Store() {
   const [active, setActive] = useState(0);
   const ActiveComponent = COMPONENTS[active] || StoreProducts;
   const { width } = useWindowDimensions();
-  const isSmallTablet = width >= 500;
-  const isBigTablet = width >= 700;
-  const containerWidth = isBigTablet ? '70%' : isSmallTablet ? '80%' : '100%';
+  const isMid = width < 768;
+  const isSmall = width < 425;
+
+  const finalWidth = isSmall ? '100%' : isMid ? '100%' : '80%';
   return (
     <Container>
-      <View flex={1} width={containerWidth} mx="auto">
+      <View flex={1} width={finalWidth} mx="auto">
         <ScrollHeader screens={data} active={active} setActive={setActive} />
         <ActiveComponent />
       </View>
