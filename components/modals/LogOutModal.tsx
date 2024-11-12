@@ -1,10 +1,10 @@
 /* eslint-disable prettier/prettier */
 
-import Modal from 'react-native-modal';
-import { Text, View, XStack } from 'tamagui';
-
-import { MyButton } from '../ui/MyButton';
 import { useWindowDimensions } from "react-native";
+import Modal from "react-native-modal";
+import { Text, View, XStack } from "tamagui";
+
+import { MyButton } from "../ui/MyButton";
 
 type Props = {
   visible: boolean;
@@ -36,7 +36,7 @@ export const LogoutModal = ({ onClose, visible, logOut }: Props): JSX.Element =>
         borderRadius="$3"
         alignItems="center"
         justifyContent="center">
-        <Text color="red" fontSize={30} fontWeight="bold" textAlign="center" marginBottom={15}>
+        <Text color="red" fontSize={30} style={{fontFamily: 'InterBold'}} fontFamily='$heading' textAlign="center" marginBottom={15}>
           Are you sure you want to logout?
         </Text>
 

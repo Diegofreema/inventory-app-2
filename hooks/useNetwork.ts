@@ -1,19 +1,19 @@
 /* eslint-disable prettier/prettier */
 
-import NetInfo from '@react-native-community/netinfo';
+import  { useNetInfo } from '@react-native-community/netinfo';
 import { useEffect, useState } from 'react';
 
 export const useNetwork = () => {
   const [isConnected, setIsConnected] = useState<boolean | null>(false);
-
+  const netinfo = useNetInfo();
+  const isOffline = netinfo.isInternetReachable === false;
   useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener((state) => {
-      console.log(isConnected, 'hgvhbhgvhv');
-      setIsConnected(state.isInternetReachable);
-    });
-
-    return () => unsubscribe();
-  }, []);
+    if (isOffline) {
+      setIsConnected(false);
+    } else {
+      setIsConnected(true);
+    }
+  }, [isOffline]);
 
   return isConnected;
 };

@@ -1,6 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 export type ProductUpdatePrice = {
   name: string;
   price: number;
@@ -15,14 +15,16 @@ type Store = {
 };
 
 export const useProductUpdatePrice = create<Store>()(
-  persist((set) => ({
+  persist(
+    // @ts-ignore
+    (set) => ({
       offlineProducts: [],
       addProduct: (product: ProductUpdatePrice): void => {
-        set((state) => ({ offlineProducts: [...state.offlineProducts, product] }))
+        set((state) => ({ offlineProducts: [...state.offlineProducts, product] }));
       },
       removeProduct: (id: string): void => {
         set((state) => {
-          return { offlineProducts: state.offlineProducts.filter((p) => p.id !== id) }
+          return { offlineProducts: state.offlineProducts.filter((p) => p.id !== id) };
         });
       },
     }),

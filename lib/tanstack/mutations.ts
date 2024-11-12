@@ -836,7 +836,7 @@ export const useEdit = () => {
 export const useUpdateQty = () => {
   const isConnected = useNetwork();
   const storeId = useStore((state) => state.id);
-  const storeOffline = useProductUpdateQty((state) => state.addProduct);
+  const addOffline = useProductUpdateQty((state) => state.addProduct);
 
   return useMutation({
     mutationFn: async ({ id, qty }: { qty: number; id: string }) => {
@@ -855,7 +855,7 @@ export const useUpdateQty = () => {
           await updateQty({ qty, name: productToUpdate.product, storeId });
         } catch (error) {
           console.log(error);
-          storeOffline({
+          addOffline({
             storeId,
             name: productToUpdate.product,
             qty,
@@ -863,7 +863,7 @@ export const useUpdateQty = () => {
           });
         }
       } else {
-        storeOffline({
+        addOffline({
           storeId,
           name: productToUpdate.product,
           qty,

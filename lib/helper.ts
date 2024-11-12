@@ -795,11 +795,12 @@ export const uploadQty = (
   product: ProductUpdateQty[],
   deleteOffline: (id: string) => void
 ) => {
+  console.log(product.length, 'upload qty');
   if (product.length > 0) {
     product.forEach((item) => {
       updateQty({ name: item.name, qty: item.qty, storeId: item.storeId }).then(() => {
         deleteOffline(item.id);
-      });
+      }).catch(e => console.log(e, 'uploadQty error'))
     });
   }
 };
@@ -808,11 +809,12 @@ export const uploadPrice = (
   product: ProductUpdatePrice[],
   deleteOffline: (id: string) => void
 ) => {
+  console.log(product.length, 'upload price');
   if (product.length > 0) {
     product.forEach((item) => {
       updatePrice({ name: item.name, price: item.price, storeId: item.storeId }).then(() => {
         deleteOffline(item.id);
-      });
+      }).catch(e => console.log(e, 'upload price error'))
     });
   }
 };

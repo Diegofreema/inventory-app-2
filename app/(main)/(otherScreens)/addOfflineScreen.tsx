@@ -35,6 +35,7 @@ import { useGet } from '~/hooks/useGet';
 import { useAddSales } from '~/lib/tanstack/mutations';
 import { useSalesRef } from '~/lib/tanstack/queries';
 import { addToCart } from '~/lib/validators';
+import { CustomText } from "~/components/ui/CustomText";
 
 const { height, width } = Dimensions.get('window');
 export default function AddOfflineScreen() {
@@ -338,9 +339,8 @@ const SalesRefFlatList = ({ data }: { data: SaleReference[] }) => {
               borderRadius={5}
               padding={5}
               alignItems="center">
-              <Text fontSize={18} color={colors.white}>
-                Done
-              </Text>
+
+              <CustomText text='Done' />
             </View>
           </CustomPressable>
         )
@@ -356,9 +356,7 @@ const SalesRefFlatList = ({ data }: { data: SaleReference[] }) => {
             maxWidth={120}
             justifyContent="center"
             alignItems="center">
-            <Text color={item.isActive ? colors.white : colors.black} fontSize={18}>
-              Customer {index + 1}
-            </Text>
+            <CustomText text={`Customer ${index + 1}`} color={item.isActive ? colors.white : colors.black} />
           </View>
         </CustomPressable>
       )}
@@ -371,7 +369,7 @@ const SalesRefFlatList = ({ data }: { data: SaleReference[] }) => {
               borderRadius={5}
               padding={5}
               alignItems="center">
-              <Text fontSize={18}>New Customer</Text>
+              <CustomText text='New Customer' color={colors.black} />
             </View>
           </CustomPressable>
         )
