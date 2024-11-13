@@ -1,10 +1,10 @@
 /* eslint-disable prettier/prettier */
-import { Q } from '@nozbe/watermelondb';
-import axios from 'axios';
-import { compareDesc, format, parse } from 'date-fns';
-import { z } from 'zod';
+import { Q } from "@nozbe/watermelondb";
+import axios from "axios";
+import { compareDesc, format, parse } from "date-fns";
+import { z } from "zod";
 
-import { newProductSchema } from './validators';
+import { newProductSchema } from "./validators";
 
 import database, {
   categories,
@@ -15,9 +15,9 @@ import database, {
   pharmacyInfo,
   products,
   storeSales,
-  supplyProduct,
-} from '~/db';
-import StoreSales from '~/db/model/StoreSale';
+  supplyProduct
+} from "~/db";
+import StoreSales from "~/db/model/StoreSale";
 import {
   DisposalFromDb,
   ExpensesFromDb,
@@ -28,10 +28,9 @@ import {
   SupplyFromDb,
   SupplyInsert,
   TradingType,
-  TradingType2,
-} from '~/type';
-import SupplyProduct from '~/db/model/SupplyProduct';
-import { ProductUpdateQty } from '~/lib/zustand/updateProductQty';
+  TradingType2
+} from "~/type";
+import { ProductUpdateQty } from "~/lib/zustand/updateProductQty";
 import { ProductUpdatePrice } from "~/lib/zustand/useProductUpdatePrice";
 
 
@@ -410,9 +409,10 @@ export const addExpenses = async ({
   amount: string;
 }) => {
   const { data } = await axios.get(
-    `https://247api.netpro.software/api.aspx?api=addexpenses&accountname=${name}&cidx=${storeId}&description=${description}&amount=${amount}`
+    `https://247api.netpro.software/api.aspx?api=addexpenses&accountname=${encodeURIComponent(name)}&cidx=${storeId}&description=${encodeURIComponent(description || '')}&amount=${amount}`
   );
-
+  console.log(`https://247api.netpro.software/api.aspx?api=addexpenses&accountname=${encodeURIComponent(name)}&cidx=${storeId}&description=${encodeURIComponent(description || '')}&amount=${amount}`);
+  console.log({data});
   return data;
 };
 

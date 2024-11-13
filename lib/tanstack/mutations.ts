@@ -787,11 +787,12 @@ export const useEdit = () => {
       netProShare: string;
       productId: string;
     }) => {
+
       if (isConnected) {
-        const { data } = await axios.get(
+       await axios.get(
           `https://247api.netpro.software/api.aspx?api=updateproductpricenqty&qty=${qty}&customerproductid=${customerProductId}&online=${online ? 1 : 0}&price=${price}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}&productid=${productId}`
         );
-        console.log(data, productId);
+
       }
 
       if (!isConnected) {

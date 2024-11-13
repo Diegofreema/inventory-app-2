@@ -23,7 +23,7 @@ export const LogoutModal = ({ onClose, visible, logOut }: Props): JSX.Element =>
       onBackdropPress={onClose}
       onBackButtonPress={onClose}
       isVisible={visible}
-      backdropColor="transparent"
+      backdropColor="rgba(0, 0, 0, 0.8)"
       style={{}}>
       <View
         backgroundColor="white"

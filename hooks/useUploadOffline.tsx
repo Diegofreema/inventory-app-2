@@ -40,8 +40,8 @@ import {
   useStoreOffline,
   useStoreQty,
   useStoreQuantity,
-  useSupplyOffline,
-} from '~/lib/tanstack/offline';
+  useSupplyOffline, useUpdateOnlineStatus
+} from "~/lib/tanstack/offline";
 
 /* eslint-disable prettier/prettier */
 export const useUploadOffline = () => {
@@ -65,7 +65,7 @@ export const useUploadOffline = () => {
       onlineSales.query(Q.where('is_uploaded', Q.eq(false))).fetch(),
     ]);
     if (!id || !data) return;
-    console.log(supply.length, 'Supply data');
+
     if (supply.length) {
       for (const item of supply) {
         await supplyProductsOffline({
@@ -88,7 +88,6 @@ export const useUploadOffline = () => {
         });
       }
     }
-    console.log(dispose.length, 'disposed');
     if (dispose.length) {
       for (const item of dispose) {
         sendDisposedProducts({
@@ -105,7 +104,6 @@ export const useUploadOffline = () => {
         });
       }
     }
-    console.log(products.length, 'products');
     if (products.length) {
       for (const item of products) {
         addProduct({
@@ -241,6 +239,11 @@ export const useOfflineNumber = () => {
     isError: isE,
   } = useExpenseOffline(isConnected,reload);
   const {
+    data: onlineStatus,
+    isPending: isPendingStatus,
+    isError: isErrorStatus,
+  } = useUpdateOnlineStatus(isConnected,reload);
+  const {
     data: products,
     isPending: isPendingProducts,
     isError: isErrorProducts,
@@ -262,7 +265,7 @@ export const useOfflineNumber = () => {
     isE ||
     isErrorDisposed ||
     isErrorProducts ||
-    isErrorSupply || isErrorQty || isErrorQuantity
+    isErrorSupply || isErrorQty || isErrorQuantity || isErrorStatus
   ) {
     return 0;
   }
@@ -273,7 +276,7 @@ export const useOfflineNumber = () => {
     isPendingProducts ||
     isPendingExpense ||
     isPendingOnline ||
-    isPendingStore || isPendingQuantity || isPending
+    isPendingStore || isPendingQuantity || isPending || isPendingStatus
   ) {
     return 0;
   }
@@ -287,6 +290,7 @@ export const useOfflineNumber = () => {
     products,
     supply,
     disposed,
+    onlineStatus
   ];
 
   console.log({data,
@@ -297,6 +301,6 @@ export const useOfflineNumber = () => {
     expenseAccount,
     products,
     supply,
-    disposed,});
+    disposed, onlineStatus});
   return totalAmount(total);
 };

@@ -29,7 +29,6 @@
             "enableProguardInReleaseBuilds": true,
             "enableShrinkResourcesInReleaseBuilds": true,
             "newArchEnabled": false,
-            "useLegacyPackaging": true,
             "packagingOptions": {
               "pickFirst": ["**/libc++_shared.so"]
             }
