@@ -1,7 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useForm } from 'react-hook-form';
-
+import { toast } from 'sonner-native';
 import { Stack, View } from 'tamagui';
 import { z } from 'zod';
 
@@ -11,11 +12,11 @@ import { NavHeader } from '~/components/ui/NavHeader';
 import { colors } from '~/constants';
 import { useUpdateQty } from '~/lib/tanstack/mutations';
 import { updateQtySchema } from '~/lib/validators';
-import { toast } from 'sonner-native';
 
 export const UpdateQuantityForm = () => {
   const { name, id } = useLocalSearchParams<{ name: string; id: string }>();
   const { mutateAsync } = useUpdateQty();
+  const queryClient = useQueryClient();
   const {
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -32,6 +33,7 @@ export const UpdateQuantityForm = () => {
     try {
       await mutateAsync({ qty: +values.qty, id });
       reset();
+      await queryClient.invalidateQueries({ queryKey: ['product'] });
       router.back();
     } catch (e: any) {
       console.log(e);

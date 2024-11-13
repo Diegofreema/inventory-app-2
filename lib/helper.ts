@@ -34,6 +34,7 @@ import SupplyProduct from '~/db/model/SupplyProduct';
 import { ProductUpdateQty } from '~/lib/zustand/updateProductQty';
 import { ProductUpdatePrice } from "~/lib/zustand/useProductUpdatePrice";
 
+
 export const api = process.env.EXPO_PUBLIC_API;
 
 export const calculateTotalSales = (sales: number[] | undefined): number =>

@@ -6,7 +6,7 @@ import axios from 'axios';
 import { format, isSameDay, max } from 'date-fns';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { toast } from "sonner-native";
+import { toast } from 'sonner-native';
 import { z } from 'zod';
 
 import {
@@ -44,6 +44,9 @@ import { useInfo } from '~/lib/tanstack/queries';
 import { useProductUpdateQty } from '~/lib/zustand/updateProductQty';
 import { useProductUpdatePrice } from '~/lib/zustand/useProductUpdatePrice';
 import { ExtraSalesType, SupplyInsert } from '~/type';
+import { useUpdateProduct } from '~/hooks/offline/useUpdateProduct';
+import { useUploadOffline } from '~/hooks/useUploadOffline';
+import { useReCompute } from '~/hooks/useRecomputate';
 
 export const useAddNewProduct = () => {
   const storeId = useStore((state) => state.id);
@@ -90,6 +93,16 @@ export const useAddNewProduct = () => {
       });
 
       if (!createdProduct) throw Error('Failed to add product');
+      await database.write(async () => {
+        return await supplyProduct.create((supply) => {
+          supply.productId = createdProduct.productId;
+          supply.qty = +qty;
+          supply.dateX = format(Date.now(), 'dd/MM/yyyy HH:mm');
+          supply.unitCost = marketPriceToNumber;
+          supply.newPrice = marketPriceToNumber;
+          supply.isUploaded = true;
+        });
+      });
       if (isConnected) {
         const data = await addProduct({
           category,
@@ -130,13 +143,13 @@ export const useAddNewProduct = () => {
       }
     },
     onError: (err) => {
-      toast.error('Failed to add product',{
+      toast.error('Failed to add product', {
         description: err.message,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product'] });
-      toast.success( 'Success',{
+      toast.success('Success', {
         description: 'Product has been added successfully',
       });
     },
@@ -203,12 +216,12 @@ export const useAdd247 = () => {
     onError: (error) => {
       console.log(error);
 
-      toast.error('Something went wrong',{
+      toast.error('Something went wrong', {
         description: error.message,
       });
     },
     onSuccess: (data) => {
-      toast.success( 'Success',{
+      toast.success('Success', {
         description: 'Sales has been added successfully',
       });
       queryClient.invalidateQueries({ queryKey: ['salesPharmacy'] });
@@ -344,13 +357,12 @@ export const useCart = () => {
       }
     },
     onError: () => {
-      toast.error('Something went wrong!',{
+      toast.error('Something went wrong!', {
         description: 'Failed to add sales',
       });
     },
     onSuccess: (data) => {
-      toast.success('Success',{
-
+      toast.success('Success', {
         description: 'Sales has been made',
       });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
@@ -405,14 +417,12 @@ export const useAddSales = () => {
     onError: (error) => {
       console.log(error);
 
-      toast.error('Something went wrong',{
-
+      toast.error('Something went wrong', {
         description: 'Failed to add sales',
       });
     },
     onSuccess: (data) => {
-      toast.success('Success',{
-
+      toast.success('Success', {
         description: 'item has been added to cart',
       });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
@@ -444,7 +454,7 @@ export const useSupply = () => {
           supply.qty = qty;
           supply.dateX = format(Date.now(), 'dd/MM/yyyy HH:mm');
           supply.unitCost = Number(unitCost);
-          supply.newPrice = Number(newPrice)
+          supply.newPrice = Number(newPrice);
           supply.isUploaded = true;
         });
       });
@@ -493,14 +503,12 @@ export const useSupply = () => {
     onError: (error: Error) => {
       console.log(error?.message);
 
-      toast.error('Something went wrong',{
-
+      toast.error('Something went wrong', {
         description: error.message,
       });
     },
     onSuccess: (data) => {
-      toast.success('Success',{
-
+      toast.success('Success', {
         description: 'Product has been restocked',
       });
       queryClient.invalidateQueries({ queryKey: ['product'] });
@@ -521,7 +529,7 @@ export const useDisposal = () => {
           .query(Q.where('product_id', Q.eq(productId)))
           .fetch();
 
-        if (suppliedProducts.length === 0) throw Error('Product does not exist');
+        if (suppliedProducts.length === 0) Error('Product does not exist');
         const formattedDateOfProducts = suppliedProducts.map((product) => {
           const productDate = rearrangeDateString(product.dateX.split(' ')[0]);
           return {
@@ -561,7 +569,7 @@ export const useDisposal = () => {
           });
         });
 
-        if (!disposedProduct) throw Error('Failed to dispose product');
+        if (!disposedProduct) Error('Failed to dispose product');
 
         const updatedProduct = await database.write(async () => {
           return await productInStore.update((product) => {
@@ -569,7 +577,7 @@ export const useDisposal = () => {
           });
         });
 
-        if (!updatedProduct) throw Error('Failed to dispose product');
+        if (!updatedProduct) Error('Failed to dispose product');
         if (isConnected) {
           const data = await sendDisposedProducts({
             productId,
@@ -589,14 +597,12 @@ export const useDisposal = () => {
     },
 
     onError: (error) => {
-      toast.error('Something went wrong',{
-
+      toast.error('Something went wrong', {
         description: error.message,
       });
     },
     onSuccess: () => {
-      toast.success('Success',{
-
+      toast.success('Success', {
         description: 'Product has been disposed',
       });
       queryClient.invalidateQueries({ queryKey: ['product'] });
@@ -642,14 +648,12 @@ export const useAddAccount = () => {
     },
 
     onError: (error) => {
-      toast.error('Something went wrong',{
-
+      toast.error('Something went wrong', {
         description: error.message,
       });
     },
     onSuccess: (data) => {
-      toast.success('Success',{
-
+      toast.success('Success', {
         description: 'Expenditure account has been created',
       });
       queryClient.invalidateQueries({ queryKey: ['exp_name'] });
@@ -709,12 +713,12 @@ export const useAddExp = () => {
     onError: (error) => {
       console.log(error.message, 'error');
 
-      toast.error('Something went wrong',{
+      toast.error('Something went wrong', {
         description: error.message,
       });
     },
     onSuccess: (data) => {
-      toast.success('Success',{
+      toast.success('Success', {
         description: 'Expense has been added',
       });
       queryClient.invalidateQueries({ queryKey: ['expenditure'] });
@@ -742,12 +746,12 @@ export const usePickUp = () => {
     },
     onSuccess: (data) => {
       if (data.result === 'done') {
-        toast.success("Success",{
+        toast.success('Success', {
           description: 'Pickup call has been made',
         });
         router.back();
       } else {
-        toast.error('Error',{
+        toast.error('Error', {
           description: 'Failed to make pickup call',
         });
       }
@@ -755,7 +759,7 @@ export const usePickUp = () => {
     onError: (error) => {
       console.log(error, 'error');
 
-      toast.error('Error',{
+      toast.error('Error', {
         description: 'Failed to make pickup call',
       });
     },
@@ -784,9 +788,9 @@ export const useEdit = () => {
       productId: string;
     }) => {
       if (isConnected) {
-      const { data } = await axios.get(
-        `https://247api.netpro.software/api.aspx?api=updateproductpricenqty&qty=${qty}&customerproductid=${customerProductId}&online=${online ? 1 : 0}&price=${price}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}&productid=${productId}`
-      );
+        const { data } = await axios.get(
+          `https://247api.netpro.software/api.aspx?api=updateproductpricenqty&qty=${qty}&customerproductid=${customerProductId}&online=${online ? 1 : 0}&price=${price}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}&productid=${productId}`
+        );
         console.log(data, productId);
       }
 
@@ -820,14 +824,14 @@ export const useEdit = () => {
       }
     },
     onSuccess: async () => {
-      toast.success('Success',{
+      toast.success('Success', {
         description: 'Product updated',
       });
     },
     onError: (error) => {
       console.log(error, 'error');
 
-      toast.error('Error',{
+      toast.error('Error', {
         description: 'Failed to update product',
       });
     },
@@ -837,7 +841,7 @@ export const useUpdateQty = () => {
   const isConnected = useNetwork();
   const storeId = useStore((state) => state.id);
   const addOffline = useProductUpdateQty((state) => state.addProduct);
-
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, qty }: { qty: number; id: string }) => {
       if (!storeId) return;
@@ -872,14 +876,15 @@ export const useUpdateQty = () => {
       }
     },
     onSuccess: () => {
-      toast.success('Success',{
+      toast.success('Success', {
         description: 'Product updated',
       });
+      queryClient.invalidateQueries({ queryKey: ['product'] });
     },
     onError: (error) => {
       console.log(error, 'error');
 
-      toast.error('Error',{
+      toast.error('Error', {
         description: 'Failed to update product',
       });
     },
@@ -935,16 +940,49 @@ export const useUpdatePrice = () => {
       }
     },
     onSuccess: () => {
-      toast.success('Success',{
+      toast.success('Success', {
         description: 'Product updated',
       });
     },
     onError: (error) => {
       console.log(error, 'error');
 
-      toast.error('Error',{
+      toast.error('Error', {
         description: 'Failed to update product',
       });
+    },
+  });
+};
+
+export const useUpload = () => {
+  const queryClient = useQueryClient();
+  const updatePrice = useUpdateProduct();
+  const uploadOffline = useUploadOffline();
+  const toggle = useReCompute((state) => state.toggle);
+  return useMutation({
+    mutationFn: async () => {
+      await updatePrice();
+      await uploadOffline();
+      toggle();
+    },
+    onError: () => {
+      toast.error('Could not sync data', {
+        description: 'An error occurred, please again',
+      });
+    },
+    onSuccess: () => {
+      toast.success('Success', {
+        description: 'Data has been sync!',
+      });
+      queryClient.invalidateQueries({ queryKey: ['offline_qty'] });
+      queryClient.invalidateQueries({ queryKey: ['offline_quantity'] });
+      queryClient.invalidateQueries({ queryKey: ['offline_store'] });
+      queryClient.invalidateQueries({ queryKey: ['offline_store_offline'] });
+      queryClient.invalidateQueries({ queryKey: ['offline_account'] });
+      queryClient.invalidateQueries({ queryKey: ['offline_expense'] });
+      queryClient.invalidateQueries({ queryKey: ['offline_product'] });
+      queryClient.invalidateQueries({ queryKey: ['offline_supply'] });
+      queryClient.invalidateQueries({ queryKey: ['offline_dispose'] });
     },
   });
 };

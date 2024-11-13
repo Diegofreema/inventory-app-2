@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // import * as Sentry from '@sentry/react-native';
 import { useFonts } from 'expo-font';
-import { SplashScreen, Stack, usePathname } from 'expo-router';
+import { SplashScreen, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as Updates from 'expo-updates';
 import React, { useEffect } from 'react';
@@ -10,8 +10,6 @@ import { Toaster } from 'sonner-native';
 import { TamaguiProvider } from 'tamagui';
 
 import { OfflineBanner } from '~/components/OfflineBanner';
-import { SyncBanner } from '~/components/SyncBanner';
-import { useOfflineNumber } from '~/hooks/useUploadOffline';
 import config from '~/tamagui.config';
 
 // const routingInstrumentation = new Sentry.ReactNavigationInstrumentation();
@@ -46,8 +44,7 @@ function RootLayout() {
     Inter: require('@tamagui/font-inter/otf/Inter-Medium.otf'),
     InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
   });
-  const pathname = usePathname();
-  const offlineNumber = useOfflineNumber();
+
   useEffect(() => {
     async function onFetchUpdateAsync() {
       try {
@@ -73,19 +70,20 @@ function RootLayout() {
   }, [loaded]);
 
   if (!loaded) return null;
-  const showSyncBanner = pathname !== '/login' && offlineNumber > 0;
-  console.log(offlineNumber, 'Item');
+
   return (
     <TamaguiProvider config={config}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <QueryClientProvider client={queryClient}>
           <StatusBar style="dark" backgroundColor="white" />
           <Stack screenOptions={{ headerShown: false }} />
-          {showSyncBanner && <SyncBanner />}
         </QueryClientProvider>
         <Toaster
           position="top-center"
-          toastOptions={{ descriptionStyle: { fontFamily: 'InterBold', fontSize: 16 }, titleStyle: {fontFamily: 'Inter', fontSize: 14} }}
+          toastOptions={{
+            descriptionStyle: { fontFamily: 'InterBold', fontSize: 16 },
+            titleStyle: { fontFamily: 'Inter', fontSize: 14 },
+          }}
         />
         <OfflineBanner />
       </GestureHandlerRootView>

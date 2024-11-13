@@ -17,7 +17,6 @@ type Props = {
   name: string;
 };
 export const CustomSelect2 = ({ data, onValueChange, value, placeholder }: Props) => {
-  console.log("sdkjenfshjdb");
   return (
     <YStack>
       <CustomSubHeading text={placeholder} />
@@ -26,6 +25,8 @@ export const CustomSelect2 = ({ data, onValueChange, value, placeholder }: Props
           onValueChange={(value) => onValueChange(value)}
           items={data!}
           value={value}
+          style={{ placeholder: { fontFamily: 'Inter' } }}
+
         />
       </View>
     </YStack>
