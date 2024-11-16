@@ -48,10 +48,10 @@ export const UpdateQuantityForm = () => {
       <Stack gap={10}>
         <CustomController
           name="qty"
-          placeholder="Qty"
+          placeholder="Quantity"
           control={control}
           errors={errors}
-          label="Update qty"
+          label="Update quantity"
         />
         <MyButton
           title="Submit"

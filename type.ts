@@ -1,5 +1,6 @@
 import Product from './db/model/Product';
 import { Href } from "expo-router";
+import { SFSymbols5_0 } from "sf-symbols-typescript";
 
 /* eslint-disable prettier/prettier */
 export type PreviewType = {
@@ -231,3 +232,11 @@ export type TradingType2 = {
   qty: number;
   productId: string;
 }[];
+
+
+
+export type ItemType = { key: string; title: string; icon: SFSymbols5_0; iconAndroid: string }
+export type MenuProps = {
+  items: ItemType[];
+  onSelect: (key: string) => void;
+};

@@ -1,21 +1,23 @@
 /* eslint-disable prettier/prettier */
 
-import { FlashList } from "@shopify/flash-list";
-import { Href, Link, useRouter } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
-import { useWindowDimensions } from "react-native";
-import { RFPercentage } from "react-native-responsive-fontsize";
-import { Card, CardFooter, CardHeader, Stack, Text, XStack } from "tamagui";
+import { FlashList } from '@shopify/flash-list';
+import { Href, Link, useRouter } from 'expo-router';
+import { useCallback, useMemo, useState } from 'react';
+import { useWindowDimensions } from 'react-native';
+import { RFPercentage } from 'react-native-responsive-fontsize';
+import { Card, CardFooter, CardHeader, Stack, Text, XStack } from 'tamagui';
 
-import { ActionMenu } from "./ActionMenu";
-import { FlexText } from "./FlexText";
-import { Empty } from "./empty";
-import { CustomSubHeading } from "./typography";
+import { ActionMenu } from './ActionMenu';
+import { FlexText } from './FlexText';
+import { Empty } from './empty';
+import { CustomSubHeading } from './typography';
 
-import { MyButton } from "~/components/ui/MyButton";
-import { colors } from "~/constants";
-import Product from "~/db/model/Product";
-import { trimText } from "~/lib/helper";
+import { Menus } from '~/components/Menu';
+import { MyButton } from '~/components/ui/MyButton';
+import { colors } from '~/constants';
+import Product from '~/db/model/Product';
+import { trimText } from '~/lib/helper';
+import { ItemType, MenuProps } from '~/type';
 
 type Props = {
   data: Product[] | undefined;
@@ -80,7 +82,7 @@ const ProductCard = ({
   show,
   nav,
   index,
-  full
+  full,
 }: {
   item: Product;
   show?: boolean;
@@ -88,43 +90,82 @@ const ProductCard = ({
   index: number;
   full?: boolean;
 }) => {
-  const [showMenu, setShowMenu] = useState(false);
   const isLow = +item?.qty <= 10;
   const router = useRouter();
-  const onClose = useCallback(() => setShowMenu(false), []);
-  const onOpen = useCallback(() => setShowMenu(true), []);
 
-  const details = useMemo(
-    () => ({
-      productId: item?.productId,
-      name: item?.product,
-      price: item?.marketPrice,
-      id: item?.id,
-    }),
-    [item?.id, item?.product, item?.marketPrice, item.productId]
-  );
   const onPress = () => {
     if (!nav) return;
     router.push(`/product/${item.id}`);
   };
   const { width } = useWindowDimensions();
 
- 
   const isBigScreen = width >= 500;
 
   const marginRight = index % 1 === 0 ? 15 : 0;
-  const trimNumber = full ? 100 : 30
+  const trimNumber = full ? 100 : 30;
+
+  const items: ItemType[] = [
+    { key: 'restock', title: 'Restock item', icon: 'rotate.3d.circle', iconAndroid: '' },
+    { key: 'update_price', title: 'Update Price', icon: 'plus', iconAndroid: '' },
+    {
+      key: 'update_quantity',
+      title: 'Update Quantity',
+      icon: 'plusminus.circle.fill',
+      iconAndroid: '',
+    },
+    { key: 'dispose', title: 'Dispose item', icon: 'trash', iconAndroid: 'android' },
+  ];
+  const handleDispose = () => {
+    router.push(`/dispose?productId=${item?.productId}&name=${item?.product}&id=${item?.id}`);
+  };
+
+  const handleSupply = () => {
+    router.push(
+      `/restock?productId=${item?.productId}&name=${item?.product}&price=${item?.marketPrice}&id=${item?.id}`
+    );
+  };
+
+  const handleUpdatePrice = () => {
+    router.push(`/update-price?name=${item?.product}&id=${item?.id}`);
+  };
+  const handleUpdateQuantity = () => {
+    router.push(`/update-quantity?name=${item?.product}&id=${item?.id}`);
+  };
+
+  const onSelect = (key: string) => {
+    switch (key) {
+      case 'restock':
+        handleSupply();
+        break;
+      case 'update_quantity':
+        handleUpdateQuantity();
+        break;
+      case 'dispose':
+        handleDispose();
+        break;
+      case 'update_price':
+        handleUpdatePrice();
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <Card
       marginBottom={20}
       marginRight={isBigScreen ? marginRight : 0}
       backgroundColor="white"
       borderWidth={1}
-
       borderColor={colors.lightGray}>
       <CardHeader gap={10}>
         <XStack gap={14} alignItems="center">
-          <CustomSubHeading text={trimText(item?.product, trimNumber)} fontSize={1.8} numberOfLines={1} ellipse />
+          <CustomSubHeading
+            text={trimText(item?.product, trimNumber)}
+            fontSize={1.8}
+            numberOfLines={1}
+            ellipse
+          />
         </XStack>
         <FlexText text="Category" text2={item?.category!} />
         <FlexText text={`Stock ${isLow ? '(low stock)' : ''}`} text2={item?.qty.toString()} />
@@ -141,11 +182,19 @@ const ProductCard = ({
 
         <XStack justifyContent="space-between" alignItems="center">
           <CustomSubHeading text="Actions" fontSize={1.7} />
-          <ActionMenu  visible={showMenu} onClose={onClose} onOpen={onOpen} details={details} />
+          {/*<ActionMenu visible={showMenu} onClose={onClose} onOpen={onOpen} details={details} />*/}
+          <Menus onSelect={onSelect} items={items} />
         </XStack>
       </CardHeader>
-      <CardFooter width='100%'>
-        <MyButton title='View details' onPress={onPress} width='80%' height={50} mb={10} mx='auto' />
+      <CardFooter width="100%">
+        <MyButton
+          title="View details"
+          onPress={onPress}
+          width="80%"
+          height={50}
+          mb={10}
+          mx="auto"
+        />
       </CardFooter>
     </Card>
   );
