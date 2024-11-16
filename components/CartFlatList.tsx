@@ -60,6 +60,7 @@ const {paymentType} = watch()
       transactionInfo: values.transferInfo,
     };
     await mutateAsync({ data, extraData });
+    queryClient.invalidateQueries({queryKey: ['product_all']});
     setRef(data[0].salesReference)
     if (!isError) {
       reset();

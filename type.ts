@@ -165,6 +165,7 @@ export type ProductFromDb = {
   sellingPrice: number;
   shareDealer: number;
   shareNetpro: number;
+  description?: string;
 };
 
 export type OnlineSaleFromDb = {

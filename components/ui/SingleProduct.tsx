@@ -3,18 +3,17 @@
 import { withObservables } from "@nozbe/watermelondb/react";
 import { useCallback, useMemo, useState } from "react";
 import { useWindowDimensions } from "react-native";
-import { Button, Card, CardHeader, Stack, XStack } from "tamagui";
+import { Card, CardHeader, Stack, XStack } from "tamagui";
 
 import { ActionMenu } from "./ActionMenu";
 import { FlexText } from "./FlexText";
 import { CustomSubHeading } from "./typography";
 
 import { colors } from "~/constants";
-import database, { products, updateProducts } from "~/db";
+import database, { products } from "~/db";
 import Product from "~/db/model/Product";
 import { useEdit } from "~/lib/tanstack/mutations";
 import { useInfo } from "~/lib/tanstack/queries";
-import { MyButton } from "~/components/ui/MyButton";
 
 const SingleProduct = ({ product }: { product: Product }): JSX.Element => {
   const [showMenu, setShowMenu] = useState(false);
@@ -66,10 +65,8 @@ const SingleProduct = ({ product }: { product: Product }): JSX.Element => {
   const isSmallTablet = width >= 500;
   const isBigTablet = width >= 700;
   const containerWidth = isSmallTablet ? '80%' : isBigTablet ? '60%' : '100%';
-const onPress = async () => {
-  const upload = await updateProducts.query().fetch()
-  console.log(upload.map(m => m.online));
-}
+
+
   return (
     <Card
       backgroundColor="white"
@@ -82,7 +79,7 @@ const onPress = async () => {
         <XStack gap={14} alignItems="center">
           <CustomSubHeading text={product?.product} fontSize={1.9} />
         </XStack>
-        <MyButton title={'Press'} onPress={onPress} />
+
         <FlexText text="Category" text2={product?.category!} />
         <FlexText text={`Stock ${isLow ? '(low stock)' : ''}`} text2={product?.qty.toString()} />
         <FlexText text="Market price" text2={'₦' + product?.marketPrice} />

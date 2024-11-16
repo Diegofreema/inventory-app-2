@@ -1,10 +1,10 @@
 /* eslint-disable prettier/prettier */
-import { Q } from "@nozbe/watermelondb";
-import axios from "axios";
-import { compareDesc, format, parse } from "date-fns";
-import { z } from "zod";
+import { Q } from '@nozbe/watermelondb';
+import axios from 'axios';
+import { compareDesc, format, parse } from 'date-fns';
+import { z } from 'zod';
 
-import { newProductSchema } from "./validators";
+import { newProductSchema } from './validators';
 
 import database, {
   categories,
@@ -15,9 +15,9 @@ import database, {
   pharmacyInfo,
   products,
   storeSales,
-  supplyProduct
-} from "~/db";
-import StoreSales from "~/db/model/StoreSale";
+  supplyProduct,
+} from '~/db';
+import StoreSales from '~/db/model/StoreSale';
 import {
   DisposalFromDb,
   ExpensesFromDb,
@@ -28,11 +28,11 @@ import {
   SupplyFromDb,
   SupplyInsert,
   TradingType,
-  TradingType2
-} from "~/type";
-import { ProductUpdateQty } from "~/lib/zustand/updateProductQty";
-import { ProductUpdatePrice } from "~/lib/zustand/useProductUpdatePrice";
-
+  TradingType2,
+} from '~/type';
+import { ProductUpdateQty } from '~/lib/zustand/updateProductQty';
+import { ProductUpdatePrice } from '~/lib/zustand/useProductUpdatePrice';
+import Product from '~/db/model/Product';
 
 export const api = process.env.EXPO_PUBLIC_API;
 
@@ -322,16 +322,18 @@ export const supplyProducts = async ({
   unitCost,
   id,
 }: SupplyInsert & { id: string }) => {
-
   try {
     const { data } = await axios.get(
       `https://247api.netpro.software/api.aspx?api=addsupply&cidx=${id}&productid=${productId}&qty=${qty}&unitcost=${unitCost}&newprice=${newPrice}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}`
     );
-    console.log(`https://247api.netpro.software/api.aspx?api=addsupply&cidx=${id}&productid=${productId}&qty=${qty}&unitcost=${unitCost}&newprice=${newPrice}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}`);
+    console.log(
+      `https://247api.netpro.software/api.aspx?api=addsupply&cidx=${id}&productid=${productId}&qty=${qty}&unitcost=${unitCost}&newprice=${newPrice}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}`
+    );
 
     return data;
   } catch (error) {
-    console.log(JSON.stringify(error, null, 1));}
+    console.log(JSON.stringify(error, null, 1));
+  }
 };
 
 export const sendDisposedProducts = async ({
@@ -341,13 +343,10 @@ export const sendDisposedProducts = async ({
   qty: number;
   productId: string;
 }) => {
-
-
   try {
     const { data } = await axios.get(
       `https://247api.netpro.software/api.aspx?api=adddisposal&qty=${qty}&productid=${productId}`
     );
-
 
     return data;
   } catch (error) {
@@ -411,8 +410,10 @@ export const addExpenses = async ({
   const { data } = await axios.get(
     `https://247api.netpro.software/api.aspx?api=addexpenses&accountname=${encodeURIComponent(name)}&cidx=${storeId}&description=${encodeURIComponent(description || '')}&amount=${amount}`
   );
-  console.log(`https://247api.netpro.software/api.aspx?api=addexpenses&accountname=${encodeURIComponent(name)}&cidx=${storeId}&description=${encodeURIComponent(description || '')}&amount=${amount}`);
-  console.log({data});
+  console.log(
+    `https://247api.netpro.software/api.aspx?api=addexpenses&accountname=${encodeURIComponent(name)}&cidx=${storeId}&description=${encodeURIComponent(description || '')}&amount=${amount}`
+  );
+  console.log({ data });
   return data;
 };
 
@@ -436,8 +437,7 @@ export const addOfflineSales = async ({
   const { data } = await axios.get(
     `https://247api.netpro.software/api.aspx?api=makepharmacysale&cidx=${storeId}&qty=${qty}&productid=${productId}&salesref=${encodeURIComponent(salesReference)}&paymenttype=${paymentType}&transactioninfo=${transactionInfo ?? ''}&salesrepid=${salesRepId}`
   );
-
-
+  console.log(data);
   return data;
 };
 
@@ -474,6 +474,7 @@ export const createProduct = async (p: ProductFromDb, isUploaded = true) => {
       product.shareNetpro = +p.shareNetpro;
       product.isUploaded = isUploaded;
       product.productId = p.productId;
+      product.description = p.description || '';
     });
   });
 };
@@ -721,10 +722,8 @@ export const mergeProductOpening = (products: TradingType) => {
   });
 
   return Array.from(productMap.values());
-}
+};
 export const mergeProducts = (products: TradingType) => {
-
-
   const productMap = new Map();
 
   products.forEach((product) => {
@@ -734,7 +733,7 @@ export const mergeProducts = (products: TradingType) => {
       parseInt(product.dateX.split('/')[0]), // day
       0, // hours
       0, // minutes
-      0  // seconds
+      0 // seconds
     );
 
     if (productMap.has(product.productId)) {
@@ -761,7 +760,7 @@ export const mergeProducts = (products: TradingType) => {
     }
   });
 
-  return Array.from(productMap.values())
+  return Array.from(productMap.values());
 };
 
 export const updateQty = async ({
@@ -792,35 +791,31 @@ export const updatePrice = async ({
   );
 };
 
-export const uploadQty = (
-  product: ProductUpdateQty[],
-  deleteOffline: (id: string) => void
-) => {
+export const uploadQty = (product: ProductUpdateQty[], deleteOffline: (id: string) => void) => {
   console.log(product.length, 'upload qty');
   if (product.length > 0) {
     product.forEach((item) => {
-      updateQty({ name: item.name, qty: item.qty, storeId: item.storeId }).then(() => {
-        deleteOffline(item.id);
-      }).catch(e => console.log(e, 'uploadQty error'))
+      updateQty({ name: item.name, qty: item.qty, storeId: item.storeId })
+        .then(() => {
+          deleteOffline(item.id);
+        })
+        .catch((e) => console.log(e, 'uploadQty error'));
     });
   }
 };
 
-export const uploadPrice = (
-  product: ProductUpdatePrice[],
-  deleteOffline: (id: string) => void
-) => {
+export const uploadPrice = (product: ProductUpdatePrice[], deleteOffline: (id: string) => void) => {
   console.log(product.length, 'upload price');
   if (product.length > 0) {
     product.forEach((item) => {
-      updatePrice({ name: item.name, price: item.price, storeId: item.storeId }).then(() => {
-        deleteOffline(item.id);
-      }).catch(e => console.log(e, 'upload price error'))
+      updatePrice({ name: item.name, price: item.price, storeId: item.storeId })
+        .then(() => {
+          deleteOffline(item.id);
+        })
+        .catch((e) => console.log(e, 'upload price error'));
     });
   }
 };
-
-
 
 // const mergeProducts = (data) => {
 //   // Create a map to store merged products
@@ -880,3 +875,33 @@ export const uploadPrice = (
 // // Example usage:
 // const mergedProducts = mergeProducts(allStocks);
 // console.log(mergedProducts);
+
+export const updateAllProductId = async (oldProductId: string, newProductId: string) => {
+  await database.write(async () => {
+    const supplyProducts = await supplyProduct
+      .query(Q.where('product_id', Q.eq(oldProductId)))
+      .fetch();
+    const disposed = await disposedProducts
+      .query(Q.where('product_id', Q.eq(oldProductId)))
+      .fetch();
+    const sales = await storeSales.query(Q.where('product_id', Q.eq(oldProductId))).fetch();
+
+    await database.batch(
+      supplyProducts.map(supplyProduct =>
+        supplyProduct.prepareUpdate(s => {
+          s.productId = newProductId;
+        })
+      ),
+      disposed.map(des =>
+        des.prepareUpdate(d => {
+          d.productId = newProductId;
+        })
+      ),
+      sales.map(s =>
+        s.prepareUpdate(s => {
+          s.productId = newProductId;
+        })
+      )
+    );
+  });
+};

@@ -11,6 +11,7 @@ export default appSchema({
         { name: 'product_id', type: 'string' },
         { name: 'category', type: 'string' },
         { name: 'subcategory', type: 'string' },
+        { name: 'description', type: 'string', isOptional: true },
         { name: 'customer_product_id', type: 'string', isOptional: true },
         { name: 'market_price', type: 'number', isOptional: true },
         { name: 'online', type: 'boolean' },

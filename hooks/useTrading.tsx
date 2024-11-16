@@ -217,11 +217,10 @@ export const useTrading = ({
         };
       });
 
-    const dt = mergeProducts(dataSupply);
+    const dt = mergeProductOpening(dataSupply);
     const productSales = mergeProducts2(store);
     const pharmacySales = mergeProducts2(online);
     const disposedProducts = mergeProducts2(disposed);
-
     const finalData = calculateActualInventory(dt, disposedProducts, pharmacySales, productSales);
 
     const total = totalAmount(finalData);

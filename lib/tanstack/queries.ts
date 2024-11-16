@@ -131,6 +131,17 @@ export const useProducts = (page?: number) => {
     placeholderData: (TData) => TData,
   });
 };
+export const useAllProducts = () => {
+  const getProducts = async () => {
+    return  await products.query(Q.sortBy('created_at', Q.desc)).fetch();
+  };
+  return useQuery({
+    queryKey: ['product_all'],
+    queryFn: getProducts,
+    structuralSharing: false,
+    placeholderData: (TData) => TData,
+  });
+};
 export const useSalesP = (page?: number) => {
   const offset = page ? (page - 1) * 10 : 0;
   return useQuery({

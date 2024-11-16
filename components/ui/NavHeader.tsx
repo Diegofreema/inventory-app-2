@@ -7,6 +7,7 @@ import { View, XStack } from 'tamagui';
 
 import { CustomPressable } from './CustomPressable';
 import { CustomHeading } from './typography';
+import { trimText } from "~/lib/helper";
 
 type Props = {
   title: string;
@@ -26,7 +27,7 @@ export const NavHeader = ({ title }: Props): JSX.Element => {
       <CustomPressable onPress={handleBack} style={{ flex: 0 }}>
         <ArrowLeft color="black" size={iconSize} />
       </CustomPressable>
-      <CustomHeading text={title} fontSize={2.2} />
+      <CustomHeading text={trimText(title, 25)} fontSize={2.2} />
       <View width="$1" />
     </XStack>
   );

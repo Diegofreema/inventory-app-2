@@ -10,6 +10,7 @@ export default class Product extends Model {
   @field('market_price') marketPrice!: number;
   @field('online') online!: boolean;
   @text('product') product!: string;
+  @text('description') description!: string;
   @field('qty') qty!: number;
   @field('selling_price') sellingPrice!: number;
   @field('share_dealer') shareDealer!: number;

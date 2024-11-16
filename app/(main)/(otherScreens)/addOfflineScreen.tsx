@@ -33,7 +33,7 @@ import SaleReference from '~/db/model/SalesReference';
 import { useGet } from '~/hooks/useGet';
 // import { paymentType } from '~/data';
 import { useAddSales } from '~/lib/tanstack/mutations';
-import { useSalesRef } from '~/lib/tanstack/queries';
+import { useAllProducts, useSalesRef } from "~/lib/tanstack/queries";
 import { addToCart } from '~/lib/validators';
 import { CustomText } from "~/components/ui/CustomText";
 
@@ -47,7 +47,7 @@ export default function AddOfflineScreen() {
   const [query] = useState('');
   const { data } = useSalesRef();
   const router = useRouter();
-  const { storedProduct } = useGet();
+  const { data: storedProduct, isPending: isPendingProducts } = useAllProducts();
   const [showCamera, setShowCamera] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const { width } = useWindowDimensions();
@@ -73,10 +73,7 @@ export default function AddOfflineScreen() {
       label: item?.product,
       quantity: item?.qty,
     })) || [];
-  const filteredData = useMemo(() => {
-    if (!query) return formattedProducts;
-    return formattedProducts.filter((f) => f.label.toLowerCase().includes(query.toLowerCase()));
-  }, [query, formattedProducts]);
+  const filteredData = formattedProducts.filter((f) => f.label.toLowerCase().includes(query.toLowerCase()));
   const { productId } = watch();
   console.log({ productId });
   const memoizedPrice = useMemo(() => {
@@ -116,11 +113,7 @@ export default function AddOfflineScreen() {
       });
     }
   };
-  // useEffect(() => {
-  //   if(customerProductId){
-  //
-  //   }
-  // }, []);
+
   const onPress = useCallback(() => {
     router.push('/cart');
   }, []);
@@ -148,7 +141,7 @@ export default function AddOfflineScreen() {
       fetchProduct();
     }
   }, [customerProductId]);
-  if (!permission) return <FormLoader />;
+  if (!permission || isPendingProducts) return <FormLoader />;
   const onOpenCamera = () => {
     setShowCamera(true);
     setScanned(true);
@@ -164,7 +157,7 @@ export default function AddOfflineScreen() {
     setValue('productId', value);
     console.log({ value });
   };
-  console.log(productId);
+
   const isMid = width < 768;
   const isSmall = width < 425;
 

@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 
 import { Q } from '@nozbe/watermelondb';
-import { useCallback, useEffect, useState } from 'react';
 
 import { useNetwork } from './useNetwork';
 
@@ -24,6 +23,7 @@ import {
   sendDisposedProducts,
   supplyProducts as supplyProductsOffline,
   totalAmount,
+  updateAllProductId,
   uploadPrice,
   uploadQty,
 } from '~/lib/helper';
@@ -39,9 +39,10 @@ import {
   useProductOffline,
   useStoreOffline,
   useStoreQty,
-  useStoreQuantity,
-  useSupplyOffline, useUpdateOnlineStatus
-} from "~/lib/tanstack/offline";
+  useUpdatePrice,
+  useSupplyOffline,
+  useUpdateOnlineStatus,
+} from '~/lib/tanstack/offline';
 
 /* eslint-disable prettier/prettier */
 export const useUploadOffline = () => {
@@ -67,51 +68,53 @@ export const useUploadOffline = () => {
     if (!id || !data) return;
 
     if (supply.length) {
-      for (const item of supply) {
-        await supplyProductsOffline({
-          productId: item.productId,
-          qty: item.qty,
-          dealerShare: info?.shareSeller!,
-          netProShare: info?.shareNetpro!,
-          unitCost: item.unitCost?.toString(),
-          newPrice: item?.newPrice?.toString()!,
-          sellingPrice: item.unitCost?.toString()!,
-          id,
-        }).then(async () => {
-          await database
-            .write(async () => {
-              for (const item1 of supply) {
-                await database.batch(item1.prepareUpdate((item) => (item.isUploaded = true)));
-              }
-            })
-            .catch((e) => console.log(e, 'Supply error'));
-        });
+      try {
+        await Promise.all(
+          supply.map(async (item) => {
+            await supplyProductsOffline({
+              productId: item.productId,
+              qty: item.qty,
+              dealerShare: info?.shareSeller!,
+              netProShare: info?.shareNetpro!,
+              unitCost: item.unitCost?.toString(),
+              newPrice: item?.newPrice?.toString()!,
+              sellingPrice: item.unitCost?.toString()!,
+              id,
+            });
+            await database.write(async () => {
+              await database.batch(item.prepareUpdate((i) => (i.isUploaded = true)));
+            });
+          })
+        );
+      } catch (e) {
+        console.error(e);
       }
     }
     if (dispose.length) {
-      for (const item of dispose) {
-        sendDisposedProducts({
-          productId: item.productId,
-          qty: item.qty,
-        }).then(async () => {
-          await database
-            .write(async () => {
-              for (const item1 of dispose) {
-                await database.batch(item1.prepareUpdate((item) => (item.isUploaded = true)));
-              }
-            })
-            .catch((e) => console.log(e, 'disposed error'));
-        });
+      try {
+        await Promise.all(
+          dispose.map(async (item) => {
+            await sendDisposedProducts({
+              productId: item.productId,
+              qty: item.qty,
+            });
+            await database.write(async () => {
+              await database.batch(item.prepareUpdate((i) => (i.isUploaded = true)));
+            });
+          })
+        );
+      } catch (e) {
+        console.log(e, 'failed to upload disposed items');
       }
     }
     if (products.length) {
-      for (const item of products) {
+      const uploadPromises = products.map((item) =>
         addProduct({
           product: item.product,
           category: item.category!,
           state: info?.stateName!,
           id,
-          des: '',
+          des: item.description,
           marketprice: item.marketPrice?.toString()!,
           online: !!item.online,
           qty: item.qty.toString(),
@@ -121,91 +124,95 @@ export const useUploadOffline = () => {
           subcategory: item.subcategory!,
           customerproductid: item.customerProductId!,
         }).then(async (data) => {
+          // await updateAllProductId(item.productId, data.result)
           await database
             .write(async () => {
-              for (const item1 of products) {
-                await database.batch(
-                  item1.prepareUpdate((item) => {
-                    item.isUploaded = true;
-                    item.productId = data?.result;
-                  })
-                );
-              }
+              await database.batch(
+                item.prepareUpdate((product) => {
+                  product.isUploaded = true;
+                  product.productId = data?.result;
+                })
+              );
             })
             .catch((e) => console.log(e, 'products error'));
-        });
-      }
+        })
+      );
+
+      await Promise.all(uploadPromises);
     }
-    console.log(accounts.length, 'Account');
+
     if (accounts.length) {
-      for (const item of accounts) {
-        addAccountName({
-          storeId: id!,
-          account: item.accountName,
-        }).then(async () => {
-          await database
-            .write(async () => {
-              for (const item1 of accounts) {
-                await database.batch(item1.prepareUpdate((item) => (item.isUploaded = true)));
-              }
-            })
-            .catch((e) => console.log(e, 'account error'));
-        });
+      try {
+        await Promise.all(
+          accounts.map(async (item) => {
+            await addAccountName({
+              storeId: id!,
+              account: item.accountName,
+            });
+            await database.write(async () => {
+              await database.batch(item.prepareUpdate((i) => (i.isUploaded = true)));
+            });
+          })
+        );
+      } catch (e) {
+        console.log('Failed to upload account', e);
       }
     }
-    console.log(expenses.length, 'Expense');
+
     if (expenses.length) {
-      for (const item of expenses) {
-        addExpenses({
-          storeId: id!,
-          name: item.accountName,
-          amount: item.amount.toString(),
-          description: item.description!,
-        }).then(async () => {
-          await database
-            .write(async () => {
-              for (const item1 of expenses) {
-                await database.batch(item1.prepareUpdate((item) => (item.isUploaded = true)));
-              }
-            })
-            .catch((e) => console.log(e, 'Expenses error'));
-        });
-      }
+      await Promise.all(
+        expenses.map(async (item) => {
+          await addExpenses({
+            storeId: id!,
+            name: item.accountName,
+            amount: item.amount.toString(),
+            description: item.description!,
+          });
+          await database.write(async () => {
+            await database.batch(item.prepareUpdate((i) => (i.isUploaded = true)));
+          });
+        })
+      );
     }
-    console.log(online.length, 'Online');
+
     if (online.length) {
-      for (const { id: d, ...item } of online) {
-        addOnlineSales({
-          ...item,
-          storeId: id!,
-        }).then(async () => {
-          await database
-            .write(async () => {
-              for (const o of online) {
-                await database.batch(o.prepareUpdate((item) => (item.isUploaded = true)));
-              }
-            })
-            .catch((e) => console.log(e, 'Online error'));
-        });
+      try {
+        await Promise.all(
+          online.map(async (item) => {
+            await addOnlineSales({
+              ...item,
+              storeId: id!,
+            });
+            await database.write(async () => {
+              await database.batch(item.prepareUpdate((i) => (i.isUploaded = true)));
+            });
+          })
+        );
+      } catch (e) {
+        console.log(e, 'Error uploading online');
       }
     }
-    console.log(store.length, 'Store ');
     if (store.length) {
-      for (const { id: d, ...item } of store) {
-        addOfflineSales({
-          ...item,
-          storeId: id!,
-          transactionInfo: item.transferInfo!,
-          salesRepId: +item.userId,
-        }).then(async () => {
-          await database
-            .write(async () => {
-              for (const s of store) {
-                await database.batch(s.prepareUpdate((item) => (item.isUploaded = true)));
-              }
-            })
-            .catch((e) => console.log(e, 'store error'));
-        });
+      try {
+        await Promise.all(
+          store.map(async (item) => {
+            await addOfflineSales({
+              qty: item.qty,
+              productId: item.productId,
+              paymentType: item.paymentType,
+              salesReference: item.salesReference,
+              storeId: id!,
+              transactionInfo: item.transferInfo!,
+              salesRepId: +item.userId,
+            });
+
+            await database.write(async () => {
+              await database.batch(item.prepareUpdate((item) => (item.isUploaded = true)));
+            });
+          })
+        );
+      } catch (e) {
+        console.log(e, 'Error uploading offline sales');
       }
     }
     uploadPrice(storeOfflinePrice, deleteOfflinePrice);
@@ -215,49 +222,49 @@ export const useUploadOffline = () => {
 
 export const useOfflineNumber = () => {
   const isConnected = useNetwork();
-  const {reload} = useReCompute()
+  const { reload } = useReCompute();
   const { data, isPending, isError: isErrorQty } = useStoreQty(isConnected, reload);
   const {
-    data: dataQuantity,
+    data: dataPrice,
     isPending: isPendingQuantity,
     isError: isErrorQuantity,
-  } = useStoreQuantity(isConnected,reload);
+  } = useUpdatePrice(isConnected, reload);
   const { data: store, isPending: isPendingStore, isError } = useStoreOffline(isConnected, reload);
   const {
     data: online,
     isPending: isPendingOnline,
     isError: isErr,
-  } = useOnlineOffline(isConnected,reload);
+  } = useOnlineOffline(isConnected, reload);
   const {
     data: expenseAccount,
     isPending: isPendingAccount,
     isError: isErrorAccount,
-  } = useExpenseAccountOffline(isConnected,reload);
+  } = useExpenseAccountOffline(isConnected, reload);
   const {
     data: expense,
     isPending: isPendingExpense,
     isError: isE,
-  } = useExpenseOffline(isConnected,reload);
+  } = useExpenseOffline(isConnected, reload);
   const {
     data: onlineStatus,
     isPending: isPendingStatus,
     isError: isErrorStatus,
-  } = useUpdateOnlineStatus(isConnected,reload);
+  } = useUpdateOnlineStatus(isConnected, reload);
   const {
     data: products,
     isPending: isPendingProducts,
     isError: isErrorProducts,
-  } = useProductOffline(isConnected,reload);
+  } = useProductOffline(isConnected, reload);
   const {
     data: supply,
     isPending: isPendingSupply,
     isError: isErrorSupply,
-  } = useSupplyOffline(isConnected,reload);
+  } = useSupplyOffline(isConnected, reload);
   const {
     data: disposed,
     isPending: isPendingDisposed,
     isError: isErrorDisposed,
-  } = useDisposeOffline(isConnected,reload);
+  } = useDisposeOffline(isConnected, reload);
   if (
     isError ||
     isErr ||
@@ -265,7 +272,10 @@ export const useOfflineNumber = () => {
     isE ||
     isErrorDisposed ||
     isErrorProducts ||
-    isErrorSupply || isErrorQty || isErrorQuantity || isErrorStatus
+    isErrorSupply ||
+    isErrorQty ||
+    isErrorQuantity ||
+    isErrorStatus
   ) {
     return 0;
   }
@@ -276,13 +286,16 @@ export const useOfflineNumber = () => {
     isPendingProducts ||
     isPendingExpense ||
     isPendingOnline ||
-    isPendingStore || isPendingQuantity || isPending || isPendingStatus
+    isPendingStore ||
+    isPendingQuantity ||
+    isPending ||
+    isPendingStatus
   ) {
     return 0;
   }
   const total = [
     data,
-    dataQuantity,
+    dataPrice,
     store,
     online,
     expense,
@@ -290,17 +303,20 @@ export const useOfflineNumber = () => {
     products,
     supply,
     disposed,
-    onlineStatus
+    onlineStatus,
   ];
 
-  console.log({data,
-    dataQuantity,
+  console.log({
+    data,
+    dataPrice,
     store,
     online,
     expense,
     expenseAccount,
     products,
     supply,
-    disposed, onlineStatus});
+    disposed,
+    onlineStatus,
+  });
   return totalAmount(total);
 };

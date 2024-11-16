@@ -38,15 +38,15 @@ import database, {
   updateProducts,
 } from '~/db';
 import CartItem from '~/db/model/CartItems';
+import { useUpdateProduct } from '~/hooks/offline/useUpdateProduct';
 import { useNetwork } from '~/hooks/useNetwork';
+import { useReCompute } from '~/hooks/useRecomputate';
 import { useSalesRef } from '~/hooks/useSalesRef';
+import { useUploadOffline } from '~/hooks/useUploadOffline';
 import { useInfo } from '~/lib/tanstack/queries';
 import { useProductUpdateQty } from '~/lib/zustand/updateProductQty';
 import { useProductUpdatePrice } from '~/lib/zustand/useProductUpdatePrice';
 import { ExtraSalesType, SupplyInsert } from '~/type';
-import { useUpdateProduct } from '~/hooks/offline/useUpdateProduct';
-import { useUploadOffline } from '~/hooks/useUploadOffline';
-import { useReCompute } from '~/hooks/useRecomputate';
 
 export const useAddNewProduct = () => {
   const storeId = useStore((state) => state.id);
@@ -90,10 +90,11 @@ export const useAddNewProduct = () => {
         subcategory,
         customerProductId: customerproductid,
         productId,
+        description: des
       });
 
       if (!createdProduct) throw Error('Failed to add product');
-      await database.write(async () => {
+  const productSupply = await database.write(async () => {
         return await supplyProduct.create((supply) => {
           supply.productId = createdProduct.productId;
           supply.qty = +qty;
@@ -135,10 +136,14 @@ export const useAddNewProduct = () => {
           });
         }
       } else if (!isConnected) {
-        return await database.write(async () => {
+
+         await database.write(async () => {
           await createdProduct.update((product) => {
             product.isUploaded = false;
           });
+          await productSupply.update((supply) => {
+            supply.isUploaded = false;
+          })
         });
       }
     },
@@ -352,6 +357,7 @@ export const useCart = () => {
           });
         }
         queryClient.invalidateQueries({ queryKey: ['product'] });
+        queryClient.invalidateQueries({ queryKey: ['product_all'] });
       } catch (error) {
         console.log(error);
       }
@@ -366,6 +372,8 @@ export const useCart = () => {
         description: 'Sales has been made',
       });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ['product_all'] });
+      queryClient.invalidateQueries({ queryKey: ['product'] });
     },
   });
 };
@@ -513,6 +521,7 @@ export const useSupply = () => {
       });
       queryClient.invalidateQueries({ queryKey: ['product'] });
       queryClient.invalidateQueries({ queryKey: ['supply'] });
+      queryClient.invalidateQueries({ queryKey: ['lowStock'] });
     },
   });
 };
@@ -606,6 +615,7 @@ export const useDisposal = () => {
         description: 'Product has been disposed',
       });
       queryClient.invalidateQueries({ queryKey: ['product'] });
+      queryClient.invalidateQueries({ queryKey: ['lowStock'] });
     },
   });
 };
@@ -881,6 +891,7 @@ export const useUpdateQty = () => {
         description: 'Product updated',
       });
       queryClient.invalidateQueries({ queryKey: ['product'] });
+      queryClient.invalidateQueries({ queryKey: ['lowStock'] });
     },
     onError: (error) => {
       console.log(error, 'error');
@@ -895,6 +906,7 @@ export const useUpdatePrice = () => {
   const isConnected = useNetwork();
   const storeId = useStore((state) => state.id);
   const storePriceUpdateOffline = useProductUpdatePrice((state) => state.addProduct);
+  const queryClient = useQueryClient();
   const { data } = useInfo();
   return useMutation({
     mutationFn: async ({ id, price }: { id: string; price: number }) => {
@@ -944,6 +956,7 @@ export const useUpdatePrice = () => {
       toast.success('Success', {
         description: 'Product updated',
       });
+      queryClient.invalidateQueries({queryKey: ['lowStock']})
     },
     onError: (error) => {
       console.log(error, 'error');
@@ -964,7 +977,7 @@ export const useUpload = () => {
     mutationFn: async () => {
       await updatePrice();
       await uploadOffline();
-      toggle();
+
     },
     onError: () => {
       toast.error('Could not sync data', {
@@ -975,6 +988,7 @@ export const useUpload = () => {
       toast.success('Success', {
         description: 'Data has been sync!',
       });
+      toggle()
       queryClient.invalidateQueries({ queryKey: ['offline_qty'] });
       queryClient.invalidateQueries({ queryKey: ['offline_quantity'] });
       queryClient.invalidateQueries({ queryKey: ['offline_store'] });
