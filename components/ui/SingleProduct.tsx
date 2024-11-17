@@ -1,42 +1,63 @@
 /* eslint-disable prettier/prettier */
 
 import { withObservables } from "@nozbe/watermelondb/react";
-import { useCallback, useMemo, useState } from "react";
+import { useRouter } from "expo-router";
 import { useWindowDimensions } from "react-native";
 import { Card, CardHeader, Stack, XStack } from "tamagui";
 
-import { ActionMenu } from "./ActionMenu";
 import { FlexText } from "./FlexText";
 import { CustomSubHeading } from "./typography";
 
+import { Menus } from "~/components/Menu";
 import { colors } from "~/constants";
 import database, { products } from "~/db";
 import Product from "~/db/model/Product";
 import { useEdit } from "~/lib/tanstack/mutations";
 import { useInfo } from "~/lib/tanstack/queries";
+import { ItemType } from "~/type";
 
 const SingleProduct = ({ product }: { product: Product }): JSX.Element => {
-  const [showMenu, setShowMenu] = useState(false);
-
+const router = useRouter();
+  const items: ItemType[] = [
+    { key: 'restock', title: 'Restock item', icon: 'rotate.3d.circle', iconAndroid: 'ic_menu_rotate' },
+    { key: 'update_price', title: 'Update Price', icon: 'plus', iconAndroid: 'ic_input_add' },
+    {
+      key: 'update_quantity',
+      title: 'Update Quantity',
+      icon: 'plusminus.circle.fill',
+      iconAndroid: 'ic_menu_add',
+    },
+    { key: 'dispose', title: 'Dispose item', icon: 'trash', iconAndroid: 'ic_menu_delete' },
+    { key: 'toggle', title: product.online ? 'Set offline' : 'Set online', icon: product.online ? 'poweron' : 'poweroff', iconAndroid: product.online ? 'presence_online' : 'presence_offline' },
+  ];
   const { mutateAsync, isPending } = useEdit();
   const { width } = useWindowDimensions();
   const { data } = useInfo();
   const isLow = product?.qty <= 10;
 
-  const onClose = useCallback(() => setShowMenu(false), []);
-  const onOpen = useCallback(() => setShowMenu(true), []);
 
-  const details = useMemo(
-    () => ({
-      id: product?.id,
-      name: product?.product,
-      price: product?.marketPrice!,
-      productId: product?.productId,
-    }),
-    [product?.id, product?.product, product?.marketPrice, product?.productId]
-  );
+
+  const handleDispose = () => {
+    router.push(`/dispose?productId=${product?.productId}&name=${product?.product}&id=${product?.id}`);
+  };
+
+  const handleSupply = () => {
+    router.push(
+      `/restock?productId=${product?.productId}&name=${product?.product}&price=${product?.marketPrice}&id=${product?.id}`
+    );
+  };
+
+  const handleUpdatePrice = () => {
+    router.push(`/update-price?name=${product?.product}&id=${product?.id}`);
+  };
+  const handleUpdateQuantity = () => {
+    router.push(`/update-quantity?name=${product?.product}&id=${product?.id}`);
+  };
+
+  console.log(product.productId);
 
   const toggleOnline = async () => {
+    if(isPending) return;
     const pd = await products.find(product.id);
     await database.write(async () => {
       await pd.update((p) => {
@@ -66,7 +87,27 @@ const SingleProduct = ({ product }: { product: Product }): JSX.Element => {
   const isBigTablet = width >= 700;
   const containerWidth = isSmallTablet ? '80%' : isBigTablet ? '60%' : '100%';
 
-
+  const onSelect = async (key: string) => {
+    switch (key) {
+      case 'restock':
+        handleSupply();
+        break;
+      case 'update_quantity':
+        handleUpdateQuantity();
+        break;
+      case 'dispose':
+        handleDispose();
+        break;
+      case 'update_price':
+        handleUpdatePrice();
+        break;
+      case 'toggle':
+       await toggleOnline();
+       break;
+      default:
+        break;
+    }
+  };
   return (
     <Card
       backgroundColor="white"
@@ -94,15 +135,16 @@ const SingleProduct = ({ product }: { product: Product }): JSX.Element => {
 
         <XStack justifyContent="space-between" alignItems="center">
           <CustomSubHeading text="Actions" fontSize={1.7} />
-          <ActionMenu
-            visible={showMenu}
-            onClose={onClose}
-            onOpen={onOpen}
-            details={details}
-            online={product.online}
-            toggleOnline={toggleOnline}
-            disabled={isPending}
-          />
+          {/*<ActionMenu*/}
+          {/*  visible={showMenu}*/}
+          {/*  onClose={onClose}*/}
+          {/*  onOpen={onOpen}*/}
+          {/*  details={details}*/}
+          {/*  online={product.online}*/}
+          {/*  toggleOnline={toggleOnline}*/}
+          {/*  disabled={isPending}*/}
+          {/*/>*/}
+          <Menus items={items} onSelect={onSelect} />
         </XStack>
       </CardHeader>
     </Card>

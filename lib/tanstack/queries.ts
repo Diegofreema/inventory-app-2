@@ -105,7 +105,7 @@ export const useFetchLowStock = () => {
   return useQuery({
     queryKey: ['lowStock'],
     queryFn: async () => {
-      return await products.query(Q.where('qty', Q.lt(10))).fetch();
+      return await products.query(Q.where('qty', Q.lte(10))).fetch();
     },
     structuralSharing: false,
   });

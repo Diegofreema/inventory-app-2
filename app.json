@@ -30,7 +30,9 @@
             "enableShrinkResourcesInReleaseBuilds": true,
             "newArchEnabled": false,
             "packagingOptions": {
-              "pickFirst": ["**/libc++_shared.so"]
+              "pickFirst": [
+                "**/libc++_shared.so"
+              ]
             }
           },
           "ios": {
@@ -38,7 +40,10 @@
             "extraPods": [
               {
                 "name": "simdjson",
-                "configuration": ["Debug", "Release"],
+                "configuration": [
+                  "Debug",
+                  "Release"
+                ],
                 "path": "./node_modules/@nozbe/simdjson",
                 "modular_headers": true
               }
@@ -61,7 +66,8 @@
           "recordAudioAndroid": true
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -75,7 +81,9 @@
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "entitlements": {
@@ -89,7 +97,10 @@
         "backgroundColor": "#ffffff"
       },
       "softwareKeyboardLayoutMode": "pan",
-      "permissions": ["android.permission.CAMERA", "android.permission.RECORD_AUDIO"],
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
       "package": "com.hadhavdh.asdband"
     },
     "extra": {

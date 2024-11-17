@@ -105,15 +105,15 @@ const ProductCard = ({
   const trimNumber = full ? 100 : 30;
 
   const items: ItemType[] = [
-    { key: 'restock', title: 'Restock item', icon: 'rotate.3d.circle', iconAndroid: '' },
-    { key: 'update_price', title: 'Update Price', icon: 'plus', iconAndroid: '' },
+    { key: 'restock', title: 'Restock item', icon: 'rotate.3d.circle', iconAndroid: 'ic_menu_rotate' },
+    { key: 'update_price', title: 'Update Price', icon: 'plus', iconAndroid: 'ic_input_add' },
     {
       key: 'update_quantity',
       title: 'Update Quantity',
       icon: 'plusminus.circle.fill',
-      iconAndroid: '',
+      iconAndroid: 'ic_menu_add',
     },
-    { key: 'dispose', title: 'Dispose item', icon: 'trash', iconAndroid: 'android' },
+    { key: 'dispose', title: 'Dispose item', icon: 'trash', iconAndroid: 'ic_menu_delete' },
   ];
   const handleDispose = () => {
     router.push(`/dispose?productId=${item?.productId}&name=${item?.product}&id=${item?.id}`);

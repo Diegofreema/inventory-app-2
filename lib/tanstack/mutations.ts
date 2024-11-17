@@ -90,11 +90,11 @@ export const useAddNewProduct = () => {
         subcategory,
         customerProductId: customerproductid,
         productId,
-        description: des
+        description: des,
       });
 
       if (!createdProduct) throw Error('Failed to add product');
-  const productSupply = await database.write(async () => {
+      const productSupply = await database.write(async () => {
         return await supplyProduct.create((supply) => {
           supply.productId = createdProduct.productId;
           supply.qty = +qty;
@@ -136,14 +136,13 @@ export const useAddNewProduct = () => {
           });
         }
       } else if (!isConnected) {
-
-         await database.write(async () => {
+        await database.write(async () => {
           await createdProduct.update((product) => {
             product.isUploaded = false;
           });
           await productSupply.update((supply) => {
             supply.isUploaded = false;
-          })
+          });
         });
       }
     },
@@ -290,8 +289,6 @@ export const useCart = () => {
           for (const item of itemsInCart) {
             await database.batch(item.prepareDestroyPermanently());
           }
-        });
-        await database.write(async () => {
           const ref = await saleReferences
             .query(Q.where('sale_reference', Q.eq(data[0].salesReference)))
             .fetch();
@@ -299,6 +296,7 @@ export const useCart = () => {
             await database.batch(item.prepareDestroyPermanently());
           }
         });
+
         queryClient.invalidateQueries({ queryKey: ['cart_item_ref'] });
         queryClient.invalidateQueries({ queryKey: ['cart_item'] });
 
@@ -308,9 +306,11 @@ export const useCart = () => {
             prods.forEach(async (prod) => {
               if (prod.product === item.id) {
                 await database.write(async () => {
-                  await prod.update((product) => {
-                    product.qty = product.qty - item.qty;
-                  });
+                  await database.batch(
+                    prod.prepareUpdate((product) => {
+                      product.qty = product.qty - item.qty;
+                    })
+                  );
                 });
               } else {
               }
@@ -797,12 +797,10 @@ export const useEdit = () => {
       netProShare: string;
       productId: string;
     }) => {
-
       if (isConnected) {
-       await axios.get(
+        await axios.get(
           `https://247api.netpro.software/api.aspx?api=updateproductpricenqty&qty=${qty}&customerproductid=${customerProductId}&online=${online ? 1 : 0}&price=${price}&getsellingprice=${sellingPrice}&getdealershare=${dealerShare}&getnetproshare=${netProShare}&productid=${productId}`
         );
-
       }
 
       if (!isConnected) {
@@ -956,7 +954,7 @@ export const useUpdatePrice = () => {
       toast.success('Success', {
         description: 'Product updated',
       });
-      queryClient.invalidateQueries({queryKey: ['lowStock']})
+      queryClient.invalidateQueries({ queryKey: ['lowStock'] });
     },
     onError: (error) => {
       console.log(error, 'error');
@@ -977,7 +975,6 @@ export const useUpload = () => {
     mutationFn: async () => {
       await updatePrice();
       await uploadOffline();
-
     },
     onError: () => {
       toast.error('Could not sync data', {
@@ -988,7 +985,7 @@ export const useUpload = () => {
       toast.success('Success', {
         description: 'Data has been sync!',
       });
-      toggle()
+      toggle();
       queryClient.invalidateQueries({ queryKey: ['offline_qty'] });
       queryClient.invalidateQueries({ queryKey: ['offline_quantity'] });
       queryClient.invalidateQueries({ queryKey: ['offline_store'] });

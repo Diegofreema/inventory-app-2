@@ -773,7 +773,7 @@ export const updateQty = async ({
   qty: number;
 }) => {
   return await axios.get(
-    `https://247api.netpro.software/api.aspx?api=changestockwithproductname&pharmacyid=${storeId}&productname=${name}&qty=${qty}`
+    `https://247api.netpro.software/api.aspx?api=changestockwithproductname&pharmacyid=${storeId}&productname=${encodeURIComponent(name)}&qty=${qty}`
   );
 };
 
@@ -877,31 +877,5 @@ export const uploadPrice = (product: ProductUpdatePrice[], deleteOffline: (id: s
 // console.log(mergedProducts);
 
 export const updateAllProductId = async (oldProductId: string, newProductId: string) => {
-  await database.write(async () => {
-    const supplyProducts = await supplyProduct
-      .query(Q.where('product_id', Q.eq(oldProductId)))
-      .fetch();
-    const disposed = await disposedProducts
-      .query(Q.where('product_id', Q.eq(oldProductId)))
-      .fetch();
-    const sales = await storeSales.query(Q.where('product_id', Q.eq(oldProductId))).fetch();
 
-    await database.batch(
-      supplyProducts.map(supplyProduct =>
-        supplyProduct.prepareUpdate(s => {
-          s.productId = newProductId;
-        })
-      ),
-      disposed.map(des =>
-        des.prepareUpdate(d => {
-          d.productId = newProductId;
-        })
-      ),
-      sales.map(s =>
-        s.prepareUpdate(s => {
-          s.productId = newProductId;
-        })
-      )
-    );
-  });
 };
