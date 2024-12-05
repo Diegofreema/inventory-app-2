@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-// import * as Sentry from '@sentry/react-native';
+import * as Sentry from '@sentry/react-native';
 import { useFonts } from 'expo-font';
-import { SplashScreen, Stack } from 'expo-router';
+import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as Updates from 'expo-updates';
 import React, { useEffect } from 'react';
@@ -12,24 +12,24 @@ import { TamaguiProvider } from 'tamagui';
 import { OfflineBanner } from '~/components/OfflineBanner';
 import config from '~/tamagui.config';
 
-// const routingInstrumentation = new Sentry.ReactNavigationInstrumentation();
-//
-// Sentry.init({
-//   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
-//   attachScreenshot: true,
-//   integrations: [
-//     new Sentry.ReactNativeTracing({
-//       routingInstrumentation,
-//       enableNativeFramesTracking: true,
-//     }),
-//   ],
-//   tracesSampleRate: 1.0,
-//   _experiments: {
-//     profilesSampleRate: 1.0,
-//     replaysSessionSampleRate: 1.0,
-//     replaysOnErrorSampleRate: 1.0,
-//   },
-// });
+const routingInstrumentation = new Sentry.ReactNavigationInstrumentation();
+
+Sentry.init({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+  attachScreenshot: true,
+  integrations: [
+    new Sentry.ReactNativeTracing({
+      routingInstrumentation,
+      enableNativeFramesTracking: true,
+    }),
+  ],
+  tracesSampleRate: 1.0,
+  _experiments: {
+    profilesSampleRate: 1.0,
+    replaysSessionSampleRate: 1.0,
+    replaysOnErrorSampleRate: 1.0,
+  },
+});
 
 SplashScreen.preventAutoHideAsync();
 
@@ -44,7 +44,13 @@ function RootLayout() {
     Inter: require('@tamagui/font-inter/otf/Inter-Medium.otf'),
     InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
   });
+  const ref = useNavigationContainerRef();
 
+  useEffect(() => {
+    if (ref?.current) {
+      routingInstrumentation.registerNavigationContainer(ref);
+    }
+  }, [ref]);
   useEffect(() => {
     async function onFetchUpdateAsync() {
       try {
@@ -91,4 +97,4 @@ function RootLayout() {
   );
 }
 
-export default RootLayout;
+export default Sentry.wrap(RootLayout);

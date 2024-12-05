@@ -1,10 +1,9 @@
 /* eslint-disable prettier/prettier */
-import { Q } from '@nozbe/watermelondb';
-import axios from 'axios';
-import { compareDesc, format, parse } from 'date-fns';
-import { z } from 'zod';
+import axios from "axios";
+import { compareDesc, format, parse } from "date-fns";
+import { z } from "zod";
 
-import { newProductSchema } from './validators';
+import { newProductSchema } from "./validators";
 
 import database, {
   categories,
@@ -15,24 +14,22 @@ import database, {
   pharmacyInfo,
   products,
   storeSales,
-  supplyProduct,
-} from '~/db';
-import StoreSales from '~/db/model/StoreSale';
+  supplyProduct
+} from "~/db";
+import StoreSales from "~/db/model/StoreSale";
+import { ProductUpdateQty } from "~/lib/zustand/updateProductQty";
+import { ProductUpdatePrice } from "~/lib/zustand/useProductUpdatePrice";
 import {
   DisposalFromDb,
   ExpensesFromDb,
   OnlineSaleFromDb,
   ProductFromDb,
-  ProductFromServer,
   StoreSalesFromDb,
   SupplyFromDb,
   SupplyInsert,
   TradingType,
-  TradingType2,
-} from '~/type';
-import { ProductUpdateQty } from '~/lib/zustand/updateProductQty';
-import { ProductUpdatePrice } from '~/lib/zustand/useProductUpdatePrice';
-import Product from '~/db/model/Product';
+  TradingType2
+} from "~/type";
 
 export const api = process.env.EXPO_PUBLIC_API;
 
@@ -83,17 +80,15 @@ export const colors = [
 ];
 
 export const getProducts = async (id: string) => {
-  const response = await axios.get(
+  const { data } = await axios.get(
     `https://247api.netpro.software/api.aspx?api=getproducts&cidx=${id}`
   );
-  let data: ProductFromServer[] = [];
-  if (Object.prototype.toString.call(response.data) === '[object Object]') {
-    data.push(response.data);
-  } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
-    data = [...response.data];
-  }
 
-  const formattedProducts = data.map((product) => ({
+
+
+
+
+  return data.map((product: any) => ({
     category: product.Category,
     subcategory: product.Subcategory,
     productId: product.id,
@@ -106,7 +101,6 @@ export const getProducts = async (id: string) => {
     shareDealer: +product.sharedealer,
     shareNetpro: +product.sharenetpro,
   }));
-  return formattedProducts;
 };
 
 export const trimText = (text: string, limit = 10): string => {
@@ -119,9 +113,11 @@ export const formattedDate = (date: string) => {
 };
 
 export const getSalesP = async (id: string) => {
+  console.log(id, 'productId');
   const response = await axios.get(
     `https://247api.netpro.software/api.aspx?api=get247sales&cidx=${id}`
   );
+
   let data = [];
   if (Object.prototype.toString.call(response.data) === '[object Object]') {
     data.push(response.data);
@@ -137,6 +133,7 @@ export const getSalesP = async (id: string) => {
     dealerShare: +sale.dealershare,
     netProShare: +sale.netproshare,
   }));
+  console.log({ salesFrom247: formattedData });
   return formattedData;
 };
 
@@ -151,14 +148,14 @@ export const getExpenditure = async (id: any) => {
     data = [...response.data];
   }
 
-  const formattedExpenditure = data?.map((sale) => ({
+
+
+  return data?.map((sale) => ({
     accountName: sale?.accountname,
     dateX: sale.datex,
     description: sale.descript,
     amount: +sale.amount,
   }));
-
-  return formattedExpenditure;
 };
 
 export const getSupply = async (id: any) => {
@@ -172,20 +169,21 @@ export const getSupply = async (id: any) => {
     data = [...response.data];
   }
 
-  const formattedData = data?.map((sale) => ({
+
+  return data?.map((sale) => ({
     qty: +sale.qty,
     productId: sale.productid,
     unitCost: +sale.unitcost,
     dateX: sale.datex,
   }));
-  return formattedData;
 };
 export const getInfo = async (id: any) => {
   const { data } = await axios.get(
     `https://247api.netpro.software/api.aspx?api=pharmacyinfor&cidx=${id}`
   );
 
-  const formattedData = {
+
+  return {
     businessName: data.businessname,
     stateName: data.statename,
     sharePrice: data.shareprice,
@@ -193,13 +191,14 @@ export const getInfo = async (id: any) => {
     shareSeller: data.shareseller,
   };
 
-  return formattedData;
 };
 
 export const getSale = async (id: any) => {
   const response = await axios.get(
     `https://247api.netpro.software/api.aspx?api=getpharmacysales&cidx=${id}`
   );
+
+  console.log(response.data, 'sales');
   let data = [];
   if (Object.prototype.toString.call(response.data) === '[object Object]') {
     data.push(response.data);
@@ -219,7 +218,7 @@ export const getSale = async (id: any) => {
     cid: sale.cid as string,
     userId: sale.userid,
   }));
-
+  console.log({ salesFromStore: formattedData });
   return formattedData;
 };
 
@@ -261,13 +260,13 @@ export const getDisposal = async (id: any) => {
     data = [...response.data];
   }
 
-  const formattedData = data?.map((sale) => ({
+
+  return data?.map((sale) => ({
     productId: sale.productid,
     dateX: sale.datex,
     qty: +sale.qty,
     unitCost: +sale.unitcost,
   }));
-  return formattedData;
 };
 
 export const expensesAccount = async (id: any) => {
@@ -281,10 +280,10 @@ export const expensesAccount = async (id: any) => {
     data = [...response.data];
   }
 
-  const formattedData = data?.map((sale) => ({
+
+  return data?.map((sale) => ({
     accountName: sale.accountname,
   }));
-  return formattedData;
 };
 
 export const totalAmount = (numbers: number[]) => {
@@ -479,8 +478,8 @@ export const createProduct = async (p: ProductFromDb, isUploaded = true) => {
   });
 };
 export const createProducts = async (newProduct: ProductFromDb[], isUploaded = true) => {
-  newProduct.forEach(async (p) => {
-    await database.write(async () => {
+  await database.write(async () => {
+    for (const p of newProduct) {
       await database.batch(
         products.prepareCreate((product) => {
           product.product = p.product;
@@ -498,7 +497,7 @@ export const createProducts = async (newProduct: ProductFromDb[], isUploaded = t
           product.productId = p.productId;
         })
       );
-    });
+    }
   });
 
   return newProduct;
@@ -506,8 +505,8 @@ export const createProducts = async (newProduct: ProductFromDb[], isUploaded = t
 
 export const createOnlineSales = async (newSales: OnlineSaleFromDb[], isUploaded = true) => {
   await new Promise((resolve) => setTimeout(resolve, 2000));
-  newSales.forEach(async (sale) => {
-    await database.write(async () => {
+  await database.write(async () => {
+    for (const sale of newSales) {
       await database.batch(
         onlineSales.prepareCreate((st) => {
           st.productId = sale.productId;
@@ -519,14 +518,14 @@ export const createOnlineSales = async (newSales: OnlineSaleFromDb[], isUploaded
           st.isUploaded = isUploaded;
         })
       );
-    });
+    }
   });
 };
 
 export const createStoreSales = async (newSales: StoreSalesFromDb[], isUploaded = true) => {
   await new Promise((resolve) => setTimeout(resolve, 2000));
-  newSales.forEach(async (sale) => {
-    await database.write(async () => {
+  await database.write(async () => {
+    for (const sale of newSales) {
       await database.batch(
         storeSales.prepareCreate((st) => {
           st.productId = sale.productId;
@@ -541,13 +540,13 @@ export const createStoreSales = async (newSales: StoreSalesFromDb[], isUploaded 
           st.isUploaded = isUploaded;
         })
       );
-    });
+    }
   });
 };
 
 export const createExpenses = async (newExpense: ExpensesFromDb[], isUploaded = true) => {
-  newExpense.forEach(async (exp) => {
-    await database.write(async () => {
+  await database.write(async () => {
+    for (const exp of newExpense) {
       await database.batch(
         expenses.prepareCreate((expense) => {
           expense.accountName = exp.accountName;
@@ -557,17 +556,14 @@ export const createExpenses = async (newExpense: ExpensesFromDb[], isUploaded = 
           expense.isUploaded = isUploaded;
         })
       );
-    });
+    }
   });
 };
 
 export const createDisposals = async (newDisposal: DisposalFromDb[], isUploaded = true) => {
   await new Promise((resolve) => setTimeout(resolve, 2000));
-  newDisposal.forEach(async (dis) => {
-    const productInDb = await products
-      .query(Q.where('product_id', Q.eq(dis.productId)), Q.take(1))
-      .fetch();
-    await database.write(async () => {
+  await database.write(async () => {
+    for (const dis of newDisposal) {
       await database.batch(
         disposedProducts.prepareCreate((disposal) => {
           disposal.dateX = dis.dateX;
@@ -577,39 +573,38 @@ export const createDisposals = async (newDisposal: DisposalFromDb[], isUploaded 
           disposal.isUploaded = isUploaded;
         })
       );
-    });
+    }
   });
 };
 
 export const createAccount = async (accounts: { accountName: string }[], isUploaded = true) => {
-  accounts.forEach(async (acc) => {
-    await database.write(async () => {
+  await database.write(async () => {
+    for (const acc of accounts) {
       await database.batch(
         expenseAccounts.prepareCreate((account) => {
           account.accountName = acc.accountName;
           account.isUploaded = isUploaded;
-        })
-      );
-    });
+        }));
+    }
   });
 };
 export const createCats = async (cats: { category: string; subcategory: string }[]) => {
-  cats.forEach(async (cat) => {
-    await database.write(async () => {
+  await database.write(async () => {
+    for (const cat of cats) {
       await database.batch(
         categories.prepareCreate((category) => {
           category.category = cat.category;
           category.subcategory = cat.subcategory;
         })
       );
-    });
+    }
   });
 };
 
 export const createSupply = async (supplies: DisposalFromDb[], isUploaded = true) => {
   await new Promise((resolve) => setTimeout(resolve, 2000));
-  supplies.forEach(async (sup) => {
-    await database.write(async () => {
+  await database.write(async () => {
+    for (const sup of supplies) {
       await database.batch(
         supplyProduct.prepareCreate((supply) => {
           supply.productId = sup.productId;
@@ -619,7 +614,7 @@ export const createSupply = async (supplies: DisposalFromDb[], isUploaded = true
           supply.isUploaded = true;
         })
       );
-    });
+    }
   });
 };
 export const addInfo = async (info: any) => {
@@ -876,6 +871,4 @@ export const uploadPrice = (product: ProductUpdatePrice[], deleteOffline: (id: s
 // const mergedProducts = mergeProducts(allStocks);
 // console.log(mergedProducts);
 
-export const updateAllProductId = async (oldProductId: string, newProductId: string) => {
 
-};

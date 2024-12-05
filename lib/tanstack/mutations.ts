@@ -94,7 +94,7 @@ export const useAddNewProduct = () => {
       });
 
       if (!createdProduct) throw Error('Failed to add product');
-      const productSupply = await database.write(async () => {
+      await database.write(async () => {
         return await supplyProduct.create((supply) => {
           supply.productId = createdProduct.productId;
           supply.qty = +qty;
@@ -140,9 +140,9 @@ export const useAddNewProduct = () => {
           await createdProduct.update((product) => {
             product.isUploaded = false;
           });
-          await productSupply.update((supply) => {
-            supply.isUploaded = false;
-          });
+          // await productSupply.update((supply) => {
+          //   supply.isUploaded = false;
+          // });
         });
       }
     },

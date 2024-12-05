@@ -327,8 +327,8 @@ const SalesRefFlatList = ({ data }: { data: SaleReference[] }) => {
           <CustomPressable onPress={doneAttending}>
             <View
               borderWidth={1}
-              borderColor="red"
-              backgroundColor="red"
+              borderColor="#ffc107"
+              backgroundColor="#ffc107"
               borderRadius={5}
               padding={5}
               alignItems="center">

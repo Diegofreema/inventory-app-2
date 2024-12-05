@@ -65,16 +65,20 @@ export const useFetchAll = () => {
           getCat(),
           getInfo(id!),
         ]);
+      console.log({ products }, 'queries');
+      // console.log({ products, online, store, expenses, disposal, account, supply, cats, info });
+      await Promise.all([
+        createProducts(products),
+        createExpenses(expenses),
+        createAccount(account),
+        createCats(cats),
+        createStoreSales(store),
+        createDisposals(disposal),
+        createOnlineSales(online),
+        createSupply(supply),
+        addInfo(info),
+      ]);
 
-      await createProducts(products);
-      await createExpenses(expenses);
-      await createAccount(account);
-      await createCats(cats);
-      await createStoreSales(store);
-      await createDisposals(disposal);
-      await createOnlineSales(online);
-      await createSupply(supply);
-      await addInfo(info);
       setHasFetched(true);
       setError(null);
     } catch (error) {
@@ -133,7 +137,7 @@ export const useProducts = (page?: number) => {
 };
 export const useAllProducts = () => {
   const getProducts = async () => {
-    return  await products.query(Q.sortBy('created_at', Q.desc)).fetch();
+    return await products.query(Q.sortBy('created_at', Q.desc)).fetch();
   };
   return useQuery({
     queryKey: ['product_all'],
