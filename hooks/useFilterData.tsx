@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 
-import { format, isWithinInterval } from 'date-fns';
+import { format, isWithinInterval, parse } from 'date-fns';
 import { useMemo } from 'react';
 
 import DisposedProducts from '~/db/model/DisposedProducts';
@@ -32,9 +32,15 @@ export const useFilterData = ({
     const end = format(endDate, 'dd-MM-yyyy');
 
     return storeSales.filter((d) => {
-      const salesDate = d.dateX.split(' ')[0].replace('/', '-').replace('/', '-');
+      const salesDate = d?.dateX?.split(' ')[0];
+      const salesYear = salesDate?.split('/')[2];
+      const salesMonth = salesDate?.split('/')[1];
+      const salesDay = salesDate?.split('/')[0];
+      const dateToCompare = new Date(+salesYear, +salesMonth - 1, +salesDay);
+      const begin = new Date(+start.split('-')[2], +start.split('-')[1] - 1, +start.split('-')[0]);
+      const ended = new Date(+end.split('-')[2], +end.split('-')[1] - 1, +end.split('-')[0]);
 
-      return isWithinInterval(salesDate, { start, end });
+      return dateToCompare >= begin && dateToCompare <= ended;
     });
   }, [storeSales, startDate, endDate]);
   // ? filter supply
@@ -45,9 +51,18 @@ export const useFilterData = ({
     const end = format(endDate, 'dd-MM-yyyy');
 
     return productSupply.filter((d) => {
-      const salesDate = d?.dateX?.split(' ')[0].replace('/', '-').replace('/', '-');
+
+      const salesDate = d?.dateX?.split(' ')[0];
+      const salesYear = salesDate?.split('/')[2];
+      const salesMonth = salesDate?.split('/')[1];
+      const salesDay = salesDate?.split('/')[0];
+      const dateToCompare = new Date(+salesYear, +salesMonth - 1, +salesDay);
+      const begin = new Date(+start.split('-')[2], +start.split('-')[1] - 1, +start.split('-')[0]);
+      const ended = new Date(+end.split('-')[2], +end.split('-')[1] - 1, +end.split('-')[0]);
+
+
       if (!salesDate) return productSupply;
-      return isWithinInterval(salesDate, { start, end });
+      return dateToCompare >= begin && dateToCompare <= ended;
     });
   }, [startDate, endDate, productSupply]);
   // ? filter expense
@@ -57,9 +72,18 @@ export const useFilterData = ({
     const start = format(startDate, 'dd-MM-yyyy');
     const end = format(endDate, 'dd-MM-yyyy');
     return expense.filter((d) => {
-      const salesDate = d.dateX.split(' ')[0].replace('/', '-').replace('/', '-');
 
-      return isWithinInterval(salesDate, { start, end });
+      const salesDate = d?.dateX?.split(' ')[0];
+      const salesYear = salesDate?.split('/')[2];
+      const salesMonth = salesDate?.split('/')[1];
+      const salesDay = salesDate?.split('/')[0];
+      const dateToCompare = new Date(+salesYear, +salesMonth - 1, +salesDay);
+      const begin = new Date(+start.split('-')[2], +start.split('-')[1] - 1, +start.split('-')[0]);
+      const ended = new Date(+end.split('-')[2], +end.split('-')[1] - 1, +end.split('-')[0]);
+
+
+
+      return dateToCompare >= begin && dateToCompare <= ended;
     });
   }, [startDate, endDate, expense]);
 
@@ -70,9 +94,17 @@ export const useFilterData = ({
     const start = format(startDate, 'dd-MM-yyyy');
     const end = format(endDate, 'dd-MM-yyyy');
     return disposal.filter((d) => {
-      const salesDate = d.dateX.split(' ')[0].replace('/', '-').replace('/', '-');
+      const salesDate = d?.dateX?.split(' ')[0];
+      const salesYear = salesDate?.split('/')[2];
+      const salesMonth = salesDate?.split('/')[1];
+      const salesDay = salesDate?.split('/')[0];
+      const dateToCompare = new Date(+salesYear, +salesMonth - 1, +salesDay);
+      const begin = new Date(+start.split('-')[2], +start.split('-')[1] - 1, +start.split('-')[0]);
+      const ended = new Date(+end.split('-')[2], +end.split('-')[1] - 1, +end.split('-')[0]);
 
-      return isWithinInterval(salesDate, { start, end });
+
+      if (!salesDate) return productSupply;
+      return dateToCompare >= begin && dateToCompare <= ended;
     });
   }, [startDate, endDate, disposal]);
 

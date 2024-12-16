@@ -30,7 +30,6 @@ import { useStore } from '../zustand/useStore';
 import {
   cartItems,
   categories,
-  disposedProducts,
   expenseAccounts,
   expenses,
   onlineSales,
@@ -38,7 +37,6 @@ import {
   products,
   saleReferences,
   storeSales,
-  supplyProduct,
 } from '~/db';
 import { useNetwork } from '~/hooks/useNetwork';
 import { CatType, NotType, Receipt1Type, Receipt2Type } from '~/type';
@@ -52,42 +50,39 @@ export const useFetchAll = () => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchAll = useCallback(async () => {
+    if (!id) return;
     try {
-      const [products, online, store, expenses, disposal, account, supply, cats, info] =
-        await Promise.all([
-          getProducts(id!),
-          getSalesP(id!),
-          getSale(id!),
-          getExpenditure(id!),
-          getDisposal(id!),
-          expensesAccount(id!),
-          getSupply(id!),
-          getCat(),
-          getInfo(id!),
-        ]);
-      console.log({ products }, 'queries');
-      // console.log({ products, online, store, expenses, disposal, account, supply, cats, info });
-      await Promise.all([
-        createProducts(products),
-        createExpenses(expenses),
-        createAccount(account),
-        createCats(cats),
-        createStoreSales(store),
-        createDisposals(disposal),
-        createOnlineSales(online),
-        createSupply(supply),
-        addInfo(info),
-      ]);
+      const products = await getProducts(id);
+
+      const online = await getSalesP(id);
+      const store = await getSale(id);
+      const expenses = await getExpenditure(id);
+      const disposal = await getDisposal(id);
+      const account = await expensesAccount(id);
+      const supply = await getSupply(id);
+      const cats = await getCat();
+      const info = await getInfo(id);
+
+      await createProducts(products);
+      await createExpenses(expenses);
+      await createAccount(account);
+      await createCats(cats);
+      await createStoreSales(store);
+      await createDisposals(disposal);
+      await createOnlineSales(online);
+      await createSupply(supply);
+      await addInfo(info);
 
       setHasFetched(true);
       setError(null);
     } catch (error) {
       setError('Error fetching and syncing data');
+      setHasFetched(false);
       console.log(error);
     } finally {
       setFetching(false);
     }
-  }, []);
+  }, [setHasFetched, id]);
   useEffect(() => {
     if (!isConnected) {
       setError('No internet connection, Internet connection needed to sync data');
@@ -98,10 +93,8 @@ export const useFetchAll = () => {
 
     if (hasFetched) return;
 
-    if (id) {
-      fetchAll();
-    }
-  }, [isConnected, id, hasFetched, fetchAll]);
+    fetchAll().catch((error) => console.log(error));
+  }, [isConnected, hasFetched, fetchAll]);
 
   return { isConnected, fetching, error, fetchAll };
 };
@@ -182,9 +175,7 @@ export const useSalesToPrint = (ref: string) => {
   return useQuery({
     queryKey: ['salesToPrint', ref],
     queryFn: async () => {
-      const data = await storeSales.query(Q.where('sales_reference', Q.eq(ref))).fetch();
-
-      return data;
+      return await storeSales.query(Q.where('sales_reference', Q.eq(ref))).fetch();
     },
     structuralSharing: false,
     placeholderData: (TData) => TData,
@@ -210,9 +201,7 @@ export const useExpenditure = (page?: number) => {
 };
 export const useCat = () => {
   const getCat = async () => {
-    const data = await categories.query().fetch();
-
-    return data;
+    return await categories.query().fetch();
   };
   return useQuery<CatType[]>({
     queryKey: ['cat'],
@@ -224,24 +213,22 @@ export const useInfo = () => {
   return useQuery({
     queryKey: ['info'],
     queryFn: async () => {
-      const data = await pharmacyInfo.query().fetch();
-      return data;
+      return await pharmacyInfo.query().fetch();
     },
     structuralSharing: false,
   });
 };
-export const useSupply = () => {
-  const getData = async () => {
-    const data = await supplyProduct.query(Q.sortBy('id', Q.desc)).fetch();
-    return data;
-  };
-
-  return useQuery({
-    queryKey: ['supply'],
-    queryFn: () => getData(),
-    structuralSharing: false,
-  });
-};
+// export const useSupply = () => {
+//   const getData = async () => {
+//     return await supplyProduct.query(Q.sortBy('id', Q.desc)).fetch();
+//   };
+//
+//   return useQuery({
+//     queryKey: ['supply'],
+//     queryFn: () => getData(),
+//     structuralSharing: false,
+//   });
+// };
 export const useExpAcc = (page?: number) => {
   const offset = page ? (page - 1) * 10 : 0;
   const getExpAcc = async () => {
@@ -314,33 +301,30 @@ export const useReceipt2 = (safeRef: string) => {
     queryFn: getReceipt1,
   });
 };
-export const useDisposal = () => {
-  const getDisposal = async () => {
-    const data = await disposedProducts.query(Q.sortBy('id', Q.desc)).fetch();
-    return data;
-  };
-  return useQuery({
-    queryKey: ['disposal'],
-    queryFn: () => getDisposal(),
-    structuralSharing: false,
-  });
-};
+// export const useDisposal = () => {
+//   const getDisposal = async () => {
+//     return await disposedProducts.query(Q.sortBy('id', Q.desc)).fetch();
+//   };
+//   return useQuery({
+//     queryKey: ['disposal'],
+//     queryFn: () => getDisposal(),
+//     structuralSharing: false,
+//   });
+// };
 
-export const useCart = () => {
-  const getCart = async () => {
-    const data = await cartItems.query().fetch();
-    return data;
-  };
-  return useQuery({
-    queryKey: ['cart_items'],
-    queryFn: getCart,
-    structuralSharing: false,
-  });
-};
+// export const useCart = () => {
+//   const getCart = async () => {
+//     return await cartItems.query().fetch();
+//   };
+//   return useQuery({
+//     queryKey: ['cart_items'],
+//     queryFn: getCart,
+//     structuralSharing: false,
+//   });
+// };
 export const useSalesRef = () => {
   const getCart = async () => {
-    const data = await saleReferences.query().fetch();
-    return data;
+    return await saleReferences.query().fetch();
   };
   return useQuery({
     queryKey: ['sales_ref'],
@@ -351,9 +335,7 @@ export const useSalesRef = () => {
 
 export const useCartItemsWithRef = (safeRef: string) => {
   const getCartItem = async () => {
-    const salesRefItem = await cartItems.query(Q.where('sales_reference', Q.eq(safeRef))).fetch();
-
-    return salesRefItem;
+    return await cartItems.query(Q.where('sales_reference', Q.eq(safeRef))).fetch();
   };
   return useQuery({
     queryKey: ['cart_item_ref'],

@@ -79,8 +79,7 @@ export const ProductForm = (): JSX.Element => {
     resolver: zodResolver(newProductSchema),
   });
 
-  const { category, online: on } = watch();
-  console.log({ on });
+  const { category } = watch();
   useEffect(() => {
     if (!cat) return;
     const formattedData: Cats[] = Object.values(

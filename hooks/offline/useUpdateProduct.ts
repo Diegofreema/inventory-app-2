@@ -9,23 +9,27 @@ export const useUpdateProduct = () => {
     const data = await updateProducts.query().fetch();
     console.log(data.length, 'updateProduct');
     if (data.length > 0) {
-      for (const item of data) {
-        axios
-          .get(
-            `https://247api.netpro.software/api.aspx?api=updateproductpricenqty&qty=${item.qty}&customerproductid=${item.customerProductId}&online=${item.online ? 1 : 0}&price=${item.marketPrice}&getsellingprice=${item.sellingPrice}&getdealershare=${item.shareDealer}&getnetproshare=${item.shareNetpro}&productid=${item.productId}`
-          )
-          .then(async () => {
-            await database
-              .write(async () => {
-                for (const item1 of data) {
-                  await database.batch(item1.prepareDestroyPermanently());
-                }
-              })
-              .then(() => {
-                queryClient.invalidateQueries({ queryKey: ['offline_online_status'] });
-              })
-              .catch((e) => console.log(e));
-          });
+      try {
+        for (const item of data) {
+          try {
+            // Make API request sequentially
+            await axios.get(
+              `https://247api.netpro.software/api.aspx?api=updateproductpricenqty&qty=${item.qty}&customerproductid=${item.customerProductId}&online=${item.online ? 1 : 0}&price=${item.marketPrice}&getsellingprice=${item.sellingPrice}&getdealershare=${item.shareDealer}&getnetproshare=${item.shareNetpro}&productid=${item.productId}`
+            );
+            // Prepare and execute database operation for each item
+            await database.write(async () => {
+              await database.batch(item.prepareDestroyPermanently());
+            });
+          } catch (itemError) {
+            console.error('Error processing item:', itemError);
+            // Optionally: decide whether to continue or break the loop
+          }
+        }
+
+        // Invalidate queries after all items are processed
+        queryClient.invalidateQueries({ queryKey: ['offline_online_status'] });
+      } catch (error) {
+        console.error('Overall operation failed:', error);
       }
     }
   };

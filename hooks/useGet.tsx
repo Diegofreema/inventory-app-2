@@ -35,13 +35,13 @@ export const useGet = (id?: string, staffId?: string) => {
     const fetchSingleProduct = async () => {
       if (!id) return;
       try {
-        const padding = await products.find(id);
+        const product = await products.find(id);
 
-        setSingleProduct(padding);
+        setSingleProduct(product);
       } catch (error) {
         console.log(error);
       }
-    };
+  };
     fetchData();
     if (id) fetchSingleProduct();
     if (staffId) fetchStaff();

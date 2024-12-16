@@ -54,7 +54,7 @@ const router = useRouter();
     router.push(`/update-quantity?name=${product?.product}&id=${product?.id}`);
   };
 
-  console.log(product.productId);
+
 
   const toggleOnline = async () => {
     if(isPending) return;

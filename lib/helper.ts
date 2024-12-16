@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
-import axios from "axios";
-import { compareDesc, format, parse } from "date-fns";
-import { z } from "zod";
+import axios from 'axios';
+import { compareDesc, format, parse } from 'date-fns';
+import { z } from 'zod';
 
-import { newProductSchema } from "./validators";
+import { newProductSchema } from './validators';
 
 import database, {
   categories,
@@ -14,11 +14,11 @@ import database, {
   pharmacyInfo,
   products,
   storeSales,
-  supplyProduct
-} from "~/db";
-import StoreSales from "~/db/model/StoreSale";
-import { ProductUpdateQty } from "~/lib/zustand/updateProductQty";
-import { ProductUpdatePrice } from "~/lib/zustand/useProductUpdatePrice";
+  supplyProduct,
+} from '~/db';
+import StoreSales from '~/db/model/StoreSale';
+import { ProductUpdateQty } from '~/lib/zustand/updateProductQty';
+import { ProductUpdatePrice } from '~/lib/zustand/useProductUpdatePrice';
 import {
   DisposalFromDb,
   ExpensesFromDb,
@@ -28,8 +28,8 @@ import {
   SupplyFromDb,
   SupplyInsert,
   TradingType,
-  TradingType2
-} from "~/type";
+  TradingType2,
+} from '~/type';
 
 export const api = process.env.EXPO_PUBLIC_API;
 
@@ -80,15 +80,21 @@ export const colors = [
 ];
 
 export const getProducts = async (id: string) => {
-  const { data } = await axios.get(
+  const response = await axios(
     `https://247api.netpro.software/api.aspx?api=getproducts&cidx=${id}`
   );
 
+  console.log(response.data, 'back');
+  let data = [];
+  if (Object.prototype.toString.call(response.data) === '[object Object]') {
+    data.push(response.data);
+  } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
+    data = [...response.data];
+  } else if (response.data === '') {
+    data = [];
+  }
 
-
-
-
-  return data.map((product: any) => ({
+  return data?.map((product: any) => ({
     category: product.Category,
     subcategory: product.Subcategory,
     productId: product.id,
@@ -104,6 +110,7 @@ export const getProducts = async (id: string) => {
 };
 
 export const trimText = (text: string, limit = 10): string => {
+  if (!text) return 'N/A';
   if (text.length > limit) return text.substring(0, limit) + '...';
   return text;
 };
@@ -123,8 +130,11 @@ export const getSalesP = async (id: string) => {
     data.push(response.data);
   } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
     data = [...response.data];
+  } else if (response.data === '') {
+    data = [];
   }
-  const formattedData = data?.map((sale) => ({
+
+  return data?.map((sale) => ({
     id: +sale.id,
     productId: sale.productid,
     qty: +sale.qty,
@@ -133,8 +143,6 @@ export const getSalesP = async (id: string) => {
     dealerShare: +sale.dealershare,
     netProShare: +sale.netproshare,
   }));
-  console.log({ salesFrom247: formattedData });
-  return formattedData;
 };
 
 export const getExpenditure = async (id: any) => {
@@ -147,8 +155,6 @@ export const getExpenditure = async (id: any) => {
   } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
     data = [...response.data];
   }
-
-
 
   return data?.map((sale) => ({
     accountName: sale?.accountname,
@@ -167,8 +173,9 @@ export const getSupply = async (id: any) => {
     data.push(response.data);
   } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
     data = [...response.data];
+  } else if (response.data === '') {
+    data = [];
   }
-
 
   return data?.map((sale) => ({
     qty: +sale.qty,
@@ -182,7 +189,6 @@ export const getInfo = async (id: any) => {
     `https://247api.netpro.software/api.aspx?api=pharmacyinfor&cidx=${id}`
   );
 
-
   return {
     businessName: data.businessname,
     stateName: data.statename,
@@ -190,7 +196,6 @@ export const getInfo = async (id: any) => {
     shareNetpro: data.sharenetpro,
     shareSeller: data.shareseller,
   };
-
 };
 
 export const getSale = async (id: any) => {
@@ -204,9 +209,11 @@ export const getSale = async (id: any) => {
     data.push(response.data);
   } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
     data = [...response.data];
+  } else if (response.data === '') {
+    data = [];
   }
 
-  const formattedData = data?.map((sale) => ({
+  return data?.map((sale) => ({
     productId: sale.productid as string,
     qty: +sale.qty,
     dateX: sale.datex as string,
@@ -218,35 +225,16 @@ export const getSale = async (id: any) => {
     cid: sale.cid as string,
     userId: sale.userid,
   }));
-  console.log({ salesFromStore: formattedData });
-  return formattedData;
 };
 
 type PaymentType = 'Cash' | 'Card' | 'Transfer';
-type DataItem = { paymenttype: PaymentType; unitprice: string | number };
 
-export const calculateTotalsByPaymentType = (data: StoreSales[]) => {
-  // @ts-ignore
-  const dataItem: DataItem[] = data?.map((d) => ({
-    paymenttype: d.paymentType,
-    unitprice: d?.unitPrice,
-  }));
-  const totals = dataItem.reduce(
-    (acc, item) => {
-      const price = Number(item.unitprice);
-      if (!isNaN(price)) {
-        acc[item.paymenttype] = (acc[item.paymenttype] || 0) + price;
-      }
-      return acc;
-    },
-    {} as Record<PaymentType, number>
-  );
 
-  return [
-    { type: 'Card', value: totals.Card || 0 },
-    { type: 'Transfer', value: totals.Transfer || 0 },
-    { type: 'Cash', value: totals.Cash || 0 },
-  ];
+export const calculateTotalsByPaymentType = (
+  data: StoreSales[],
+  type: PaymentType
+) => {
+  return data.filter(d => d.paymentType === type).reduce((a, b) => a + (b.unitPrice * b.qty), 0)
 };
 
 export const getDisposal = async (id: any) => {
@@ -258,9 +246,10 @@ export const getDisposal = async (id: any) => {
     data.push(response.data);
   } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
     data = [...response.data];
+  } else if (response.data === '') {
+    data = [];
   }
-
-
+  console.log(data, 'disposed');
   return data?.map((sale) => ({
     productId: sale.productid,
     dateX: sale.datex,
@@ -278,8 +267,9 @@ export const expensesAccount = async (id: any) => {
     data.push(response.data);
   } else if (Object.prototype.toString.call(response.data) === '[object Array]') {
     data = [...response.data];
+  } else if (response.data === '') {
+    data = [];
   }
-
 
   return data?.map((sale) => ({
     accountName: sale.accountname,
@@ -412,7 +402,7 @@ export const addExpenses = async ({
   console.log(
     `https://247api.netpro.software/api.aspx?api=addexpenses&accountname=${encodeURIComponent(name)}&cidx=${storeId}&description=${encodeURIComponent(description || '')}&amount=${amount}`
   );
-  console.log({ data });
+
   return data;
 };
 
@@ -436,7 +426,7 @@ export const addOfflineSales = async ({
   const { data } = await axios.get(
     `https://247api.netpro.software/api.aspx?api=makepharmacysale&cidx=${storeId}&qty=${qty}&productid=${productId}&salesref=${encodeURIComponent(salesReference)}&paymenttype=${paymentType}&transactioninfo=${transactionInfo ?? ''}&salesrepid=${salesRepId}`
   );
-  console.log(data);
+
   return data;
 };
 
@@ -584,7 +574,8 @@ export const createAccount = async (accounts: { accountName: string }[], isUploa
         expenseAccounts.prepareCreate((account) => {
           account.accountName = acc.accountName;
           account.isUploaded = isUploaded;
-        }));
+        })
+      );
     }
   });
 };
@@ -870,5 +861,3 @@ export const uploadPrice = (product: ProductUpdatePrice[], deleteOffline: (id: s
 // // Example usage:
 // const mergedProducts = mergeProducts(allStocks);
 // console.log(mergedProducts);
-
-

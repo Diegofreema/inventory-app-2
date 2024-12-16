@@ -75,7 +75,7 @@ export default function AddOfflineScreen() {
     })) || [];
   const filteredData = formattedProducts.filter((f) => f.label.toLowerCase().includes(query.toLowerCase()));
   const { productId } = watch();
-  console.log({ productId });
+
   const memoizedPrice = useMemo(() => {
     if (!productId) return null;
     return storedProduct?.find((item) => item?.id === productId);
@@ -155,7 +155,7 @@ export default function AddOfflineScreen() {
   };
   const handleChange = (value: string) => {
     setValue('productId', value);
-    console.log({ value });
+
   };
 
   const isMid = width < 768;

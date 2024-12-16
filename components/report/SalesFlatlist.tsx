@@ -13,7 +13,7 @@ import { CustomSubHeading } from '../ui/typography';
 import StoreSales from '~/db/model/StoreSale';
 import { useGet } from '~/hooks/useGet';
 import { useGetProductName } from '~/hooks/useGetProductName';
-import { calculateTotalsByPaymentType } from '~/lib/helper';
+import { calculateTotalsByPaymentType, trimText } from '~/lib/helper';
 
 type Props = {
   data: StoreSales[];
@@ -21,7 +21,15 @@ type Props = {
 };
 
 export const SalesFlatList = ({ data, scroll = true }: Props): JSX.Element => {
-  const dt = calculateTotalsByPaymentType(data);
+  const transfer = calculateTotalsByPaymentType(data, 'Transfer');
+  const cash = calculateTotalsByPaymentType(data, 'Cash');
+  const card = calculateTotalsByPaymentType(data, 'Card');
+  console.log(data.map(d => d.unitPrice));
+  const dt = [
+    { type: 'Cash', value: cash },
+    { type: 'Transfer', value: transfer },
+    { type: 'Card', value: card },
+  ];
   const { width } = useWindowDimensions();
   const isSmallTablet = width >= 500;
   return (
@@ -115,7 +123,7 @@ const SalesCard = ({ item, index }: { item: StoreSales; index: number }) => {
   };
   return (
     <AnimatedCard index={index}>
-      <FlexText text="Product" text2={name} />
+      <FlexText text="Product" text2={trimText(name, 30)} />
       <FlexText text="Quantity" text2={item?.qty.toString()} />
       <FlexText text="Date" text2={item?.dateX} />
       <FlexText text="Mode" text2={item?.paymentType} />
@@ -137,6 +145,7 @@ const BottomList = ({
     value: number;
   }[];
 }) => {
+  console.log(data);
   return (
     <AnimatedCard index={index}>
       <CustomSubHeading text="Sales summary" fontSize={2.2} />

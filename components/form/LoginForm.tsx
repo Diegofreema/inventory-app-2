@@ -1,25 +1,25 @@
 /* eslint-disable prettier/prettier */
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Q } from '@nozbe/watermelondb';
-import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
-import { useCallback, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { StyleSheet } from 'react-native';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Q } from "@nozbe/watermelondb";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
+import { useCallback, useState } from "react";
+import { useForm } from "react-hook-form";
+import { StyleSheet } from "react-native";
 import { toast } from "sonner-native";
-import { Stack, Text, XStack } from 'tamagui';
-import { z } from 'zod';
+import { Stack, Text, XStack } from "tamagui";
+import { z } from "zod";
 
-import { CustomController } from './CustomController';
-import { LoadingModal } from '../modals/LoadingModal';
-import { CustomPressable } from '../ui/CustomPressable';
-import { MyButton } from '../ui/MyButton';
+import { CustomController } from "./CustomController";
+import { LoadingModal } from "../modals/LoadingModal";
+import { CustomPressable } from "../ui/CustomPressable";
+import { MyButton } from "../ui/MyButton";
 
-import { colors } from '~/constants';
-import { staffs } from '~/db';
-import { loginSchema } from '~/lib/validators';
-import { useStore } from '~/lib/zustand/useStore';
+import { colors } from "~/constants";
+import { staffs } from "~/db";
+import { loginSchema } from "~/lib/validators";
+import { useStore } from "~/lib/zustand/useStore";
 
 export const LoginForm = (): JSX.Element => {
   const [secure, setSecure] = useState(true);
@@ -77,6 +77,22 @@ export const LoginForm = (): JSX.Element => {
     }
   };
 
+  // const fetchData = async () => {
+  //   sending = true;
+  // try {
+  //   const { data } = await axios('https://247api.netpro.software/api.aspx?api=getproducts&cidx=27');
+  //   console.log(Array.isArray(data));
+  //
+  //
+  //   console.log(data, 'kslkj');
+  //   console.log(typeof data, 'kslkj');
+  //   console.log(data[0]);
+  // }catch (e) {
+  //   console.log(e);
+  // }finally {
+  //   sending = false;
+  // }
+  // };
   const onStaffLogin = async (values: z.infer<typeof loginSchema>) => {
     setLoading(true);
     try {
@@ -126,6 +142,7 @@ export const LoginForm = (): JSX.Element => {
     // @ts-ignore
     <>
       <LoadingModal visible={loading} />
+
       <Stack gap={10}>
         <CustomController
           name="email"

@@ -18,9 +18,11 @@ export default function LoadingDataScreen() {
     fetchAll();
   };
   useEffect(() => {
-    if (!fetching && !error) router.replace('/');
+    if (!fetching && !error) {
+      router.replace('/')
+    }
   }, [fetching, error]);
-  if (error === 'No internet connection, Internet connection needed to sync data')
+  if (error?.trim())
     return <Error onRetry={handleRefetch} text={error} />;
   return (
     <View flex={1} justifyContent="center" alignItems="center" bg="white">

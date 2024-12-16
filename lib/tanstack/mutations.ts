@@ -827,6 +827,7 @@ export const useEdit = () => {
               p.sellingPrice = +sellingPrice;
               p.shareDealer = +dealerShare;
               p.shareNetpro = +netProShare;
+              p.online = singleProduct.online;
             });
           }
         });

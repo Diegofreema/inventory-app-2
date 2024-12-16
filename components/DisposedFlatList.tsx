@@ -42,8 +42,8 @@ const DisPosedCard = ({
 }: {
   disposedProduct: DisposedProducts;
   index: number;
-}): JSX.Element => {
-  const productName = useGetProductName(disposedProduct.productId);
+}) => {
+  const productName = useGetProductName(disposedProduct?.productId);
 
   const gap = 15;
   return (

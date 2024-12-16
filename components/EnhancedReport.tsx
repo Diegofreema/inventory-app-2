@@ -41,6 +41,7 @@ const Report = ({ disposal, expense, productSupply, storeSale }: Props): JSX.Ele
     storeSales: storeSale,
     disposal,
   });
+
   const { width } = useWindowDimensions();
   const isSmallTablet = width >= 500;
   const isBigTablet = width >= 700;

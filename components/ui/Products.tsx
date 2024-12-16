@@ -1,23 +1,21 @@
 /* eslint-disable prettier/prettier */
 
-import { FlashList } from '@shopify/flash-list';
-import { Href, Link, useRouter } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
-import { useWindowDimensions } from 'react-native';
-import { RFPercentage } from 'react-native-responsive-fontsize';
-import { Card, CardFooter, CardHeader, Stack, Text, XStack } from 'tamagui';
+import { FlashList } from "@shopify/flash-list";
+import { Href, Link, useRouter } from "expo-router";
+import { useWindowDimensions } from "react-native";
+import { RFPercentage } from "react-native-responsive-fontsize";
+import { Card, CardFooter, CardHeader, Stack, Text, XStack } from "tamagui";
 
-import { ActionMenu } from './ActionMenu';
-import { FlexText } from './FlexText';
-import { Empty } from './empty';
-import { CustomSubHeading } from './typography';
+import { FlexText } from "./FlexText";
+import { Empty } from "./empty";
+import { CustomSubHeading } from "./typography";
 
-import { Menus } from '~/components/Menu';
-import { MyButton } from '~/components/ui/MyButton';
-import { colors } from '~/constants';
-import Product from '~/db/model/Product';
-import { trimText } from '~/lib/helper';
-import { ItemType, MenuProps } from '~/type';
+import { Menus } from "~/components/Menu";
+import { MyButton } from "~/components/ui/MyButton";
+import { colors } from "~/constants";
+import Product from "~/db/model/Product";
+import { trimText } from "~/lib/helper";
+import { ItemType } from "~/type";
 
 type Props = {
   data: Product[] | undefined;
