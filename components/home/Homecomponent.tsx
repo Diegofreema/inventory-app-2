@@ -1,20 +1,24 @@
 /* eslint-disable prettier/prettier */
-import { Q } from '@nozbe/watermelondb';
-import { withObservables } from '@nozbe/watermelondb/react';
-import { TouchableOpacity, useWindowDimensions } from 'react-native';
-import { ScrollView, Text, View, XStack } from 'tamagui';
+import { Q } from "@nozbe/watermelondb";
+import { withObservables } from "@nozbe/watermelondb/react";
+import { TouchableOpacity, useWindowDimensions } from "react-native";
+import { ScrollView, Text, View, XStack } from "tamagui";
 
-import { Container } from '~/components/Container';
-import { LogoutButton } from '~/components/LogoutButton';
-import { DashBoardCards } from '~/components/home/DashBoardCards';
-import { Products } from '~/components/ui/Products';
-import { CustomHeading } from '~/components/ui/typography';
-import { onlineSales, products, storeSales, updateProducts } from '~/db';
-import OnlineSale from '~/db/model/OnlineSale';
-import Product from '~/db/model/Product';
-import StoreSales from '~/db/model/StoreSale';
-import { useRender } from '~/hooks/useRender';
+import { Container } from "~/components/Container";
+import { LogoutButton } from "~/components/LogoutButton";
+import { DashBoardCards } from "~/components/home/DashBoardCards";
+import { Products } from "~/components/ui/Products";
+import { CustomHeading } from "~/components/ui/typography";
+import { onlineSales, products, storeSales } from "~/db";
+import OnlineSale from "~/db/model/OnlineSale";
+import Product from "~/db/model/Product";
+import StoreSales from "~/db/model/StoreSale";
+import { useRender } from "~/hooks/useRender";
 
+const fetchData = async () => {
+   const data = await products.query(Q.where('product_id', Q.eq('U5482B7180'))).fetch();
+    console.log(data[0]?.product);
+  };
 export const Main = ({
   onlineSales,
   products,
@@ -33,10 +37,6 @@ export const Main = ({
   const finalWidth = isSmall ? '100%' : isMid ? '100%' : '80%';
 
   const limitedProducts = products?.slice(0, 10) || [];
-  // const fetchData = async () => {
-  //  const data = await updateProducts.query().fetch();
-  //   console.log(data[0].online);
-  // };
 
   return (
     <Container>
@@ -45,9 +45,9 @@ export const Main = ({
           <CustomHeading text="Dashboard" fontSize={1.7} />
           <LogoutButton />
         </XStack>
-        {/*<TouchableOpacity onPress={fetchData}>*/}
-        {/*  <Text>Press</Text>*/}
-        {/*</TouchableOpacity>*/}
+        <TouchableOpacity onPress={fetchData}>
+          <Text>Press</Text>
+        </TouchableOpacity>
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 50 }}>

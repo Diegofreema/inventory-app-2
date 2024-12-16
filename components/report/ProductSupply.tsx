@@ -19,6 +19,7 @@ type Props = {
 export const ProductSupply = ({ data, scroll = true }: Props): JSX.Element => {
   const { width } = useWindowDimensions();
   const isSmallTablet = width >= 500;
+  console.log(data.filter(d => d.productId.length > 10 )[0].productId);
   return (
     <FlatList
       scrollEnabled={scroll}
@@ -36,8 +37,8 @@ export const ProductSupply = ({ data, scroll = true }: Props): JSX.Element => {
 
 const SupplyCard = ({ item, index }: { item: SupplyProduct; index: number }) => {
   const totalPrice = Number(item.unitCost) * Number(item?.qty);
-  const name = useGetProductName(item.productId);
-
+  const name = useGetProductName(item?.productId);
+  // console.log(item?.productId);
   return (
     <AnimatedCard index={index}>
       <FlexText text="Product" text2={trimText(name, 20)} />

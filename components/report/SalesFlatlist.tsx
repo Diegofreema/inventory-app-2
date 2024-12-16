@@ -24,7 +24,6 @@ export const SalesFlatList = ({ data, scroll = true }: Props): JSX.Element => {
   const transfer = calculateTotalsByPaymentType(data, 'Transfer');
   const cash = calculateTotalsByPaymentType(data, 'Cash');
   const card = calculateTotalsByPaymentType(data, 'Card');
-  console.log(data.map(d => d.unitPrice));
   const dt = [
     { type: 'Cash', value: cash },
     { type: 'Transfer', value: transfer },
@@ -57,51 +56,52 @@ const SalesCard = ({ item, index }: { item: StoreSales; index: number }) => {
 
   const price = +item?.qty * +item?.unitPrice;
   const html = `
-<html>
+<html lang="en">
   <head>
+  <title>${name}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
   </head>
   <body style="text-align: center;">
    
   <div style='width: 80%; margin: 0 auto;'>
     <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: normal;">
         Date
       </h1>
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: bold;">
         ${item?.dateX}
       </h1>
     </div>
     <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: normal;">
         Product
       </h1>
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: bold;">
         ${name}
       </h1>
     </div>
     
    <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: normal;">
         Quantity
       </h1>
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: bold;">
         ${item?.qty}
       </h1>
     </div>
      <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: normal;">
         Price
       </h1>
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: bold;">
         ₦${item?.unitPrice}
       </h1>
     </div>
      <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: normal;">
         Payment Type
       </h1>
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: bold;">
         ${item?.paymentType}
       </h1>
     </div>
@@ -145,7 +145,7 @@ const BottomList = ({
     value: number;
   }[];
 }) => {
-  console.log(data);
+
   return (
     <AnimatedCard index={index}>
       <CustomSubHeading text="Sales summary" fontSize={2.2} />

@@ -92,9 +92,9 @@ export const useAddNewProduct = () => {
         productId,
         description: des,
       });
-
+      console.log(createdProduct);
       if (!createdProduct) throw Error('Failed to add product');
-      await database.write(async () => {
+     const createdSupply = await database.write(async () => {
         return await supplyProduct.create((supply) => {
           supply.productId = createdProduct.productId;
           supply.qty = +qty;
@@ -126,6 +126,9 @@ export const useAddNewProduct = () => {
             await createdProduct.update((product) => {
               product.productId = data?.result;
             });
+            await createdSupply.update((supply) => {
+              supply.productId = data?.result;
+            })
           });
           return data;
         } else {
@@ -133,6 +136,7 @@ export const useAddNewProduct = () => {
             await createdProduct.update((product) => {
               product.isUploaded = false;
             });
+
           });
         }
       } else if (!isConnected) {
@@ -140,9 +144,6 @@ export const useAddNewProduct = () => {
           await createdProduct.update((product) => {
             product.isUploaded = false;
           });
-          // await productSupply.update((supply) => {
-          //   supply.isUploaded = false;
-          // });
         });
       }
     },
@@ -224,7 +225,7 @@ export const useAdd247 = () => {
         description: error.message,
       });
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Success', {
         description: 'Sales has been added successfully',
       });
@@ -367,7 +368,7 @@ export const useCart = () => {
         description: 'Failed to add sales',
       });
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Success', {
         description: 'Sales has been made',
       });
@@ -429,7 +430,7 @@ export const useAddSales = () => {
         description: 'Failed to add sales',
       });
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Success', {
         description: 'item has been added to cart',
       });
@@ -515,7 +516,7 @@ export const useSupply = () => {
         description: error.message,
       });
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Success', {
         description: 'Product has been restocked',
       });
@@ -588,11 +589,11 @@ export const useDisposal = () => {
 
         if (!updatedProduct) Error('Failed to dispose product');
         if (isConnected) {
-          const data = await sendDisposedProducts({
+
+          return await sendDisposedProducts({
             productId,
             qty,
           });
-          return data;
         } else if (!isConnected) {
           await database.write(async () => {
             await disposedProduct.update((product) => {
@@ -662,7 +663,7 @@ export const useAddAccount = () => {
         description: error.message,
       });
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Success', {
         description: 'Expenditure account has been created',
       });
@@ -727,7 +728,7 @@ export const useAddExp = () => {
         description: error.message,
       });
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success('Success', {
         description: 'Expense has been added',
       });

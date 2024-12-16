@@ -108,7 +108,12 @@ export const getProducts = async (id: string) => {
     shareNetpro: +product.sharenetpro,
   }));
 };
-
+export const compareDate = (dateX: string, start: string, end: string) => {
+  const dateToCompare = parse(dateX?.split(' ')[0], 'dd/MM/yyyy', new Date());
+  const begin = parse(start, 'dd-MM-yyyy', new Date());
+  const ended = parse(end, 'dd-MM-yyyy', new Date());
+  return dateToCompare >= begin && dateToCompare <= ended;
+}
 export const trimText = (text: string, limit = 10): string => {
   if (!text) return 'N/A';
   if (text.length > limit) return text.substring(0, limit) + '...';
@@ -592,7 +597,7 @@ export const createCats = async (cats: { category: string; subcategory: string }
   });
 };
 
-export const createSupply = async (supplies: DisposalFromDb[], isUploaded = true) => {
+export const createSupply = async (supplies: DisposalFromDb[]) => {
   await new Promise((resolve) => setTimeout(resolve, 2000));
   await database.write(async () => {
     for (const sup of supplies) {
@@ -714,9 +719,9 @@ export const mergeProducts = (products: TradingType) => {
 
   products.forEach((product) => {
     const currentDate = new Date(
-      parseInt(product.dateX.split('/')[2]), // year
-      parseInt(product.dateX.split('/')[1]) - 1, // month (0-based)
-      parseInt(product.dateX.split('/')[0]), // day
+      parseInt(product.dateX.split('/')[2], 10), // year
+      parseInt(product.dateX.split('/')[1], 10) - 1, // month (0-based)
+      parseInt(product.dateX.split('/')[0], 10), // day
       0, // hours
       0, // minutes
       0 // seconds
@@ -725,9 +730,9 @@ export const mergeProducts = (products: TradingType) => {
     if (productMap.has(product.productId)) {
       const existingProduct = productMap.get(product.productId);
       const existingDate = new Date(
-        parseInt(existingProduct.dateX.split('/')[2]),
-        parseInt(existingProduct.dateX.split('/')[1]) - 1,
-        parseInt(existingProduct.dateX.split('/')[0]),
+        parseInt(existingProduct.dateX.split('/')[2], 10),
+        parseInt(existingProduct.dateX.split('/')[1], 10) - 1,
+        parseInt(existingProduct.dateX.split('/')[0], 10),
         0,
         0,
         0

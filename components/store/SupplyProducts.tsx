@@ -14,7 +14,8 @@ export const SupplyProducts = (): JSX.Element => {
 
   const onSetValue = useCallback((val: string) => setValue(val), [value]);
 
- const {endDate,setEndDate,setStartDate,startDate,resetDates,dateValue,onOpenCalender,bottomRef} = useCalendar()
+ const {endDate,setEndDate,setStartDate,startDate,resetDates,dateValue,onOpenCalender,bottomRef} = useCalendar();
+
   return (
     <AnimatedContainer>
       <StoreActions

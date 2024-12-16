@@ -1,34 +1,37 @@
 /* eslint-disable prettier/prettier */
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Q } from '@nozbe/watermelondb';
-import { X } from '@tamagui/lucide-icons';
-import { BarcodeScanningResult, CameraView, useCameraPermissions } from 'expo-camera';
-import * as Haptics from 'expo-haptics';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Dimensions, Pressable, StyleSheet } from 'react-native';
-import Toast from 'react-native-toast-message';
-import { toast } from 'sonner-native';
-import { Stack, View } from 'tamagui';
-import { z } from 'zod';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Q } from "@nozbe/watermelondb";
+import { X } from "@tamagui/lucide-icons";
+import {
+  BarcodeScanningResult,
+  CameraView,
+  useCameraPermissions
+} from "expo-camera";
+import * as Haptics from "expo-haptics";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import { Dimensions, Pressable, StyleSheet } from "react-native";
+import { toast } from "sonner-native";
+import { Stack, View } from "tamagui";
+import { z } from "zod";
 
-import { CustomController } from './CustomController';
-import { Error } from '../ui/Error';
-import { FormLoader } from '../ui/Loading';
-import { MyButton } from '../ui/MyButton';
-import { NavHeader } from '../ui/NavHeader';
+import { CustomController } from "./CustomController";
+import { Error } from "../ui/Error";
+import { FormLoader } from "../ui/Loading";
+import { MyButton } from "../ui/MyButton";
+import { NavHeader } from "../ui/NavHeader";
 
-import { colors } from '~/constants';
-import { online } from '~/data';
-import { products } from '~/db';
-import { useAddNewProduct } from '~/lib/tanstack/mutations';
-import { useCat, useInfo } from '~/lib/tanstack/queries';
-import { newProductSchema } from '~/lib/validators';
-import { Cats } from '~/type';
+import { colors } from "~/constants";
+import { online } from "~/data";
+import { products } from "~/db";
+import { useAddNewProduct } from "~/lib/tanstack/mutations";
+import { useCat, useInfo } from "~/lib/tanstack/queries";
+import { newProductSchema } from "~/lib/validators";
+import { Cats } from "~/type";
 
 const { height, width } = Dimensions.get('window');
-export const ProductForm = (): JSX.Element => {
+export const ProductForm = () => {
   const { isPending, mutateAsync } = useAddNewProduct();
   const { data, isPending: infoPending, isError, refetch } = useInfo();
 
