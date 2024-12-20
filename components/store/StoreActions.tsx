@@ -83,14 +83,14 @@ export const StoreActions = ({
             borderColor={colors.lightGray}
             borderRadius={10}
             flex={1}>
-            <CustomPressable onPress={onFilter} style={{ height: 50 }}>
+            <CustomPressable onPress={onFilter} style={{ height: 50, flex: 1 }}>
               <Input
                 editable={false}
                 backgroundColor="$colorTransparent"
                 borderWidth={0}
                 fontSize={15}
                 style={{ fontFamily: 'InterBold', color: 'black' }}
-                placeholder="Filter eg. (07/25/2015 to 12/25/2015)"
+                placeholder="(07/25/2015 to 12/25/2015)"
                 placeholderTextColor={colors.lightGray}
                 height={50}
                 flex={1}

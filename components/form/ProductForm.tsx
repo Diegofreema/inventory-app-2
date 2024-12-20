@@ -1,34 +1,30 @@
 /* eslint-disable prettier/prettier */
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Q } from "@nozbe/watermelondb";
-import { X } from "@tamagui/lucide-icons";
-import {
-  BarcodeScanningResult,
-  CameraView,
-  useCameraPermissions
-} from "expo-camera";
-import * as Haptics from "expo-haptics";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
-import { Dimensions, Pressable, StyleSheet } from "react-native";
-import { toast } from "sonner-native";
-import { Stack, View } from "tamagui";
-import { z } from "zod";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Q } from '@nozbe/watermelondb';
+import { X } from '@tamagui/lucide-icons';
+import { BarcodeScanningResult, CameraView, useCameraPermissions } from 'expo-camera';
+import * as Haptics from 'expo-haptics';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Dimensions, Pressable, StyleSheet } from 'react-native';
+import { Stack, View } from 'tamagui';
+import { z } from 'zod';
 
-import { CustomController } from "./CustomController";
-import { Error } from "../ui/Error";
-import { FormLoader } from "../ui/Loading";
-import { MyButton } from "../ui/MyButton";
-import { NavHeader } from "../ui/NavHeader";
+import { CustomController } from './CustomController';
+import { Error } from '../ui/Error';
+import { FormLoader } from '../ui/Loading';
+import { MyButton } from '../ui/MyButton';
+import { NavHeader } from '../ui/NavHeader';
 
-import { colors } from "~/constants";
-import { online } from "~/data";
-import { products } from "~/db";
-import { useAddNewProduct } from "~/lib/tanstack/mutations";
-import { useCat, useInfo } from "~/lib/tanstack/queries";
-import { newProductSchema } from "~/lib/validators";
-import { Cats } from "~/type";
+import { colors } from '~/constants';
+import { online } from '~/data';
+import { products } from '~/db';
+import { useAddNewProduct } from '~/lib/tanstack/mutations';
+import { useCat, useInfo } from '~/lib/tanstack/queries';
+import { newProductSchema } from '~/lib/validators';
+import { useShowToast } from '~/lib/zustand/useShowToast';
+import { Cats } from '~/type';
 
 const { height, width } = Dimensions.get('window');
 export const ProductForm = () => {
@@ -39,6 +35,8 @@ export const ProductForm = () => {
   const info = data?.[0];
   const [showCamera, setShowCamera] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
+  const toast = useShowToast((state) => state.onShow);
+
   const { data: cat, isPending: catPending, isError: isErrorCat, refetch: refetchCat } = useCat();
   const handleRefetch = useCallback(() => {
     refetch();
@@ -139,9 +137,7 @@ export const ProductForm = () => {
 
       reset();
     } catch (error: any) {
-      toast.error('Failed', {
-        description: error?.message,
-      });
+      toast({ message: 'Failed', description: error?.message, type: 'error' });
     }
   };
 
@@ -156,9 +152,11 @@ export const ProductForm = () => {
         .query(Q.where('customer_product_id', Q.eq(data)), Q.take(1))
         .fetch();
       if (pd.length > 0) {
-        toast.error('Failed to scanned product', {
+        toast( {message: 'Failed to scanned product',
           description: 'Another product already has this product id!',
+          type: 'error'
         });
+        setShowCamera(false);
         return;
       }
       setValue('customerproductid', data);

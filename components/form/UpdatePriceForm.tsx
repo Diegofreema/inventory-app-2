@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner-native';
+
 import { Stack, View } from 'tamagui';
 import { z } from 'zod';
 
@@ -11,10 +11,12 @@ import { NavHeader } from '~/components/ui/NavHeader';
 import { colors } from '~/constants';
 import { useUpdatePrice } from '~/lib/tanstack/mutations';
 import { updateProduct } from '~/lib/validators';
+import { useShowToast } from '~/lib/zustand/useShowToast';
 
 export const UpdatePriceForm = () => {
   const { name, id } = useLocalSearchParams<{ name: string; id: string }>();
   const { mutateAsync } = useUpdatePrice();
+  const toast = useShowToast((state) => state.onShow);
   const {
     handleSubmit,
     formState: { errors, isSubmitting },
@@ -34,9 +36,7 @@ export const UpdatePriceForm = () => {
       router.back();
     } catch (e: any) {
       console.log(e);
-      toast.error('Error', {
-        description: e.message,
-      });
+      toast({ message: 'Error', description: e.message, type: 'error' });
     }
   };
   return (

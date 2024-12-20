@@ -5,7 +5,6 @@ import { Q } from '@nozbe/watermelondb';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import {toast} from 'sonner-native'
 import { View } from 'tamagui';
 import { z } from 'zod';
 
@@ -15,10 +14,13 @@ import { MyButton } from '../ui/MyButton';
 import { colors } from '~/constants';
 import database, { staffs } from '~/db';
 import { addStaffSchema } from '~/lib/validators';
+import { useShowToast } from '~/lib/zustand/useShowToast';
 import { useStore } from '~/lib/zustand/useStore';
 
-export const AddStaffForm = (): JSX.Element => {
+export const AddStaffForm = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const toast = useShowToast((state) => state.onShow);
+
   const pharmacyId = useStore((state) => state.id);
   const [edit, setEdit] = useState(false);
   const [secure, setSecure] = useState(true);
@@ -62,36 +64,28 @@ export const AddStaffForm = (): JSX.Element => {
     }
   }, [id]);
   const onCreate = async (value: z.infer<typeof addStaffSchema>) => {
-    if(!pharmacyId) return
+    if (!pharmacyId) return;
     try {
       const emailExists = await staffs.query(Q.where('email', value.email), Q.take(1)).fetch();
       if (emailExists.length) {
-        toast.error('Error',{
-          description: 'Email already exists',
-        });
+        toast({ message: 'Error', description: 'Email already exists', type: 'error' });
         return;
       }
 
-
       await database.write(async () => {
-      const data =  await staffs.create((staff) => {
+        await staffs.create((staff) => {
           staff.name = value.name;
           staff.email = value.email;
           staff.password = value.password;
           staff.pharmacyId = pharmacyId;
         });
-
       });
-      toast.success('Success',{
-        description: 'Staff added successfully',
-      });
+      toast({ message: 'Success', description: 'Staff added successfully', type: 'success' });
       reset();
       router.back();
     } catch (error) {
       console.log(error);
-      toast.error('Failed',{
-        description: 'Staff was not added successfully',
-      });
+      toast({ message: 'Failed', description: 'Staff was not added successfully', type: 'error' });
     }
   };
 
@@ -105,17 +99,17 @@ export const AddStaffForm = (): JSX.Element => {
           staff.password = value.password;
         });
       });
-      toast.success('Success',{
-        description: 'Staff updated successfully',
-      });
+      toast({ message: 'Success', description: 'Staff updated successfully', type: 'success' });
       reset();
       setEdit(false);
       router.back();
     } catch (error) {
       console.log(error);
 
-      toast.error('Failed',{
+      toast({
+        message: 'Failed',
         description: 'Staff was not updated successfully',
+        type: 'error',
       });
     }
   };

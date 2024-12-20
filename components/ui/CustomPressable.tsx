@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 
-import { Pressable, StyleProp, ViewStyle } from 'react-native';
+import { StyleProp, TouchableOpacity, ViewStyle } from 'react-native';
 
 type Props = {
   children: React.ReactNode;
@@ -10,10 +10,8 @@ type Props = {
 
 export const CustomPressable = ({ children, onPress, style }: Props): JSX.Element => {
   return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [{ opacity: pressed ? 0.5 : 1, flex: 1 }, style]}>
+    <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={[{ padding: 5, flex: 0 }, style]}>
       {children}
-    </Pressable>
+    </TouchableOpacity>
   );
 };

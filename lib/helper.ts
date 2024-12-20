@@ -84,7 +84,6 @@ export const getProducts = async (id: string) => {
     `https://247api.netpro.software/api.aspx?api=getproducts&cidx=${id}`
   );
 
-  console.log(response.data, 'back');
   let data = [];
   if (Object.prototype.toString.call(response.data) === '[object Object]') {
     data.push(response.data);
@@ -113,7 +112,7 @@ export const compareDate = (dateX: string, start: string, end: string) => {
   const begin = parse(start, 'dd-MM-yyyy', new Date());
   const ended = parse(end, 'dd-MM-yyyy', new Date());
   return dateToCompare >= begin && dateToCompare <= ended;
-}
+};
 export const trimText = (text: string, limit = 10): string => {
   if (!text) return 'N/A';
   if (text.length > limit) return text.substring(0, limit) + '...';
@@ -234,12 +233,8 @@ export const getSale = async (id: any) => {
 
 type PaymentType = 'Cash' | 'Card' | 'Transfer';
 
-
-export const calculateTotalsByPaymentType = (
-  data: StoreSales[],
-  type: PaymentType
-) => {
-  return data.filter(d => d.paymentType === type).reduce((a, b) => a + (b.unitPrice * b.qty), 0)
+export const calculateTotalsByPaymentType = (data: StoreSales[], type: PaymentType) => {
+  return data.filter((d) => d.paymentType === type).reduce((a, b) => a + b.unitPrice * b.qty, 0);
 };
 
 export const getDisposal = async (id: any) => {

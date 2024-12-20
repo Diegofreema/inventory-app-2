@@ -8,6 +8,7 @@ import { Empty } from '../ui/empty';
 import OnlineSale from '~/db/model/OnlineSale';
 import StoreSales from '~/db/model/StoreSale';
 import { View } from "tamagui";
+import { FlashList } from "@shopify/flash-list";
 
 type Props = {
   data: OnlineSale[] & StoreSales[];
@@ -23,7 +24,7 @@ export const SalesFlatlist = ({
   refetch,
   pagination: Pagination,
   print
-}: Props): JSX.Element => {
+}: Props) => {
   const { width } = useWindowDimensions();
   const isSmallTablet = width >= 500;
   return (
@@ -40,6 +41,7 @@ export const SalesFlatlist = ({
       ListFooterComponent={Pagination}
       columnWrapperStyle={isSmallTablet && { gap: 20 }}
       numColumns={isSmallTablet ? 2 : undefined}
+
     />
   );
 };

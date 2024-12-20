@@ -1,48 +1,49 @@
 /* eslint-disable prettier/prettier */
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Q } from "@nozbe/watermelondb";
-import { useQueryClient } from "@tanstack/react-query";
-import { router } from "expo-router";
-import * as SecureStore from "expo-secure-store";
-import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
-import { Alert, FlatList, useWindowDimensions } from "react-native";
-import { toast } from "sonner-native";
-import { View, XStack } from "tamagui";
-import { z } from "zod";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Q } from '@nozbe/watermelondb';
+import { useQueryClient } from '@tanstack/react-query';
+import { router } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
+import { useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { Alert, FlatList, useWindowDimensions } from 'react-native';
+import { View, XStack } from 'tamagui';
+import { z } from 'zod';
 
-import { ExtraDataForm } from "./ExtraDataForm";
-import { AnimatedCard } from "./ui/AnimatedCard";
-import { FlexText } from "./ui/FlexText";
-import { MyButton } from "./ui/MyButton";
-import { Empty } from "./ui/empty";
+import { ExtraDataForm } from './ExtraDataForm';
+import { AnimatedCard } from './ui/AnimatedCard';
+import { FlexText } from './ui/FlexText';
+import { MyButton } from './ui/MyButton';
+import { Empty } from './ui/empty';
 
-import database, { cartItems, products, saleReferences } from "~/db";
-import CartItem from "~/db/model/CartItems";
-import { useSalesRef } from "~/hooks/useSalesRef";
-import { trimText } from "~/lib/helper";
-import { useCart } from "~/lib/tanstack/mutations";
-import { extraDataSchema } from "~/lib/validators";
-import { ExtraSalesType } from "~/type";
-
+import database, { cartItems, products, saleReferences } from '~/db';
+import CartItem from '~/db/model/CartItems';
+import { useSalesRef } from '~/hooks/useSalesRef';
+import { trimText } from '~/lib/helper';
+import { useCart } from '~/lib/tanstack/mutations';
+import { extraDataSchema } from '~/lib/validators';
+import { useShowToast } from '~/lib/zustand/useShowToast';
+import { ExtraSalesType } from '~/type';
 
 type Props = {
   data: CartItem[];
 };
 
-export const CartFlatList = ({ data }: Props): JSX.Element => {
+export const CartFlatList = ({ data }: Props) => {
   const { mutateAsync, isError } = useCart();
+
   const [ref, setRef] = useState('');
   const queryClient = useQueryClient();
-  const {width} = useWindowDimensions()
-const salesRefs = useSalesRef(state => state.saleRefs)
-  const refToPrint = salesRefs.find((r) => r === ref)
+  const { width } = useWindowDimensions();
+  const salesRefs = useSalesRef((state) => state.saleRefs);
+  const refToPrint = salesRefs.find((r) => r === ref);
   const {
     formState: { errors, isSubmitting },
     reset,
-    handleSubmit, control,
+    handleSubmit,
+    control,
     setValue,
-    watch
+    watch,
   } = useForm<z.infer<typeof extraDataSchema>>({
     defaultValues: {
       paymentType: 'Cash',
@@ -52,7 +53,7 @@ const salesRefs = useSalesRef(state => state.saleRefs)
     resolver: zodResolver(extraDataSchema),
   });
   const salesRepId = SecureStore.getItem('staffId') || '';
-const {paymentType} = watch()
+  const { paymentType } = watch();
   const onSubmit = async (values: z.infer<typeof extraDataSchema>) => {
     const extraData: ExtraSalesType = {
       paymentType: values.paymentType,
@@ -60,8 +61,8 @@ const {paymentType} = watch()
       transactionInfo: values.transferInfo,
     };
     await mutateAsync({ data, extraData });
-    queryClient.invalidateQueries({queryKey: ['product_all']});
-    setRef(data[0].salesReference)
+    queryClient.invalidateQueries({ queryKey: ['product_all'] });
+    setRef(data[0].salesReference);
     if (!isError) {
       reset();
     }
@@ -97,7 +98,7 @@ const {paymentType} = watch()
       console.log(error);
     }
   };
-const isCash = paymentType === 'Cash';
+  const isCash = paymentType === 'Cash';
   const isMid = width < 768;
   const isSmall = width < 425;
 
@@ -137,7 +138,13 @@ const isCash = paymentType === 'Cash';
             flex={1}
           />
         </XStack>
-        {refToPrint &&<MyButton title='Print' height={60} onPress={() => router.push(`/print?ref=${refToPrint}`)} />}
+        {refToPrint && (
+          <MyButton
+            title="Print"
+            height={60}
+            onPress={() => router.push(`/print?ref=${refToPrint}`)}
+          />
+        )}
       </View>
     </View>
   );
@@ -145,42 +152,44 @@ const isCash = paymentType === 'Cash';
 
 const CartCard = ({ item, index }: { item: CartItem; index: number }) => {
   const queryClient = useQueryClient();
-
+  const toast = useShowToast((state) => state.onShow);
 
   const onAdd = async () => {
-    if (!item?.productId) return toast.error('Error',{ description: 'Could' +
-        ' not add item' });
+    if (!item?.productId)
+      return toast({ message: 'Error', description: 'Could' + ' not add item', type: 'error' });
 
-  try{
-    const productQty = await products.query(Q.where('product_id', item.productId), Q.take(1)).fetch()
-    const singleProduct = productQty[0]
+    try {
+      const productQty = await products
+        .query(Q.where('product_id', item.productId), Q.take(1))
+        .fetch();
+      const singleProduct = productQty[0];
 
-
-    if (singleProduct && singleProduct.qty <= item.qty) {
-      return toast.info('Cannot update item',{
-        description: `Only ${singleProduct.qty} Item(s)  is left in stock`,
+      if (singleProduct && singleProduct.qty <= item.qty) {
+        return toast({
+          message: 'Cannot update item',
+          description: `Only ${singleProduct.qty} Item(s)  is left in stock`,
+          type: 'info',
+        });
+      }
+      await database.write(async () => {
+        const itemToUpdate = await cartItems.find(item.id);
+        if (!itemToUpdate) return Alert.alert('Product not found', item.id);
+        await itemToUpdate.update((i) => {
+          i.qty = item.qty + 1;
+        });
       });
+
+      queryClient.invalidateQueries({ queryKey: ['cart_item_ref'] });
+    } catch (e) {
+      console.log(e);
     }
-    await database.write(async () => {
-      const itemToUpdate = await cartItems.find(item.id);
-      if(!itemToUpdate) return Alert.alert('Product not found', item.id)
-      itemToUpdate.update((i) => {
-        i.qty = item.qty + 1;
-      });
-    });
-
-    queryClient.invalidateQueries({ queryKey: ['cart_item_ref'] });
-  }catch (e) {
-    console.log(e);
-  }
   };
   const onReduce = async () => {
     if (item?.qty! > 1) {
       await database.write(async () => {
         const itemToUpdate = await cartItems.find(item.id);
 
-
-        itemToUpdate.update((i) => {
+        await itemToUpdate.update((i) => {
           i.qty = item.qty - 1;
         });
       });
@@ -189,7 +198,7 @@ const CartCard = ({ item, index }: { item: CartItem; index: number }) => {
     } else {
       await database.write(async () => {
         const itemToDelete = await cartItems.find(item.id);
-        itemToDelete.destroyPermanently();
+        await itemToDelete.destroyPermanently();
       });
 
       queryClient.invalidateQueries({ queryKey: ['cart_item_ref'] });
@@ -201,7 +210,7 @@ const CartCard = ({ item, index }: { item: CartItem; index: number }) => {
       <FlexText text="Price" text2={`₦${item?.unitCost!}`} />
       <FlexText text="Quantity" text2={item?.qty.toString()} />
       <XStack marginTop={5} gap={10}>
-        <MyButton title="Remove" flex={1} onPress={onReduce} backgroundColor='red' />
+        <MyButton title="Remove" flex={1} onPress={onReduce} backgroundColor="red" />
         <MyButton title="Add" flex={1} onPress={onAdd} />
       </XStack>
     </AnimatedCard>

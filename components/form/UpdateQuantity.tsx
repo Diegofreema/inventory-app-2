@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner-native';
+
 import { Stack, View } from 'tamagui';
 import { z } from 'zod';
 
@@ -12,9 +12,12 @@ import { NavHeader } from '~/components/ui/NavHeader';
 import { colors } from '~/constants';
 import { useUpdateQty } from '~/lib/tanstack/mutations';
 import { updateQtySchema } from '~/lib/validators';
+import { useShowToast } from '~/lib/zustand/useShowToast';
 
 export const UpdateQuantityForm = () => {
   const { name, id } = useLocalSearchParams<{ name: string; id: string }>();
+  const toast = useShowToast((state) => state.onShow);
+
   const { mutateAsync } = useUpdateQty();
   const queryClient = useQueryClient();
   const {
@@ -37,9 +40,7 @@ export const UpdateQuantityForm = () => {
       router.back();
     } catch (e: any) {
       console.log(e);
-      toast.error('Error', {
-        description: e.message,
-      });
+      toast({ message: 'Error', description: e.message, type: 'error' });
     }
   };
   return (

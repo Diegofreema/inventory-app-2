@@ -9,12 +9,13 @@ import OnlineSale from '~/db/model/OnlineSale';
 import StoreSales from '~/db/model/StoreSale';
 import SupplyProduct from '~/db/model/SupplyProduct';
 import {
-  calculateActualInventory, mergeProductOpening,
-  mergeProducts,
+  calculateActualInventory,
+  compareDate,
+  mergeProductOpening,
   mergeProducts2,
   rearrangeDateString,
-  totalAmount
-} from "~/lib/helper";
+  totalAmount,
+} from '~/lib/helper';
 
 type Props = {
   startDate: string;
@@ -102,13 +103,11 @@ export const useTrading = ({
   // ? Online sales
   const memoizedOnlineSales = useMemo(() => {
     if (!onlineSales || emptyDates) return 0;
-    const start = format(startDate, 'yyyy-MM-dd');
-    const end = format(endDate, 'yyyy-MM-dd');
+    const start = format(startDate, 'dd-MM-yyyy');
+    const end = format(endDate, 'dd-MM-yyyy');
 
     const dataToFilter = onlineSales.filter((d) => {
-      const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
-
-      return isWithinInterval(salesDate, { start, end });
+      return compareDate(d.dateX, start, end);
     });
 
     const numbers = dataToFilter?.map((sale) => Math.round(sale?.dealerShare) * sale?.qty);
@@ -118,11 +117,10 @@ export const useTrading = ({
   // ? Store sales
   const memoizedOfflineSales = useMemo(() => {
     if (!storeSales || emptyDates) return 0;
-    const start = format(startDate, 'yyyy-MM-dd');
-    const end = format(endDate, 'yyyy-MM-dd');
+    const start = format(startDate, 'dd-MM-yyyy');
+    const end = format(endDate, 'dd-MM-yyyy');
     const filteredData = storeSales.filter((d) => {
-      const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
-      return isWithinInterval(salesDate, { start, end });
+      return compareDate(d.dateX, start, end);
     });
     const numbers = filteredData?.map((sale) => {
       return Math.round(sale?.unitPrice) * sale?.qty;
@@ -137,9 +135,7 @@ export const useTrading = ({
     const start = format(startDate, 'dd-MM-yyyy');
     const end = format(endDate, 'dd-MM-yyyy');
     const filteredData = disposal.filter((d) => {
-      const salesDate = d?.dateX.split(' ')[0].replace('/', '-').replace('/', '-');
-
-      return isWithinInterval(salesDate, { start, end });
+      return compareDate(d.dateX, start, end);
     });
     const numbers = filteredData?.map((d) => Number(d?.unitCost) * Number(d?.qty));
     return totalAmount(numbers);
@@ -150,9 +146,7 @@ export const useTrading = ({
     const start = format(startDate, 'dd-MM-yyyy');
     const end = format(endDate, 'dd-MM-yyyy');
     const filteredData = productSupply.filter((d) => {
-      const salesDate = d?.dateX.split(' ')[0].replace('/', '-').replace('/', '-');
-
-      return isWithinInterval(salesDate, { start, end });
+      return compareDate(d.dateX, start, end);
     });
 
     const numbers = filteredData?.map((padding) => Math.round(padding?.unitCost) * padding?.qty);
@@ -162,9 +156,10 @@ export const useTrading = ({
 
   const memoizedExpense = useMemo(() => {
     if (!expense || emptyDates) return [];
+    const start = format(startDate, 'dd-MM-yyyy');
+    const end = format(endDate, 'dd-MM-yyyy');
     return expense.filter((d) => {
-      const salesDate = rearrangeDateString(d.dateX.split(' ')[0]);
-      return isWithinInterval(salesDate, { start: startDate, end: endDate });
+      return compareDate(d.dateX, start, end);
     });
   }, [expense, emptyDates, startDate, endDate]);
 

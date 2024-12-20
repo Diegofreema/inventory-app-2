@@ -1,23 +1,23 @@
 /* eslint-disable prettier/prettier */
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useForm } from 'react-hook-form';
-import { useWindowDimensions } from 'react-native';
-import { toast } from "sonner-native";
-import { Stack, View } from 'tamagui';
-import { z } from 'zod';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useForm } from "react-hook-form";
+import { useWindowDimensions } from "react-native";
+import { Stack, View } from "tamagui";
+import { z } from "zod";
 
-import { Container } from '~/components/Container';
-import { CustomController } from '~/components/form/CustomController';
-import { CustomScroll } from '~/components/ui/CustomScroll';
-import { Error } from '~/components/ui/Error';
-import { FormLoader } from '~/components/ui/Loading';
-import { MyButton } from '~/components/ui/MyButton';
-import { NavHeader } from '~/components/ui/NavHeader';
-import { useSupply } from '~/lib/tanstack/mutations';
-import { useInfo } from '~/lib/tanstack/queries';
-import { productSupplySchema } from '~/lib/validators';
+import { Container } from "~/components/Container";
+import { CustomController } from "~/components/form/CustomController";
+import { CustomScroll } from "~/components/ui/CustomScroll";
+import { Error } from "~/components/ui/Error";
+import { FormLoader } from "~/components/ui/Loading";
+import { MyButton } from "~/components/ui/MyButton";
+import { NavHeader } from "~/components/ui/NavHeader";
+import { useSupply } from "~/lib/tanstack/mutations";
+import { useInfo } from "~/lib/tanstack/queries";
+import { productSupplySchema } from "~/lib/validators";
+import { useShowToast } from "~/lib/zustand/useShowToast";
 
 const Restock = (): JSX.Element => {
   const { isPending, mutateAsync } = useSupply();
@@ -27,7 +27,6 @@ const Restock = (): JSX.Element => {
     price: string;
     id: string;
   }>();
-
 
   const router = useRouter();
 
@@ -47,6 +46,7 @@ const Restock = (): JSX.Element => {
     resolver: zodResolver(productSupplySchema),
   });
   const { width } = useWindowDimensions();
+  const toast = useShowToast((state) => state.onShow);
   const isSmallTablet = width >= 500;
   const isBigTablet = width >= 700;
   const containerWidth = isBigTablet ? '60%' : isSmallTablet ? '80%' : '100%';
@@ -54,7 +54,6 @@ const Restock = (): JSX.Element => {
   const info = data?.[0];
   const onSubmit = async (value: z.infer<typeof productSupplySchema>) => {
     if (!info?.shareNetpro || !info?.sharePrice || !info?.shareSeller) return;
-
 
     try {
       await mutateAsync({
@@ -70,9 +69,7 @@ const Restock = (): JSX.Element => {
       reset();
       router.back();
     } catch (error: any) {
-      toast.error('Something went wrong',{
-        description: error.message,
-      });
+      toast({ message: 'Something went wrong', type: 'error', description: error.message });
     }
   };
 

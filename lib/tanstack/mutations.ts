@@ -6,7 +6,7 @@ import axios from 'axios';
 import { format, isSameDay, max } from 'date-fns';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { toast } from 'sonner-native';
+
 import { z } from 'zod';
 
 import {
@@ -46,12 +46,13 @@ import { useUploadOffline } from '~/hooks/useUploadOffline';
 import { useInfo } from '~/lib/tanstack/queries';
 import { useProductUpdateQty } from '~/lib/zustand/updateProductQty';
 import { useProductUpdatePrice } from '~/lib/zustand/useProductUpdatePrice';
+import { useShowToast } from '~/lib/zustand/useShowToast';
 import { ExtraSalesType, SupplyInsert } from '~/type';
 
 export const useAddNewProduct = () => {
   const storeId = useStore((state) => state.id);
   const isConnected = useNetwork();
-
+  const toast = useShowToast((state) => state.onShow);
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -94,7 +95,7 @@ export const useAddNewProduct = () => {
       });
       console.log(createdProduct);
       if (!createdProduct) throw Error('Failed to add product');
-     const createdSupply = await database.write(async () => {
+      const createdSupply = await database.write(async () => {
         return await supplyProduct.create((supply) => {
           supply.productId = createdProduct.productId;
           supply.qty = +qty;
@@ -128,7 +129,7 @@ export const useAddNewProduct = () => {
             });
             await createdSupply.update((supply) => {
               supply.productId = data?.result;
-            })
+            });
           });
           return data;
         } else {
@@ -136,7 +137,6 @@ export const useAddNewProduct = () => {
             await createdProduct.update((product) => {
               product.isUploaded = false;
             });
-
           });
         }
       } else if (!isConnected) {
@@ -148,14 +148,14 @@ export const useAddNewProduct = () => {
       }
     },
     onError: (err) => {
-      toast.error('Failed to add product', {
-        description: err.message,
-      });
+      toast({ message: 'Failed to add product', description: err.message, type: 'error' });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product'] });
-      toast.success('Success', {
+      toast({
+        message: 'Success',
         description: 'Product has been added successfully',
+        type: 'success',
       });
     },
   });
@@ -163,7 +163,7 @@ export const useAddNewProduct = () => {
 export const useAdd247 = () => {
   const storeId = useStore((state) => state.id);
   const queryClient = useQueryClient();
-
+  const toast = useShowToast((state) => state.onShow);
   const isConnected = useNetwork();
   return useMutation({
     mutationFn: async ({
@@ -218,16 +218,15 @@ export const useAdd247 = () => {
       }
     },
 
-    onError: (error) => {
+    onError: (error: any) => {
       console.log(error);
-
-      toast.error('Something went wrong', {
-        description: error.message,
-      });
+      toast({ message: 'Something went wrong', description: error.message, type: 'error' });
     },
     onSuccess: () => {
-      toast.success('Success', {
+      toast({
+        message: 'Success',
         description: 'Sales has been added successfully',
+        type: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['salesPharmacy'] });
       queryClient.invalidateQueries({ queryKey: ['product'] });
@@ -240,6 +239,7 @@ export const useCart = () => {
   const queryClient = useQueryClient();
   const isConnected = useNetwork();
   const addRef = useSalesRef((state) => state.addSaleRef);
+  const toast = useShowToast((state) => state.onShow);
   return useMutation({
     mutationFn: async ({ data, extraData }: { data: CartItem[]; extraData: ExtraSalesType }) => {
       const productsToAdd = data.map((item) => ({
@@ -364,14 +364,14 @@ export const useCart = () => {
       }
     },
     onError: () => {
-      toast.error('Something went wrong!', {
+      toast({
+        message: 'Something went wrong!',
         description: 'Failed to add sales',
+        type: 'error',
       });
     },
     onSuccess: () => {
-      toast.success('Success', {
-        description: 'Sales has been made',
-      });
+      toast({ message: 'Success', description: 'Sales has been made', type: 'success' });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       queryClient.invalidateQueries({ queryKey: ['product_all'] });
       queryClient.invalidateQueries({ queryKey: ['product'] });
@@ -380,6 +380,7 @@ export const useCart = () => {
 };
 export const useAddSales = () => {
   const queryClient = useQueryClient();
+  const toast = useShowToast((state) => state.onShow);
   return useMutation({
     mutationFn: async ({
       productId,
@@ -426,14 +427,10 @@ export const useAddSales = () => {
     onError: (error) => {
       console.log(error);
 
-      toast.error('Something went wrong', {
-        description: 'Failed to add sales',
-      });
+      toast({ message: 'Something went wrong', description: 'Failed to add sales', type: 'error' });
     },
     onSuccess: () => {
-      toast.success('Success', {
-        description: 'item has been added to cart',
-      });
+      toast({ message: 'Success', description: 'item has been added to cart', type: 'success' });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
     },
@@ -441,7 +438,10 @@ export const useAddSales = () => {
 };
 export const useSupply = () => {
   const storeId = useStore((state) => state.id);
+  const toast = useShowToast((state) => state.onShow);
+
   const isConnected = useNetwork();
+
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
@@ -512,14 +512,10 @@ export const useSupply = () => {
     onError: (error: Error) => {
       console.log(error?.message);
 
-      toast.error('Something went wrong', {
-        description: error.message,
-      });
+      toast({ message: 'Something went wrong', description: error.message, type: 'error' });
     },
     onSuccess: () => {
-      toast.success('Success', {
-        description: 'Product has been restocked',
-      });
+      toast({ message: 'Success', description: 'Product has been restocked', type: 'success' });
       queryClient.invalidateQueries({ queryKey: ['product'] });
       queryClient.invalidateQueries({ queryKey: ['supply'] });
       queryClient.invalidateQueries({ queryKey: ['lowStock'] });
@@ -529,6 +525,7 @@ export const useSupply = () => {
 export const useDisposal = () => {
   //   const storeId = useStore((state) => state.id);
   const queryClient = useQueryClient();
+  const toast = useShowToast((state) => state.onShow);
   const isConnected = useNetwork();
   return useMutation({
     mutationFn: async ({ productId, qty, id }: { qty: number; productId: string; id: string }) => {
@@ -589,7 +586,6 @@ export const useDisposal = () => {
 
         if (!updatedProduct) Error('Failed to dispose product');
         if (isConnected) {
-
           return await sendDisposedProducts({
             productId,
             qty,
@@ -607,20 +603,17 @@ export const useDisposal = () => {
     },
 
     onError: (error) => {
-      toast.error('Something went wrong', {
-        description: error.message,
-      });
+      toast({ message: 'Something went wrong', description: error.message, type: 'error' });
     },
     onSuccess: () => {
-      toast.success('Success', {
-        description: 'Product has been disposed',
-      });
+      toast({ message: 'Success', description: 'Product has been disposed', type: 'success' });
       queryClient.invalidateQueries({ queryKey: ['product'] });
       queryClient.invalidateQueries({ queryKey: ['lowStock'] });
     },
   });
 };
 export const useAddAccount = () => {
+  const toast = useShowToast((state) => state.onShow);
   const storeId = useStore((state) => state.id);
   const isConnected = useNetwork();
   const queryClient = useQueryClient();
@@ -659,13 +652,13 @@ export const useAddAccount = () => {
     },
 
     onError: (error) => {
-      toast.error('Something went wrong', {
-        description: error.message,
-      });
+      toast({ message: 'Something went wrong', description: error.message, type: 'error' });
     },
     onSuccess: () => {
-      toast.success('Success', {
+      toast({
+        message: 'Success',
         description: 'Expenditure account has been created',
+        type: 'success',
       });
       queryClient.invalidateQueries({ queryKey: ['exp_name'] });
     },
@@ -674,6 +667,8 @@ export const useAddAccount = () => {
 export const useAddExp = () => {
   const storeId = useStore((state) => state.id);
   const queryClient = useQueryClient();
+  const toast = useShowToast((state) => state.onShow);
+
   const isConnected = useNetwork();
   return useMutation({
     mutationFn: async ({
@@ -724,20 +719,18 @@ export const useAddExp = () => {
     onError: (error) => {
       console.log(error.message, 'error');
 
-      toast.error('Something went wrong', {
-        description: error.message,
-      });
+      toast({ message: 'Something went wrong', description: error.message, type: 'error' });
     },
     onSuccess: () => {
-      toast.success('Success', {
-        description: 'Expense has been added',
-      });
+      toast({ message: 'Success', description: 'Expense has been added', type: 'success' });
       queryClient.invalidateQueries({ queryKey: ['expenditure'] });
     },
   });
 };
 export const usePickUp = () => {
   const storeId = useStore((state) => state.id);
+  const toast = useShowToast((state) => state.onShow);
+
   return useMutation({
     mutationFn: async ({
       ref,
@@ -757,27 +750,23 @@ export const usePickUp = () => {
     },
     onSuccess: (data) => {
       if (data.result === 'done') {
-        toast.success('Success', {
-          description: 'Pickup call has been made',
-        });
+        toast({ message: 'Success', description: 'Pickup call has been made', type: 'success' });
         router.back();
       } else {
-        toast.error('Error', {
-          description: 'Failed to make pickup call',
-        });
+        toast({ message: 'Error', description: 'Failed to make pickup call', type: 'error' });
       }
     },
     onError: (error) => {
       console.log(error, 'error');
 
-      toast.error('Error', {
-        description: 'Failed to make pickup call',
-      });
+      toast({ message: 'Error', description: 'Failed to make pickup call', type: 'error' });
     },
   });
 };
 export const useEdit = () => {
   const isConnected = useNetwork();
+  const toast = useShowToast((state) => state.onShow);
+
   return useMutation({
     mutationFn: async ({
       customerProductId,
@@ -835,22 +824,19 @@ export const useEdit = () => {
       }
     },
     onSuccess: async () => {
-      toast.success('Success', {
-        description: 'Product updated',
-      });
+      toast({ message: 'Success', description: 'Product updated', type: 'success' });
     },
     onError: (error) => {
       console.log(error, 'error');
-
-      toast.error('Error', {
-        description: 'Failed to update product',
-      });
+      toast({ message: 'Error', description: 'Failed to update product', type: 'error' });
     },
   });
 };
 export const useUpdateQty = () => {
   const isConnected = useNetwork();
   const storeId = useStore((state) => state.id);
+  const toast = useShowToast((state) => state.onShow);
+
   const addOffline = useProductUpdateQty((state) => state.addProduct);
   const queryClient = useQueryClient();
   return useMutation({
@@ -887,24 +873,22 @@ export const useUpdateQty = () => {
       }
     },
     onSuccess: () => {
-      toast.success('Success', {
-        description: 'Product updated',
-      });
+      toast({ message: 'Success', description: 'Product updated', type: 'success' });
       queryClient.invalidateQueries({ queryKey: ['product'] });
       queryClient.invalidateQueries({ queryKey: ['lowStock'] });
     },
     onError: (error) => {
       console.log(error, 'error');
 
-      toast.error('Error', {
-        description: 'Failed to update product',
-      });
+      toast({ message: 'Error', description: 'Failed to update product', type: 'error' });
     },
   });
 };
 export const useUpdatePrice = () => {
   const isConnected = useNetwork();
   const storeId = useStore((state) => state.id);
+  const toast = useShowToast((state) => state.onShow);
+
   const storePriceUpdateOffline = useProductUpdatePrice((state) => state.addProduct);
   const queryClient = useQueryClient();
   const { data } = useInfo();
@@ -953,17 +937,13 @@ export const useUpdatePrice = () => {
       }
     },
     onSuccess: () => {
-      toast.success('Success', {
-        description: 'Product updated',
-      });
+      toast({ message: 'Success', description: 'Product updated', type: 'success' });
       queryClient.invalidateQueries({ queryKey: ['lowStock'] });
     },
     onError: (error) => {
       console.log(error, 'error');
 
-      toast.error('Error', {
-        description: 'Failed to update product',
-      });
+      toast({ message: 'Error', description: 'Failed to update product', type: 'error' });
     },
   });
 };
@@ -972,6 +952,8 @@ export const useUpload = () => {
   const queryClient = useQueryClient();
   const updatePrice = useUpdateProduct();
   const uploadOffline = useUploadOffline();
+  const toast = useShowToast((state) => state.onShow);
+
   const toggle = useReCompute((state) => state.toggle);
   return useMutation({
     mutationFn: async () => {
@@ -979,14 +961,14 @@ export const useUpload = () => {
       await uploadOffline();
     },
     onError: () => {
-      toast.error('Could not sync data', {
+      toast({
+        message: 'Could not sync data',
         description: 'An error occurred, please again',
+        type: 'error',
       });
     },
     onSuccess: () => {
-      toast.success('Success', {
-        description: 'Data has been sync!',
-      });
+      toast({ message: 'Success', description: 'Data has been sync!', type: 'success' });
       toggle();
       queryClient.invalidateQueries({ queryKey: ['offline_qty'] });
       queryClient.invalidateQueries({ queryKey: ['offline_quantity'] });

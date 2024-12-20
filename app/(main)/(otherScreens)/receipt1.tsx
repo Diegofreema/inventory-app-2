@@ -31,61 +31,61 @@ const Receipt1 = () => {
     refetch: refetch2,
   } = useReceipt2(ref);
 
-
   const [printing, setPrinting] = useState(false);
   const html = `
-<html>
+<html lang="en">
   <head>
+  <title>247pharmacy</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
   </head>
   <body style="text-align: center;">
    <div style="width: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center; margin-top: 10px;">
-   <img src='https://247pharmacy.net/images/247pharmacy.png' style="width: 200px; height: 200px; margin-bottom: 5px; object-fit: contain;" />
-   <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal; margin-bottom: 5px;">
+   <img src='https://247pharmacy.net/images/247pharmacy.png' style="width: 200px; height: 200px; margin-bottom: 5px; object-fit: contain;"  alt="image"/>
+   <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: normal; margin-bottom: 5px;">
       www.247pharmacy.net
       </h1>
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: normal;">
         support@247pharmacy.net
       </h1>
     </div>
   <div style='width: 80%; margin: 0 auto;'>
     <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: normal;">
         Customer name
       </h1>
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: bold;">
         ${data?.customername}
       </h1>
     </div>
     <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: normal;">
         Address
       </h1>
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: bold;">
         ${data?.addres}
       </h1>
     </div>
     <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: normal;">
         Customer Community
       </h1>
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: bold;">
         ${data?.customerCommunity}
       </h1>
     </div>
     <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: normal;">
         State
       </h1>
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: bold;">
         ${data?.statename}
       </h1>
     </div>
     <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: normal;">
         Phone
       </h1>
-      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+      <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: bold;">
         ${data?.phone}
       </h1>
     </div>
@@ -98,26 +98,26 @@ const Receipt1 = () => {
               (d) => `
       <div style="margin-bottom: 15px; border-bottom: 1px solid black;">
         <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
-          <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+          <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: normal;">
             Product
           </h1>
-          <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+          <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: bold;">
             ${d.Product || ''}
           </h1>
         </div>
         <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
-          <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+          <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: normal;">
             Quantity
           </h1>
-          <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+          <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: bold;">
             ${d.qty || ''}
           </h1>
         </div>
         <div style="width: 100%; display: flex; justify-content: space-between; align-items: center;">
-          <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
+          <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: normal;">
             Price
           </h1>
-          <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+          <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: bold;">
             ₦${d.unitprice || ''}
           </h1>
         </div>
@@ -187,20 +187,28 @@ const Receipt1 = () => {
   }
 
   const handlePickUp = async () => {
-
     await mutateAsync({
       ref,
       communityId: data?.community,
       fee: data?.customerCommunityFee,
       state: data?.statename,
     });
-    data2.forEach(async (d) => {
-      const product = await products
-        .query(Q.where('product_id', Q.eq(d.productid)), Q.take(1))
-        .fetch();
-      const singleProduct = product[0];
-      onAddOnline({ productId: singleProduct.id, qty: +d.qty, unitPrice: +d.unitprice });
-    });
+
+    for (const d of data2) {
+      try {
+        const [product] = await products.query(Q.where('product_id', Q.eq(d.productid))).fetch();
+
+        if (product) {
+          await onAddOnline({
+            productId: product.id,
+            qty: +d.qty,
+            unitPrice: +d.unitprice,
+          });
+        }
+      } catch (error) {
+        console.error(`Error processing product ${d.productid}:`, error);
+      }
+    }
   };
 
   return (

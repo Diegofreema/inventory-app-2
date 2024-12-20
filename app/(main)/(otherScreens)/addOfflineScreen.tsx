@@ -13,8 +13,8 @@ import * as SecureStore from 'expo-secure-store';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Dimensions, FlatList, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
-import { toast } from "sonner-native";
-import { Input, Stack, Text, View } from 'tamagui';
+
+import { Input, Stack, View } from 'tamagui';
 import { z } from 'zod';
 
 import EnhancedCartButton from '~/components/CartButton';
@@ -23,23 +23,25 @@ import { CustomController } from '~/components/form/CustomController';
 import { MyCustomInput } from '~/components/form/CustomSelect2';
 import { CustomPressable } from '~/components/ui/CustomPressable';
 import { CustomScroll } from '~/components/ui/CustomScroll';
+import { CustomText } from '~/components/ui/CustomText';
 import { FormLoader } from '~/components/ui/Loading';
 import { MyButton } from '~/components/ui/MyButton';
 import { NavHeader } from '~/components/ui/NavHeader';
 import { CustomSubHeading } from '~/components/ui/typography';
 import { colors } from '~/constants';
-import database, { products, saleReferences } from '~/db';
+import database, { cartItems, products, saleReferences } from '~/db';
 import SaleReference from '~/db/model/SalesReference';
-import { useGet } from '~/hooks/useGet';
 // import { paymentType } from '~/data';
 import { useAddSales } from '~/lib/tanstack/mutations';
-import { useAllProducts, useSalesRef } from "~/lib/tanstack/queries";
+import { useAllProducts, useSalesRef } from '~/lib/tanstack/queries';
 import { addToCart } from '~/lib/validators';
-import { CustomText } from "~/components/ui/CustomText";
+import { useShowToast } from '~/lib/zustand/useShowToast';
 
 const { height, width } = Dimensions.get('window');
 export default function AddOfflineScreen() {
   const { error, mutateAsync, isPending } = useAddSales();
+  const toast = useShowToast((state) => state.onShow);
+
   const [customerProductId, setCustomerProductId] = useState('');
   const cameraRef = useRef<CameraView>(null);
   const [scanned, setScanned] = useState(false);
@@ -73,7 +75,9 @@ export default function AddOfflineScreen() {
       label: item?.product,
       quantity: item?.qty,
     })) || [];
-  const filteredData = formattedProducts.filter((f) => f.label.toLowerCase().includes(query.toLowerCase()));
+  const filteredData = formattedProducts.filter((f) =>
+    f.label.toLowerCase().includes(query.toLowerCase())
+  );
   const { productId } = watch();
 
   const memoizedPrice = useMemo(() => {
@@ -84,16 +88,20 @@ export default function AddOfflineScreen() {
   const onSubmit = async (value: z.infer<typeof addToCart>) => {
     if (!memoizedPrice) return;
     if (!productId)
-      return toast.info( 'Please select a',{
+      return toast({
+        message: 'Please select a',
         description: 'product to add to cart',
+        type: 'info',
       });
     try {
       const product = await products?.find(value.productId);
       if (!product) Error('Product not found');
       setSelected(null);
       if (product && product?.qty < +value.qty) {
-        return toast.info('Product out of stock',{
+        return toast({
+          message: 'Product out of stock',
           description: `${product?.qty} items are available`,
+          type: 'info',
         });
       }
       await mutateAsync({
@@ -108,9 +116,7 @@ export default function AddOfflineScreen() {
     } catch (error) {
       console.log(error, 'error');
 
-      toast.error('Error',{
-        description: (error as Error).message,
-      });
+      toast({ message: 'Error', description: (error as Error).message, type: 'error' });
     }
   };
 
@@ -131,9 +137,7 @@ export default function AddOfflineScreen() {
         setValue('productId', product[0].id);
         setScannedProductName(product[0].product);
       } else {
-        toast.info('Sorry',{
-          description: 'Product not found',
-        });
+        toast({ message: 'Sorry', description: 'Product not found', type: 'info' });
         setScanned(false);
       }
     };
@@ -155,7 +159,6 @@ export default function AddOfflineScreen() {
   };
   const handleChange = (value: string) => {
     setValue('productId', value);
-
   };
 
   const isMid = width < 768;
@@ -315,7 +318,12 @@ const SalesRefFlatList = ({ data }: { data: SaleReference[] }) => {
       for (const ref of allRef) {
         await ref.destroyPermanently();
       }
+      const items = await cartItems.query().fetch();
+      for (const i of items) {
+        await i.destroyPermanently();
+      }
       queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
+      queryClient.invalidateQueries({ queryKey: ['cart_item_ref'] });
     });
   };
   return (
@@ -332,8 +340,7 @@ const SalesRefFlatList = ({ data }: { data: SaleReference[] }) => {
               borderRadius={5}
               padding={5}
               alignItems="center">
-
-              <CustomText text='Done' />
+              <CustomText text="Done" />
             </View>
           </CustomPressable>
         )
@@ -349,7 +356,10 @@ const SalesRefFlatList = ({ data }: { data: SaleReference[] }) => {
             maxWidth={120}
             justifyContent="center"
             alignItems="center">
-            <CustomText text={`Customer ${index + 1}`} color={item.isActive ? colors.white : colors.black} />
+            <CustomText
+              text={`Customer ${index + 1}`}
+              color={item.isActive ? colors.white : colors.black}
+            />
           </View>
         </CustomPressable>
       )}
@@ -362,7 +372,7 @@ const SalesRefFlatList = ({ data }: { data: SaleReference[] }) => {
               borderRadius={5}
               padding={5}
               alignItems="center">
-              <CustomText text='New Customer' color={colors.black} />
+              <CustomText text="New Customer" color={colors.black} />
             </View>
           </CustomPressable>
         )

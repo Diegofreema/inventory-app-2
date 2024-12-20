@@ -6,11 +6,12 @@ import { StatusBar } from 'expo-status-bar';
 import * as Updates from 'expo-updates';
 import React, { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Toaster } from 'sonner-native';
 import { TamaguiProvider } from 'tamagui';
 
 import { OfflineBanner } from '~/components/OfflineBanner';
 import config from '~/tamagui.config';
+import { Toast } from '~/components/Toast';
+import { useShowToast } from '~/lib/zustand/useShowToast';
 
 const routingInstrumentation = new Sentry.ReactNavigationInstrumentation();
 
@@ -45,12 +46,17 @@ function RootLayout() {
     InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
   });
   const ref = useNavigationContainerRef();
-
+  const { isOpen, onHide } = useShowToast();
   useEffect(() => {
     if (ref?.current) {
       routingInstrumentation.registerNavigationContainer(ref);
     }
   }, [ref]);
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => onHide(), 3000);
+    }
+  }, [isOpen, onHide]);
   useEffect(() => {
     async function onFetchUpdateAsync() {
       try {
@@ -84,13 +90,7 @@ function RootLayout() {
           <StatusBar style="dark" backgroundColor="white" />
           <Stack screenOptions={{ headerShown: false }} />
         </QueryClientProvider>
-        <Toaster
-          position="top-center"
-          toastOptions={{
-            descriptionStyle: { fontFamily: 'InterBold', fontSize: 16 },
-            titleStyle: { fontFamily: 'Inter', fontSize: 14 },
-          }}
-        />
+        <Toast />
         <OfflineBanner />
       </GestureHandlerRootView>
     </TamaguiProvider>

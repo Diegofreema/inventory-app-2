@@ -1,30 +1,32 @@
 /* eslint-disable prettier/prettier */
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Q } from "@nozbe/watermelondb";
-import axios from "axios";
-import * as SecureStore from "expo-secure-store";
-import { useCallback, useState } from "react";
-import { useForm } from "react-hook-form";
-import { StyleSheet } from "react-native";
-import { toast } from "sonner-native";
-import { Stack, Text, XStack } from "tamagui";
-import { z } from "zod";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Q } from '@nozbe/watermelondb';
+import axios from 'axios';
+import * as SecureStore from 'expo-secure-store';
+import { useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { StyleSheet } from 'react-native';
+import { Stack, Text, XStack } from 'tamagui';
+import { z } from 'zod';
 
-import { CustomController } from "./CustomController";
-import { LoadingModal } from "../modals/LoadingModal";
-import { CustomPressable } from "../ui/CustomPressable";
-import { MyButton } from "../ui/MyButton";
+import { CustomController } from './CustomController';
+import { LoadingModal } from '../modals/LoadingModal';
+import { CustomPressable } from '../ui/CustomPressable';
+import { MyButton } from '../ui/MyButton';
 
-import { colors } from "~/constants";
-import { staffs } from "~/db";
-import { loginSchema } from "~/lib/validators";
-import { useStore } from "~/lib/zustand/useStore";
+import { colors } from '~/constants';
+import { staffs } from '~/db';
+import { loginSchema } from '~/lib/validators';
+import { useShowToast } from '~/lib/zustand/useShowToast';
+import { useStore } from '~/lib/zustand/useStore';
 
 export const LoginForm = (): JSX.Element => {
   const [secure, setSecure] = useState(true);
   const [admin, setAdmin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const toast = useShowToast((state) => state.onShow);
+
   const getId = useStore((state) => state.getId);
   const onSetAdmin = useStore((state) => state.setIsAdmin);
 
@@ -48,29 +50,29 @@ export const LoginForm = (): JSX.Element => {
         `https://247api.netpro.software/api.aspx?api=adminlogin&email=${values.email}&pasword=${values.password}`
       );
       if (data?.result === 'incorrect password') {
-        toast.error('Error',{
-          description: 'Incorrect credentials',
-        });
+        toast({ message: 'Error', description: 'Incorrect credentials', type: 'error' });
 
         return;
       }
       if (data?.result === 'failed') {
-        toast.error('Error',{
+        toast({
+          message: 'Error',
           description: 'Something went wrong, please try again',
+          type: 'error',
         });
         return;
       }
 
-      toast.success('Success',{
-        description: 'Welcome back',
-      });
+      toast({ message: 'Success', description: 'Welcome back', type: 'success' });
       getId(data?.result);
       onSetAdmin(true);
       reset();
     } catch (error: any) {
       console.log(JSON.stringify(error));
-      toast.error('Error',{
+      toast({
+        message: 'Error',
         description: 'Something went wrong, please try again',
+        type: 'error',
       });
     } finally {
       setLoading(false);
@@ -98,21 +100,15 @@ export const LoginForm = (): JSX.Element => {
     try {
       const staffExists = await staffs.query(Q.where('email', values.email), Q.take(1)).fetch();
       if (!staffExists.length) {
-        toast.error('Error',{
-          description: 'Staff does not exist',
-        });
+        toast({ message: 'Error', description: 'Staff does not exist', type: 'error' });
         return;
       }
       const passwordMatch = staffExists[0].password === values.password;
       if (!passwordMatch) {
-        toast.error('Error',{
-          description: 'Incorrect password',
-        });
+        toast({ message: 'Error', description: 'Incorrect password', type: 'error' });
         return;
       }
-      toast.success('Success',{
-        description: 'Welcome back',
-      });
+      toast({ message: 'Success', description: 'Welcome back', type: 'success' });
       SecureStore.setItem('staffId', staffExists[0].id.toString());
       getId(staffExists[0].pharmacyId!);
       onSetAdmin(false);
@@ -120,8 +116,10 @@ export const LoginForm = (): JSX.Element => {
     } catch (error) {
       console.log(error);
 
-      toast.error('Error',{
+      toast({
+        message: 'Error',
         description: 'Something went wrong, please try again',
+        type: 'error',
       });
     } finally {
       setLoading(false);

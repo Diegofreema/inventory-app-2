@@ -1,25 +1,25 @@
 /* eslint-disable prettier/prettier */
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMemo } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner-native";
-import { Stack } from "tamagui";
-import { z } from "zod";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useMemo } from 'react';
+import { useForm } from 'react-hook-form';
+import { Stack } from 'tamagui';
+import { z } from 'zod';
 
-import { Container } from "~/components/Container";
-import { CustomController } from "~/components/form/CustomController";
-import { MyButton } from "~/components/ui/MyButton";
-import { NavHeader } from "~/components/ui/NavHeader";
-import { products } from "~/db";
-import { useGet } from "~/hooks/useGet";
-import { useAdd247 } from "~/lib/tanstack/mutations";
-import { pharmacySales } from "~/lib/validators";
+import { Container } from '~/components/Container';
+import { CustomController } from '~/components/form/CustomController';
+import { MyButton } from '~/components/ui/MyButton';
+import { NavHeader } from '~/components/ui/NavHeader';
+import { products } from '~/db';
+import { useGet } from '~/hooks/useGet';
+import { useAdd247 } from '~/lib/tanstack/mutations';
+import { pharmacySales } from '~/lib/validators';
+import { useShowToast } from '~/lib/zustand/useShowToast';
 
 export default function AddOnlineScreen() {
   const { mutateAsync, isPending } = useAdd247();
   const { storedProduct } = useGet();
-
+  const toast = useShowToast((state) => state.onShow);
   const memoizedProductName = useMemo(() => {
     if (!storedProduct) return [];
     return storedProduct?.map((item) => ({
@@ -47,8 +47,10 @@ export default function AddOnlineScreen() {
 
       if (!productInDb) return;
       if (productInDb.qty < +value.qty) {
-        return toast.error('Product is out of stock',{
+        return toast({
+          message: 'Product is out of stock',
           description: `${productInDb.qty} product left in stock, restock first`,
+          type: 'info',
         });
       }
 

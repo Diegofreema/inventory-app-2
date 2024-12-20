@@ -16,10 +16,10 @@ type Props = {
   scroll?: boolean;
 };
 
-export const ProductSupply = ({ data, scroll = true }: Props): JSX.Element => {
+export const ProductSupply = ({ data, scroll = true }: Props) => {
   const { width } = useWindowDimensions();
   const isSmallTablet = width >= 500;
-  console.log(data.filter(d => d.productId.length > 10 )[0].productId);
+
   return (
     <FlatList
       scrollEnabled={scroll}

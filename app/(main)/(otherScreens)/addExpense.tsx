@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Redirect, useLocalSearchParams } from "expo-router";
+import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useWindowDimensions } from 'react-native';
@@ -20,14 +20,13 @@ import { useRender } from '~/hooks/useRender';
 import { useAddExp } from '~/lib/tanstack/mutations';
 import { useExpAcc } from '~/lib/tanstack/queries';
 import { expenseSchema } from '~/lib/validators';
-import Toast from "react-native-toast-message";
-import { toast } from "sonner-native";
+import { useShowToast } from '~/lib/zustand/useShowToast';
 
 export default function AddExpense() {
   const { name } = useLocalSearchParams<{ name: string }>();
   const { mutateAsync, isPending, error } = useAddExp();
-  const { data: exp, isPending: expPending, isError,refetch } = useExpAcc();
-
+  const { data: exp, isPending: expPending, isError, refetch } = useExpAcc();
+  const toast = useShowToast((state) => state.onShow);
   useRender();
   const {
     control,
@@ -51,17 +50,18 @@ export default function AddExpense() {
     }));
   }, [exp]);
   const { width } = useWindowDimensions();
-  if(exp?.data && exp?.data.length < 1 ){
+  if (exp?.data && exp?.data.length < 1) {
+    toast({
+      message: 'No expense found',
+      description: 'Please add an expense first',
+      type: 'info',
+    });
 
-    toast.info('No expense found', {
-      description: 'Please add an expense first'
-    })
-
-    return <Redirect href='/addExpenditure'  />
-   }
+    return <Redirect href="/addExpenditure" />;
+  }
   const onSubmit = async (values: z.infer<typeof expenseSchema>) => {
     try {
-    await mutateAsync({
+      await mutateAsync({
         amount: +values.amount,
         description: values.description,
         name: values.accountName?.charAt(0)?.toUpperCase() + values.accountName.slice(1),
