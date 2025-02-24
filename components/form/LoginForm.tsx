@@ -1,27 +1,26 @@
 /* eslint-disable prettier/prettier */
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Q } from '@nozbe/watermelondb';
-import axios from 'axios';
-import * as SecureStore from 'expo-secure-store';
-import { useCallback, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { StyleSheet } from 'react-native';
-import { Stack, Text, XStack } from 'tamagui';
-import { z } from 'zod';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Q } from "@nozbe/watermelondb";
+import axios from "axios";
+import { useCallback, useState } from "react";
+import { useForm } from "react-hook-form";
+import { StyleSheet } from "react-native";
+import { Stack, Text, XStack } from "tamagui";
+import { z } from "zod";
 
-import { CustomController } from './CustomController';
-import { LoadingModal } from '../modals/LoadingModal';
-import { CustomPressable } from '../ui/CustomPressable';
-import { MyButton } from '../ui/MyButton';
+import { CustomController } from "./CustomController";
+import { LoadingModal } from "../modals/LoadingModal";
+import { CustomPressable } from "../ui/CustomPressable";
+import { MyButton } from "../ui/MyButton";
 
-import { colors } from '~/constants';
-import { staffs } from '~/db';
-import { loginSchema } from '~/lib/validators';
-import { useShowToast } from '~/lib/zustand/useShowToast';
-import { useStore } from '~/lib/zustand/useStore';
+import { colors } from "~/constants";
+import { staffs } from "~/db";
+import { loginSchema } from "~/lib/validators";
+import { useShowToast } from "~/lib/zustand/useShowToast";
+import { useStore } from "~/lib/zustand/useStore";
 
-export const LoginForm = (): JSX.Element => {
+export const LoginForm = () => {
   const [secure, setSecure] = useState(true);
   const [admin, setAdmin] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -29,12 +28,13 @@ export const LoginForm = (): JSX.Element => {
 
   const getId = useStore((state) => state.getId);
   const onSetAdmin = useStore((state) => state.setIsAdmin);
+  const getStaffId = useStore((state) => state.getStaffId);
 
   const {
     control,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<z.infer<typeof loginSchema>>({
     defaultValues: {
       email: '',
@@ -95,7 +95,8 @@ export const LoginForm = (): JSX.Element => {
         return;
       }
       toast({ message: 'Success', description: 'Welcome back', type: 'success' });
-      SecureStore.setItem('staffId', staffExists[0].id.toString());
+
+      getStaffId(staffExists[0].id.toString())
       getId(staffExists[0].pharmacyId!);
       onSetAdmin(false);
       reset();
@@ -125,7 +126,7 @@ export const LoginForm = (): JSX.Element => {
   return (
     // @ts-ignore
     <>
-      <LoadingModal visible={loading} />
+      <LoadingModal visible={isSubmitting} />
 
       <Stack gap={10}>
         <CustomController
@@ -171,7 +172,7 @@ export const LoginForm = (): JSX.Element => {
             </Text>
           </CustomPressable>
         </XStack>
-        {!loading && (
+        {!isSubmitting && (
           <MyButton
             title="Login"
             marginTop={20}

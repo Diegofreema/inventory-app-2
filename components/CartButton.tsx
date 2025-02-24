@@ -17,9 +17,7 @@ const CartButton = ({ cartItems, onPress}: { cartItems: CartItem[]; onPress: () 
 
 const salesRef = useGetRef(state => state.saleRef)
 const data = cartItems.filter(c => c.salesReference === salesRef)
-  console.log({salesRef});
-  console.log(cartItems.map(m => m.salesReference));
-  // }
+
   return (
     <CustomPressable onPress={onPress} style={styles.cart}>
       <View

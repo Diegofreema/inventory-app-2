@@ -1,42 +1,57 @@
 /* eslint-disable prettier/prettier */
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Q } from '@nozbe/watermelondb';
-import { createId } from '@paralleldrive/cuid2';
-import { X } from '@tamagui/lucide-icons';
-import { useQueryClient } from '@tanstack/react-query';
-import { format } from 'date-fns';
-import { BarcodeScanningResult, CameraView, useCameraPermissions } from 'expo-camera';
-import * as Haptics from 'expo-haptics';
-import { useRouter } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Dimensions, FlatList, Pressable, StyleSheet, useWindowDimensions } from 'react-native';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Q } from "@nozbe/watermelondb";
+import { createId } from "@paralleldrive/cuid2";
+import { X } from "@tamagui/lucide-icons";
+import { useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
+import {
+  BarcodeScanningResult,
+  CameraView,
+  useCameraPermissions
+} from "expo-camera";
+import * as Haptics from "expo-haptics";
+import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
+import { useForm } from "react-hook-form";
+import {
+  Dimensions,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  useWindowDimensions
+} from "react-native";
+import { Input, Stack, View } from "tamagui";
+import { z } from "zod";
 
-import { Input, Stack, View } from 'tamagui';
-import { z } from 'zod';
-
-import EnhancedCartButton from '~/components/CartButton';
-import { Container } from '~/components/Container';
-import { CustomController } from '~/components/form/CustomController';
-import { MyCustomInput } from '~/components/form/CustomSelect2';
-import { CustomPressable } from '~/components/ui/CustomPressable';
-import { CustomScroll } from '~/components/ui/CustomScroll';
-import { CustomText } from '~/components/ui/CustomText';
-import { FormLoader } from '~/components/ui/Loading';
-import { MyButton } from '~/components/ui/MyButton';
-import { NavHeader } from '~/components/ui/NavHeader';
-import { CustomSubHeading } from '~/components/ui/typography';
-import { colors } from '~/constants';
-import database, { cartItems, products, saleReferences } from '~/db';
-import SaleReference from '~/db/model/SalesReference';
+import EnhancedCartButton from "~/components/CartButton";
+import { Container } from "~/components/Container";
+import { CustomController } from "~/components/form/CustomController";
+import { MyCustomInput } from "~/components/form/CustomSelect2";
+import { CustomPressable } from "~/components/ui/CustomPressable";
+import { CustomScroll } from "~/components/ui/CustomScroll";
+import { CustomText } from "~/components/ui/CustomText";
+import { FormLoader } from "~/components/ui/Loading";
+import { MyButton } from "~/components/ui/MyButton";
+import { NavHeader } from "~/components/ui/NavHeader";
+import { CustomSubHeading } from "~/components/ui/typography";
+import { colors } from "~/constants";
+import database, { cartItems, products, saleReferences } from "~/db";
+import SaleReference from "~/db/model/SalesReference";
 // import { paymentType } from '~/data';
-import { useAddSales } from '~/lib/tanstack/mutations';
-import { useAllProducts, useSalesRef } from '~/lib/tanstack/queries';
-import { addToCart } from '~/lib/validators';
-import { useShowToast } from '~/lib/zustand/useShowToast';
+import { useAddSales } from "~/lib/tanstack/mutations";
+import { useAllProducts, useSalesRef } from "~/lib/tanstack/queries";
+import { addToCart } from "~/lib/validators";
 import { useGetRef } from "~/lib/zustand/useSaleRef";
+import { useShowToast } from "~/lib/zustand/useShowToast";
 
 const { height, width } = Dimensions.get('window');
 export default function AddOfflineScreen() {
@@ -267,6 +282,7 @@ export default function AddOfflineScreen() {
 const SalesRefFlatList = ({ data }: { data: SaleReference[] }) => {
   const queryClient = useQueryClient();
   const getRef = useGetRef(state => state.getSaleRef)
+  const removeRef = useGetRef(state => state.removeSaleRef)
   const onPress = async (salesRef: string) => {
 
     try {
@@ -275,7 +291,7 @@ const SalesRefFlatList = ({ data }: { data: SaleReference[] }) => {
         await item.update((ref) => {
           ref.isActive = true;
         });
-        SecureStore.setItem('salesRef', item.saleReference);
+
         getRef(item.saleReference)
         const items = await saleReferences.query(Q.where('id', Q.notEq(salesRef))).fetch();
 
@@ -307,7 +323,8 @@ const SalesRefFlatList = ({ data }: { data: SaleReference[] }) => {
           ref.saleReference = format(Date.now(), 'dd/MM/yyyy HH:mm') + createId();
           ref.isActive = true;
         });
-        SecureStore.setItem('salesRef', newCustomerRef.saleReference);
+
+        getRef(newCustomerRef.saleReference)
       });
 
       queryClient.invalidateQueries({ queryKey: ['sales_ref'] });
@@ -316,6 +333,7 @@ const SalesRefFlatList = ({ data }: { data: SaleReference[] }) => {
     }
   };
   const doneAttending = async () => {
+    removeRef()
     await database.write(async () => {
       const allRef = await saleReferences.query().fetch();
       for (const ref of allRef) {

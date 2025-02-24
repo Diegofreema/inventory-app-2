@@ -37,7 +37,7 @@ export type ProductType = {
 };
 export type ExtraSalesType = {
   paymentType: 'Cash' | 'Card' | 'Transfer';
-  salesRepId: string;
+  salesRep: string;
   transactionInfo?: string;
 };
 // [productid], datex, [unitprice], [qty], [id], [dealershare], [netproshare];

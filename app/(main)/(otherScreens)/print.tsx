@@ -9,7 +9,7 @@ import { Error } from '~/components/ui/Error';
 import { Loading } from '~/components/ui/Loading';
 import { MyButton } from '~/components/ui/MyButton';
 import { NavHeader } from '~/components/ui/NavHeader';
-import { products } from '~/db';
+import { pharmacyInfo, products } from "~/db";
 import { totalAmount } from '~/lib/helper';
 import { useSalesToPrint } from '~/lib/tanstack/queries';
 type FormattedProps = {
@@ -21,7 +21,7 @@ const PrintScreen = () => {
   const { ref } = useLocalSearchParams<{ ref: string }>();
   const { data, isPending, refetch, isError } = useSalesToPrint(ref);
   const [printing, setPrinting] = useState(false);
-
+  const [name, setName] = useState('');
   const [formattedProduct, setFormattedProduct] = useState<FormattedProps[]>();
 
   useEffect(() => {
@@ -32,7 +32,8 @@ const PrintScreen = () => {
 
     const getDataWithName = async () => {
       if (!data) return [];
-
+      const info = await pharmacyInfo.query().fetch();
+      setName(info?.[0]?.businessName)
       return await Promise.all(
         data.map(async (d) => {
           const name = await fetchProductName(d.productId);
@@ -73,7 +74,7 @@ const PrintScreen = () => {
   </head>
   <body style="text-align: center;">
    <div style="width: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center; margin-top: 10px;">
-   <img src='https://247pharmacy.net/images/247pharmacy.png' style="width: 200px; height: 200px; margin-bottom: 5px; object-fit: contain;"  alt="image"/>
+<!--   <img src='https://247pharmacy.net/images/247pharmacy.png' style="width: 200px; height: 200px; margin-bottom: 5px; object-fit: contain;"  alt="image"/>-->
    <h1 style="font-size: 25px; font-family: Helvetica Neue,serif; font-weight: normal; margin-bottom: 5px;">
       www.247pharmacy.net
       </h1>
@@ -124,22 +125,24 @@ const PrintScreen = () => {
         : ''
     }
  </div>
-
-   
-    
       <div style="width: 100%; display: flex; justify-content: space-between; align-items: center">
       <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: normal;">
         Total cost
       </h1>
       <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
         ₦${totalSales}
-      </h1>
     </div>
+      </h1> 
+       <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+      ${name}
+      </h1>
+      <h1 style="font-size: 25px; font-family: Helvetica Neue; font-weight: bold;">
+       Powered by 247Inventory
+      </h1>
    
   </div>
   <script>
-    
-  </script>
+</script>
   </body>
 </html>
 `;

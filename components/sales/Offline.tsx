@@ -4,7 +4,7 @@ import { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { format, isWithinInterval } from 'date-fns';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { useWindowDimensions } from 'react-native';
+import { FlatList, useWindowDimensions } from "react-native";
 
 import { CalenderSheet } from './CalenderSheet';
 import { SalesFlatlist } from './SalesFlatlist';
@@ -30,29 +30,34 @@ export const Offline = (): JSX.Element => {
   useRender();
 
   const handlePagination = useCallback((direction: 'next' | 'prev') => {
+
     setPage((prev) => prev + (direction === 'next' ? 1 : -1));
-  }, []);
+    if(!isRefetching){
+      flatListRef.current?.scrollToIndex({index: 0,animated: true })
+    }
+  }, [isRefetching]);
 
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const bottomRef = useRef<BottomSheetMethods | null>(null);
+  const flatListRef = useRef<FlatList | null>(null)
   const router = useRouter();
   const isLoading = useMemo(() => isRefetching, [isRefetching]);
   const [value, setValue] = useState('');
   const onSetValue = useCallback((val: string) => setValue(val), [value]);
   const handleNav = useCallback(() => router.push('/addOfflineScreen'), [router]);
   const filterByDate = useMemo(() => {
-    if (!startDate || !endDate || !data?.allData) return data?.allData;
+    if (!startDate || !endDate || !data?.data) return data?.data;
 
     const start = format(startDate, 'dd-MM-yyyy');
     const end = format(endDate, 'dd-MM-yyyy');
 
-    return data.allData.filter((d) => {
+    return data.data.filter((d) => {
       const salesDate = d.dateX.split(' ')[0].replace('/', '-').replace('/', '-');
 
       return isWithinInterval(salesDate, { start, end });
     });
-  }, [data?.allData, startDate, endDate]);
+  }, [data?.data, startDate, endDate]);
 
 
   const onOpenCalender = useCallback(() => {
@@ -62,7 +67,6 @@ export const Offline = (): JSX.Element => {
   const dateValue = useMemo(() => {
     if (startDate && endDate) {
       bottomRef?.current?.close();
-
       return `${formattedDate(startDate)} to ${formattedDate(endDate)}`;
     }
     return '';
@@ -78,7 +82,7 @@ export const Offline = (): JSX.Element => {
   }, [data?.count, page]);
 
   if (isError) return <Error onRetry={handleRefetch} />;
-
+  console.log(data?.data.map(d => d.userId), 'djhs');
   return (
     <AnimatedContainer width={finalWidth}>
       <StoreActions
@@ -98,6 +102,7 @@ export const Offline = (): JSX.Element => {
         <ExpenseLoader />
       ) : (
         <SalesFlatlist
+          ref={flatListRef}
           print
           // @ts-ignore
           data={filterByDate}

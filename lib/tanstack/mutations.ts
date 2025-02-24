@@ -1,13 +1,11 @@
 /* eslint-disable prettier/prettier */
-import { Q } from '@nozbe/watermelondb';
-import { createId } from '@paralleldrive/cuid2';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
-import { format, isSameDay, max } from 'date-fns';
-import { router } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
-
-import { z } from 'zod';
+import { Q } from "@nozbe/watermelondb";
+import { createId } from "@paralleldrive/cuid2";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { format, isSameDay, max } from "date-fns";
+import { router } from "expo-router";
+import { z } from "zod";
 
 import {
   addAccountName,
@@ -20,10 +18,10 @@ import {
   sendDisposedProducts,
   supplyProducts,
   updatePrice,
-  updateQty,
-} from '../helper';
-import { newProductSchema } from '../validators';
-import { useStore } from '../zustand/useStore';
+  updateQty
+} from "../helper";
+import { newProductSchema } from "../validators";
+import { useStore } from "../zustand/useStore";
 
 import database, {
   cartItems,
@@ -35,20 +33,20 @@ import database, {
   saleReferences,
   storeSales,
   supplyProduct,
-  updateProducts,
-} from '~/db';
-import CartItem from '~/db/model/CartItems';
-import { useUpdateProduct } from '~/hooks/offline/useUpdateProduct';
-import { useNetwork } from '~/hooks/useNetwork';
-import { useReCompute } from '~/hooks/useRecomputate';
-import { useSalesRef } from '~/hooks/useSalesRef';
-import { useUploadOffline } from '~/hooks/useUploadOffline';
-import { useInfo } from '~/lib/tanstack/queries';
-import { useProductUpdateQty } from '~/lib/zustand/updateProductQty';
-import { useProductUpdatePrice } from '~/lib/zustand/useProductUpdatePrice';
-import { useShowToast } from '~/lib/zustand/useShowToast';
-import { ExtraSalesType, SupplyInsert } from '~/type';
+  updateProducts
+} from "~/db";
+import CartItem from "~/db/model/CartItems";
+import { useUpdateProduct } from "~/hooks/offline/useUpdateProduct";
+import { useNetwork } from "~/hooks/useNetwork";
+import { useReCompute } from "~/hooks/useRecomputate";
+import { useSalesRef } from "~/hooks/useSalesRef";
+import { useUploadOffline } from "~/hooks/useUploadOffline";
+import { useInfo } from "~/lib/tanstack/queries";
+import { useProductUpdateQty } from "~/lib/zustand/updateProductQty";
+import { useProductUpdatePrice } from "~/lib/zustand/useProductUpdatePrice";
 import { useGetRef } from "~/lib/zustand/useSaleRef";
+import { useShowToast } from "~/lib/zustand/useShowToast";
+import { ExtraSalesType, SupplyInsert } from "~/type";
 
 export const useAddNewProduct = () => {
   const storeId = useStore((state) => state.id);
@@ -248,7 +246,7 @@ export const useCart = () => {
         dateX: format(Date.now(), 'dd/MM/yyyy HH:mm'),
         qty: item?.qty,
         paymentType: extraData.paymentType,
-        userId: extraData.salesRepId,
+        userId: extraData.salesRep,
         paid: true,
         salesReference: item?.salesReference,
         transInfo: extraData.transactionInfo!,
@@ -314,7 +312,6 @@ export const useCart = () => {
                     })
                   );
                 });
-              } else {
               }
             });
           });
@@ -332,8 +329,7 @@ export const useCart = () => {
                 productId: singleProduct.productId!,
                 storeId: storeId!,
                 transactionInfo: extraData.transactionInfo!,
-                salesRepId: +extraData.salesRepId,
-              });
+                salesRepId: +extraData.salesRep, });
               return data;
             });
           } catch (error) {
@@ -413,8 +409,6 @@ export const useAddSales = () => {
 
         ref = salesRef.saleReference;
       }
-
-      SecureStore.setItem('salesRef', ref);
       getSalesRef(ref)
       await database.write(async () => {
         await cartItems.create((item) => {

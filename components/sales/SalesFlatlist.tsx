@@ -1,14 +1,13 @@
 /* eslint-disable prettier/prettier */
 
-import { FlatList, useWindowDimensions } from 'react-native';
+import { FlatList, useWindowDimensions } from "react-native";
 
-import { SalesCard } from './SalesCard';
-import { Empty } from '../ui/empty';
+import { SalesCard } from "./SalesCard";
+import { Empty } from "../ui/empty";
 
-import OnlineSale from '~/db/model/OnlineSale';
-import StoreSales from '~/db/model/StoreSale';
-import { View } from "tamagui";
-import { FlashList } from "@shopify/flash-list";
+import OnlineSale from "~/db/model/OnlineSale";
+import StoreSales from "~/db/model/StoreSale";
+import { ForwardedRef, forwardRef } from "react";
 
 type Props = {
   data: OnlineSale[] & StoreSales[];
@@ -18,17 +17,18 @@ type Props = {
   print?: boolean;
 };
 
-export const SalesFlatlist = ({
+export const SalesFlatlist = forwardRef<FlatList, Props>(({
   data,
   isLoading,
   refetch,
   pagination: Pagination,
   print
-}: Props) => {
+}: Props, ref: ForwardedRef<FlatList>) => {
   const { width } = useWindowDimensions();
   const isSmallTablet = width >= 500;
   return (
     <FlatList
+      ref={ref}
       onRefresh={refetch}
       refreshing={isLoading}
       data={data}
@@ -44,4 +44,4 @@ export const SalesFlatlist = ({
 
     />
   );
-};
+});

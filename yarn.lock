@@ -1604,6 +1604,11 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
+"@legendapp/list@^1.0.0-beta.10":
+  version "1.0.0-beta.10"
+  resolved "https://registry.yarnpkg.com/@legendapp/list/-/list-1.0.0-beta.10.tgz#b83933b6b4bfcf0bf3cbd6c479b89339e1b83739"
+  integrity sha512-TyDSHYc6WwjXDwW2MCScPnq+Yx4/fXuzn+jvBTH+84JkMXPBraljvXlAnTuQg6171gsgDMJ5V/HILP6V/FdBdg==
+
 "@motionone/animation@^10.12.0":
   version "10.18.0"
   resolved "https://registry.yarnpkg.com/@motionone/animation/-/animation-10.18.0.tgz#868d00b447191816d5d5cf24b1cafa144017922b"

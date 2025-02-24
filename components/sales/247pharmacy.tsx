@@ -3,7 +3,8 @@
 import { BottomSheetMethods } from "@gorhom/bottom-sheet/lib/typescript/types";
 import { format, isWithinInterval } from "date-fns";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { useWindowDimensions } from "react-native";
+import { FlatList, useWindowDimensions } from "react-native";
+import { View } from "tamagui";
 
 import { CalenderSheet } from "./CalenderSheet";
 import { SalesFlatlist } from "./SalesFlatlist";
@@ -17,7 +18,6 @@ import { FlexText } from "~/components/ui/FlexText";
 import { useRender } from "~/hooks/useRender";
 import { formattedDate, totalAmount } from "~/lib/helper";
 import { useSalesP } from "~/lib/tanstack/queries";
-import { View } from "tamagui";
 
 export const OnlinePharmacy = (): JSX.Element => {
   const [page, setPage] = useState(1);
@@ -25,7 +25,10 @@ export const OnlinePharmacy = (): JSX.Element => {
   const { data, isPending, isError, refetch, isRefetching } = useSalesP(page);
   const handlePagination = useCallback((direction: 'next' | 'prev') => {
     setPage((prev) => prev + (direction === 'next' ? 1 : -1));
-  }, []);
+    if(!isRefetching) {
+      flatListRef?.current?.scrollToIndex({index: 0, animated: true});
+    }
+  }, [isRefetching]);
   const {width} = useWindowDimensions()
 
   const handleRefetch = useCallback(() => refetch(), []);
@@ -35,6 +38,7 @@ export const OnlinePharmacy = (): JSX.Element => {
   const isLoading = useMemo(() => isRefetching, [isRefetching]);
 
   const bottomRef = useRef<BottomSheetMethods | null>(null);
+  const flatListRef = useRef<FlatList | null>(null)
 
 
   const onOpenCalender = useCallback(() => {
@@ -90,10 +94,9 @@ const totalCost = totalAmount(arrayOfNumbers)
   const finalWidth = isSmall ? '100%' : isMid ? '100%' : '80%';
   return (
     <AnimatedContainer>
-     <View width={finalWidth} mx='auto'>
+     <View width={finalWidth} mx='auto' flex={1}>
        <StoreActions
          hide
-
          date
          onOpenCalender={onOpenCalender}
          dateValue={dateValue}
@@ -103,11 +106,12 @@ const totalCost = totalAmount(arrayOfNumbers)
        {isPending ? (
          <ExpenseLoader />
        ) : (
-         <>
+         <View  flex={1}>
            <FlexText text="Total" text2={`₦${totalCost}`} />
            <SalesFlatlist
              // @ts-ignore
              data={dataToRender}
+             ref={flatListRef}
              isLoading={isLoading}
              refetch={handleRefetch}
              pagination={
@@ -123,7 +127,7 @@ const totalCost = totalAmount(arrayOfNumbers)
                )
              }
            />
-         </>
+         </View>
        )}
      </View>
       <CalenderSheet
