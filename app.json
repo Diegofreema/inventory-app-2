@@ -32,15 +32,7 @@
             "packagingOptions": { "pickFirst": ["**/libc++_shared.so"] }
           },
           "ios": {
-            "deploymentTarget": "13.4",
-            "extraPods": [
-              {
-                "name": "simdjson",
-                "configuration": ["Debug", "Release"],
-                "path": "./node_modules/@nozbe/simdjson",
-                "modular_headers": true
-              }
-            ]
+            "deploymentTarget": "13.4"
           }
         }
       ],

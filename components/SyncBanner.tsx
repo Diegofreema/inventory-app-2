@@ -21,7 +21,7 @@ const minHeight = 0;
 export function SyncBanner() {
   const isConnected = useNetwork();
   const { mutateAsync, isPending } = useUpload();
-  console.log(isConnected);
+
   const insets = useSafeAreaInsets();
   const height = useSharedValue(0);
 

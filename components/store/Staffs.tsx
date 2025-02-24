@@ -21,7 +21,7 @@ import { useStore } from '~/lib/zustand/useStore';
 const AllStaffs = ({ staffs }: { staffs: Staff[] }): JSX.Element => {
   const [value, setValue] = useState('');
   useRender();
-
+  const isAdmin = useStore((state) => state.isAdmin);
   const filteredData = useMemo(() => {
     if (!value.trim()) return staffs;
 
@@ -36,13 +36,15 @@ const AllStaffs = ({ staffs }: { staffs: Staff[] }): JSX.Element => {
   }, []);
   return (
     <AnimatedContainer>
-      <StoreActions
-        setVal={setValue}
-        val={value}
-        onPress={handleNav}
-        placeholder="by staff name"
-        title="Staff"
-      />
+      {isAdmin &&
+        <StoreActions
+          setVal={setValue}
+          val={value}
+          onPress={handleNav}
+          placeholder="by staff name"
+          title="Staff"
+        />
+      }
       <StaffsFlatList data={filteredData} />
     </AnimatedContainer>
   );

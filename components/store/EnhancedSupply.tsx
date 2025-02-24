@@ -31,7 +31,7 @@ export const Supply = ({ suppliedProducts, startDate, endDate }: Props): JSX.Ele
       return isWithinInterval(salesDate, { start, end });
     });
   }, [suppliedProducts, startDate, endDate]);
-  console.log(filterByDate[0].productId);
+
   return <SupplyFlatList supplyProduct={filterByDate} />;
 };
 

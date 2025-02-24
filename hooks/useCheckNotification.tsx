@@ -17,14 +17,14 @@ export const useCheckNotification = ({ data }: Props) => {
 
   const loadSound = useCallback(async () => {
     if (sound) return;
-    console.log('Loading Sound');
+
     const { sound: newSound } = await Audio.Sound.createAsync(require('../assets/notify.mp3'));
     setSound(newSound);
   }, [sound]);
 
   const playSound = useCallback(async () => {
     if (!sound) await loadSound();
-    console.log('Playing Sound');
+
     await sound?.playAsync();
   }, [sound, loadSound]);
 

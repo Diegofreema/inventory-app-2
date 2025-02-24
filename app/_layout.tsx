@@ -1,7 +1,12 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as Sentry from '@sentry/react-native';
 import { useFonts } from 'expo-font';
-import { SplashScreen, Stack, useNavigationContainerRef } from 'expo-router';
+import {
+  SplashScreen,
+  Stack,
+  useNavigationContainerRef,
+  usePathname
+} from "expo-router";
 import { StatusBar } from 'expo-status-bar';
 import * as Updates from 'expo-updates';
 import React, { useEffect } from 'react';
@@ -45,11 +50,13 @@ function RootLayout() {
     Inter: require('@tamagui/font-inter/otf/Inter-Medium.otf'),
     InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
   });
+  const pathname = usePathname()
+  console.log(pathname);
   const ref = useNavigationContainerRef();
   const { isOpen, onHide } = useShowToast();
   useEffect(() => {
     if (ref?.current) {
-      routingInstrumentation.registerNavigationContainer(ref);
+      routingInstrumentation?.registerNavigationContainer(ref);
     }
   }, [ref]);
   useEffect(() => {

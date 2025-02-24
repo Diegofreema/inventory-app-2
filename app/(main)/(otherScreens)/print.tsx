@@ -22,7 +22,6 @@ const PrintScreen = () => {
   const { data, isPending, refetch, isError } = useSalesToPrint(ref);
   const [printing, setPrinting] = useState(false);
 
-
   const [formattedProduct, setFormattedProduct] = useState<FormattedProps[]>();
 
   useEffect(() => {
@@ -34,8 +33,7 @@ const PrintScreen = () => {
     const getDataWithName = async () => {
       if (!data) return [];
 
-      // Use Promise.all to wait for all async operations to complete
-      const formattedData = await Promise.all(
+      return await Promise.all(
         data.map(async (d) => {
           const name = await fetchProductName(d.productId);
           return {
@@ -45,8 +43,6 @@ const PrintScreen = () => {
           };
         })
       );
-
-      return formattedData;
     };
 
     // IIFE (Immediately Invoked Function Expression) to handle the async operation

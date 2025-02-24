@@ -24,10 +24,10 @@ export default function Store() {
   const [active, setActive] = useState(0);
   const ActiveComponent = COMPONENTS[active] || StoreProducts;
   const { width } = useWindowDimensions();
-  const isMid = width < 768;
   const isSmall = width < 425;
+  const isMid = !isSmall && width < 768;
 
-  const finalWidth = isSmall ? '100%' : isMid ? '100%' : '80%';
+  const finalWidth = isSmall || isMid ? '100%' : '80%';
   return (
     <Container>
       <View flex={1} width={finalWidth} mx="auto">

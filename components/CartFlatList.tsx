@@ -1,29 +1,28 @@
 /* eslint-disable prettier/prettier */
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Q } from '@nozbe/watermelondb';
-import { useQueryClient } from '@tanstack/react-query';
-import { router } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
-import { useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Alert, FlatList, useWindowDimensions } from 'react-native';
-import { View, XStack } from 'tamagui';
-import { z } from 'zod';
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Q } from "@nozbe/watermelondb";
+import { useQueryClient } from "@tanstack/react-query";
+import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import { useMemo } from "react";
+import { useForm } from "react-hook-form";
+import { Alert, FlatList, useWindowDimensions } from "react-native";
+import { View, XStack } from "tamagui";
+import { z } from "zod";
 
-import { ExtraDataForm } from './ExtraDataForm';
-import { AnimatedCard } from './ui/AnimatedCard';
-import { FlexText } from './ui/FlexText';
-import { MyButton } from './ui/MyButton';
-import { Empty } from './ui/empty';
+import { ExtraDataForm } from "./ExtraDataForm";
+import { AnimatedCard } from "./ui/AnimatedCard";
+import { FlexText } from "./ui/FlexText";
+import { MyButton } from "./ui/MyButton";
+import { Empty } from "./ui/empty";
 
-import database, { cartItems, products, saleReferences } from '~/db';
-import CartItem from '~/db/model/CartItems';
-import { useSalesRef } from '~/hooks/useSalesRef';
-import { trimText } from '~/lib/helper';
-import { useCart } from '~/lib/tanstack/mutations';
-import { extraDataSchema } from '~/lib/validators';
-import { useShowToast } from '~/lib/zustand/useShowToast';
-import { ExtraSalesType } from '~/type';
+import database, { cartItems, products, saleReferences } from "~/db";
+import CartItem from "~/db/model/CartItems";
+import { trimText } from "~/lib/helper";
+import { useCart } from "~/lib/tanstack/mutations";
+import { extraDataSchema } from "~/lib/validators";
+import { useShowToast } from "~/lib/zustand/useShowToast";
+import { ExtraSalesType } from "~/type";
 
 type Props = {
   data: CartItem[];
@@ -32,11 +31,11 @@ type Props = {
 export const CartFlatList = ({ data }: Props) => {
   const { mutateAsync, isError } = useCart();
 
-  const [ref, setRef] = useState('');
+
   const queryClient = useQueryClient();
   const { width } = useWindowDimensions();
-  const salesRefs = useSalesRef((state) => state.saleRefs);
-  const refToPrint = salesRefs.find((r) => r === ref);
+
+
   const {
     formState: { errors, isSubmitting },
     reset,
@@ -62,7 +61,8 @@ export const CartFlatList = ({ data }: Props) => {
     };
     await mutateAsync({ data, extraData });
     queryClient.invalidateQueries({ queryKey: ['product_all'] });
-    setRef(data[0].salesReference);
+
+    router.push(`/print?ref=${data[0].salesReference}`)
     if (!isError) {
       reset();
     }
@@ -138,13 +138,7 @@ export const CartFlatList = ({ data }: Props) => {
             flex={1}
           />
         </XStack>
-        {refToPrint && (
-          <MyButton
-            title="Print"
-            height={60}
-            onPress={() => router.push(`/print?ref=${refToPrint}`)}
-          />
-        )}
+
       </View>
     </View>
   );

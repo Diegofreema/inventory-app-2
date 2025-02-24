@@ -48,6 +48,7 @@ import { useProductUpdateQty } from '~/lib/zustand/updateProductQty';
 import { useProductUpdatePrice } from '~/lib/zustand/useProductUpdatePrice';
 import { useShowToast } from '~/lib/zustand/useShowToast';
 import { ExtraSalesType, SupplyInsert } from '~/type';
+import { useGetRef } from "~/lib/zustand/useSaleRef";
 
 export const useAddNewProduct = () => {
   const storeId = useStore((state) => state.id);
@@ -93,7 +94,7 @@ export const useAddNewProduct = () => {
         productId,
         description: des,
       });
-      console.log(createdProduct);
+
       if (!createdProduct) throw Error('Failed to add product');
       const createdSupply = await database.write(async () => {
         return await supplyProduct.create((supply) => {
@@ -381,6 +382,7 @@ export const useCart = () => {
 export const useAddSales = () => {
   const queryClient = useQueryClient();
   const toast = useShowToast((state) => state.onShow);
+  const getSalesRef = useGetRef(state => state.getSaleRef)
   return useMutation({
     mutationFn: async ({
       productId,
@@ -413,6 +415,7 @@ export const useAddSales = () => {
       }
 
       SecureStore.setItem('salesRef', ref);
+      getSalesRef(ref)
       await database.write(async () => {
         await cartItems.create((item) => {
           item.productId = productId;

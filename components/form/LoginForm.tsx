@@ -79,22 +79,8 @@ export const LoginForm = (): JSX.Element => {
     }
   };
 
-  // const fetchData = async () => {
-  //   sending = true;
-  // try {
-  //   const { data } = await axios('https://247api.netpro.software/api.aspx?api=getproducts&cidx=27');
-  //   console.log(Array.isArray(data));
-  //
-  //
-  //   console.log(data, 'kslkj');
-  //   console.log(typeof data, 'kslkj');
-  //   console.log(data[0]);
-  // }catch (e) {
-  //   console.log(e);
-  // }finally {
-  //   sending = false;
-  // }
-  // };
+
+
   const onStaffLogin = async (values: z.infer<typeof loginSchema>) => {
     setLoading(true);
     try {

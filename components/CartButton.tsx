@@ -1,17 +1,25 @@
 /* eslint-disable prettier/prettier */
 
-import { withObservables } from '@nozbe/watermelondb/react';
-import { ShoppingCart } from '@tamagui/lucide-icons';
-import { StyleSheet } from 'react-native';
-import { View } from 'tamagui';
+import { withObservables } from "@nozbe/watermelondb/react";
+import { ShoppingCart } from "@tamagui/lucide-icons";
+import { StyleSheet } from "react-native";
+import { View } from "tamagui";
 
-import { CustomPressable } from './ui/CustomPressable';
-import { CustomSubHeading } from './ui/typography';
+import { CustomPressable } from "./ui/CustomPressable";
+import { CustomSubHeading } from "./ui/typography";
 
-import { colors } from '~/constants';
-import { cartItems } from '~/db';
+import { colors } from "~/constants";
+import { cartItems } from "~/db";
+import CartItem from "~/db/model/CartItems";
+import { useGetRef } from "~/lib/zustand/useSaleRef";
 
-const CartButton = ({ qty, onPress }: { qty: number; onPress: () => void }) => {
+const CartButton = ({ cartItems, onPress}: { cartItems: CartItem[]; onPress: () => void,  }) => {
+
+const salesRef = useGetRef(state => state.saleRef)
+const data = cartItems.filter(c => c.salesReference === salesRef)
+  console.log({salesRef});
+  console.log(cartItems.map(m => m.salesReference));
+  // }
   return (
     <CustomPressable onPress={onPress} style={styles.cart}>
       <View
@@ -24,7 +32,7 @@ const CartButton = ({ qty, onPress }: { qty: number; onPress: () => void }) => {
         right={0}
         justifyContent="center"
         alignItems="center">
-        <CustomSubHeading text={qty} fontSize={1.5} color={colors.white} />
+        <CustomSubHeading text={data.length} fontSize={1.5} color={colors.white} />
       </View>
       <ShoppingCart color={colors.white} size={30} />
     </CustomPressable>
@@ -32,7 +40,7 @@ const CartButton = ({ qty, onPress }: { qty: number; onPress: () => void }) => {
 };
 
 const enhanced = withObservables([], () => ({
-  qty: cartItems.query().observeCount(),
+  cartItems: cartItems.query().observe(),
 }));
 
 const EnhancedCartButton = enhanced(CartButton);

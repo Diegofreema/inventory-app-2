@@ -36,6 +36,7 @@ import { useAddSales } from '~/lib/tanstack/mutations';
 import { useAllProducts, useSalesRef } from '~/lib/tanstack/queries';
 import { addToCart } from '~/lib/validators';
 import { useShowToast } from '~/lib/zustand/useShowToast';
+import { useGetRef } from "~/lib/zustand/useSaleRef";
 
 const { height, width } = Dimensions.get('window');
 export default function AddOfflineScreen() {
@@ -258,15 +259,16 @@ export default function AddOfflineScreen() {
           </View>
         </Stack>
       </CustomScroll>
-      <EnhancedCartButton onPress={onPress} />
+      <EnhancedCartButton onPress={onPress}  />
     </Container>
   );
 }
 
 const SalesRefFlatList = ({ data }: { data: SaleReference[] }) => {
   const queryClient = useQueryClient();
-
+  const getRef = useGetRef(state => state.getSaleRef)
   const onPress = async (salesRef: string) => {
+
     try {
       await database.write(async () => {
         const item = await saleReferences.find(salesRef);
@@ -274,6 +276,7 @@ const SalesRefFlatList = ({ data }: { data: SaleReference[] }) => {
           ref.isActive = true;
         });
         SecureStore.setItem('salesRef', item.saleReference);
+        getRef(item.saleReference)
         const items = await saleReferences.query(Q.where('id', Q.notEq(salesRef))).fetch();
 
         for (const i of items) {
